@@ -116,7 +116,7 @@ function Matrizes() {
   );
 }
 
-type Row = { s: Sow; lastB?: { id: string; breeding_date: string; pregnancy_check: string; expected_farrowing: string | null }; lastL?: { farrowing_date: string }; parity: number };
+type Row = { s: Sow; lastB?: { id: string; breeding_date: string; pregnancy_check: string; expected_farrowing: string | null } | undefined; lastL?: { farrowing_date: string } | undefined; parity: number };
 
 function SowCard({ r, onDone }: { r: Row; onDone: () => void }) {
   return (
@@ -161,7 +161,7 @@ function NewSow({ onDone }: { onDone: () => void }) {
             birth_date: String(f.get("birth_date") || "") || null, status: String(f.get("status")),
           });
           setBusy(false);
-          if (error) return toast.error(error.message);
+          if (error) { toast.error(error.message); return; }
           toast.success("Matriz cadastrada"); onDone(); close();
         }}>
           <Field label="Brinco *"><Input name="ear_tag" required className="h-11" /></Field>
@@ -187,7 +187,7 @@ function NewBreeding({ sow, onDone }: { sow: Sow; onDone: () => void }) {
           const { error } = await supabase.from("breedings").insert({ sow_id: sow.id, breeding_date: String(f.get("date")), boar: String(f.get("boar") || "") || null });
           if (!error) await supabase.from("sows").update({ status: "coberta" }).eq("id", sow.id);
           setBusy(false);
-          if (error) return toast.error(error.message);
+          if (error) { toast.error(error.message); return; }
           toast.success("Cobertura registrada · parto estimado em 114 dias"); onDone(); close();
         }}>
           <Field label="Data da cobertura"><Input name="date" type="date" required defaultValue={todayISO()} className="h-11" /></Field>
@@ -203,7 +203,7 @@ function PregCheck({ sow, breedingId, onDone }: { sow: Sow; breedingId: string; 
   async function set(result: "positivo" | "negativo") {
     const { error } = await supabase.from("breedings").update({ pregnancy_check: result }).eq("id", breedingId);
     if (!error) await supabase.from("sows").update({ status: result === "positivo" ? "gestante" : "vazia" }).eq("id", sow.id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success(`Diagnóstico ${result}`); onDone();
   }
   return (
@@ -234,7 +234,7 @@ function NewLitter({ sow, onDone }: { sow: Sow; onDone: () => void }) {
           });
           if (!error) await supabase.from("sows").update({ status: "lactante" }).eq("id", sow.id);
           setBusy(false);
-          if (error) return toast.error(error.message);
+          if (error) { toast.error(error.message); return; }
           toast.success("Parto registrado"); onDone(); close();
         }}>
           <Field label="Data do parto"><Input name="date" type="date" required defaultValue={todayISO()} className="h-11" /></Field>

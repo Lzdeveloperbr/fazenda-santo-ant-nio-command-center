@@ -54,19 +54,19 @@
 /* Command-center dark palette (default) */
 :root {
   --radius: 0.5rem;
-  --background: oklch(0.145 0.025 155);      /* deep forest */
-  --card: oklch(0.205 0.03 155);            /* forest surface */
-  --panel: oklch(0.175 0.025 155);           /* sidebar surface */
-  --foreground: oklch(0.965 0.012 105);      /* warm white */
+  --background: oklch(0.135 0.008 255);      /* #07090D */
+  --card: oklch(0.205 0.015 255);            /* #151C26 */
+  --panel: oklch(0.175 0.012 255);           /* #10151D */
+  --foreground: oklch(0.973 0.007 250);      /* #F3F7FC */
   --card-foreground: var(--foreground);
   --popover: var(--card);
   --popover-foreground: var(--foreground);
-  --muted: oklch(0.25 0.025 155);
-  --muted-foreground: oklch(0.69 0.025 145); /* sage */
-  --primary: oklch(0.73 0.16 145);           /* leaf green */
+  --muted: oklch(0.24 0.015 255);
+  --muted-foreground: oklch(0.65 0.025 255); /* #8794A6 */
+  --primary: oklch(0.72 0.17 152);           /* #24C875 */
   --primary-foreground: oklch(0.15 0.02 152);
-  --ok: oklch(0.73 0.16 145);
-  --ok-glow: oklch(0.86 0.16 145);           /* fresh green */
+  --ok: oklch(0.72 0.17 152);
+  --ok-glow: oklch(0.89 0.18 152);           /* #6DFF9B */
   --info: oklch(0.74 0.14 237);              /* #49B9FF */
   --cyan: oklch(0.84 0.11 197);              /* #5CE1E6 */
   --warn: oklch(0.82 0.14 70);               /* #FFB454 */
@@ -74,9 +74,9 @@
   --destructive-foreground: var(--foreground);
   --secondary: oklch(0.24 0.015 255);
   --secondary-foreground: var(--foreground);
-  --accent: oklch(0.29 0.035 150);
+  --accent: oklch(0.26 0.02 255);
   --accent-foreground: var(--foreground);
-  --border: oklch(0.8 0.04 145 / 13%);
+  --border: oklch(1 0 0 / 9%);
   --input: oklch(1 0 0 / 12%);
   --ring: oklch(0.74 0.14 237);
   --chart-1: var(--ok);
@@ -92,7 +92,7 @@
   --sidebar-accent-foreground: var(--foreground);
   --sidebar-border: var(--border);
   --sidebar-ring: var(--ring);
-  --grid-line: oklch(0.8 0.08 145 / 4%);
+  --grid-line: oklch(1 0 0 / 3.5%);
   --shadow-panel: 0 1px 0 oklch(1 0 0 / 5%) inset, 0 20px 40px -24px oklch(0 0 0 / 70%);
   --glow-ok: 0 0 12px color-mix(in oklab, var(--ok-glow) 60%, transparent);
 }
@@ -173,17 +173,4 @@
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
-}
-
-
-/* Suinocultura workspace refinements */
-@layer base {
-  button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
-  ::selection { background: color-mix(in oklab, var(--primary) 35%, transparent); }
-}
-@utility farm-surface {
-  background: linear-gradient(145deg, color-mix(in oklab, var(--card) 96%, white 4%), var(--panel));
-  border: 1px solid var(--border);
-  border-radius: 1rem;
-  box-shadow: 0 18px 45px -32px oklch(0 0 0 / 80%);
 }

@@ -5,7 +5,6 @@ import type { Database } from "@/integrations/supabase/types";
 export type Sow = Database["public"]["Tables"]["sows"]["Row"];
 export type Breeding = Database["public"]["Tables"]["breedings"]["Row"];
 export type Litter = Database["public"]["Tables"]["litters"]["Row"];
-export type LitterEvent = Database["public"]["Tables"]["litter_events"]["Row"];
 export type Task = Database["public"]["Tables"]["tasks"]["Row"];
 
 export const SOW_STATUS: Record<string, { label: string; tone: string }> = {
@@ -62,10 +61,6 @@ export const breedingsQuery = queryOptions({
 export const littersQuery = queryOptions({
   queryKey: ["litters"],
   queryFn: () => unwrap<Litter[]>(supabase.from("litters").select("*").order("farrowing_date", { ascending: false })),
-});
-export const litterEventsQuery = queryOptions({
-  queryKey: ["litter_events"],
-  queryFn: () => unwrap<LitterEvent[]>(supabase.from("litter_events").select("*").order("event_date", { ascending: false })),
 });
 export const tasksQuery = queryOptions({
   queryKey: ["tasks"],
