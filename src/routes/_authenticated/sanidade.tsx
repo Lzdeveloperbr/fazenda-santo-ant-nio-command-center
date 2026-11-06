@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 const db = supabase as any;
-const batchesQuery = { queryKey: ["production_batches"], queryFn: async () => { const { data, error } = await db.from("production_batches").select("id,name,phase").eq("status","ativo").order("name"); if (error) throw error; return data ?? []; } };
+const batchesQuery = { queryKey: ["production_batches"], queryFn: async () => { const { data, error } = await db.from("production_batches").select("id,name,phase").order("name"); if (error) throw error; return data ?? []; } };
 const healthQuery = { queryKey: ["health_records"], queryFn: async () => {
  const {data,error}=await db.from("health_records").select("*").order("record_date",{ascending:false});
  if(error)throw error;return data??[];
@@ -25,7 +25,7 @@ function Sanidade(){
  const qc=useQueryClient();const q=useQuery(healthQuery);const sows=useQuery(sowsQuery);const litters=useQuery(littersQuery);const batches=useQuery(batchesQuery);
  const [search,setSearch]=useState("");const refresh=()=>qc.invalidateQueries({queryKey:["health_records"]});
  const sowName=(id:string|null)=>sows.data?.find(s=>s.id===id)?.ear_tag??"Matriz";
- const litterName=(id:string|null)=>{const l=litters.data?.find(x=>x.id===id);return l?"Leitegada · "+sowName(l.sow_id):"Leitegada";};
+ const litterName=(id:string|null)=>{const l=litters.data?.find(x=>x.id===id);return l?"Leitegada · "+sowName(l.sow_id):"Leitegada";};\n const batchName=(id:string|null)=>batches.data?.find((b:any)=>b.id===id)?.name??"Lote de produção";
  const rows=(q.data??[]).filter((r:any)=>[r.product,r.notes,r.responsible,CATEGORIES[r.category],GROUPS[r.animal_group]].join(" ").toLowerCase().includes(search.toLowerCase()));
  const today=new Date();const withdrawal=rows.filter((r:any)=>r.withdrawal_days>0&&new Date(r.record_date+"T12:00:00").getTime()+r.withdrawal_days*86400000>=new Date(today.toDateString()).getTime()).length;
  return <div className="space-y-6">
@@ -36,7 +36,7 @@ function Sanidade(){
   {q.isLoading?<p className="label-tech">Carregando histórico…</p>:rows.length===0?<Empty>Nenhum registro sanitário encontrado. Adicione a primeira vacinação, medicação ou ocorrência.</Empty>:
    <div className="space-y-3">{rows.map((r:any)=><article key={r.id} className="farm-surface p-4">
     <div className="flex flex-wrap items-start justify-between gap-2"><div><p className="label-tech">{CATEGORIES[r.category]??r.category} · {GROUPS[r.animal_group]??r.animal_group}</p><h3 className="mt-1 font-semibold">{r.product||"Registro sanitário"}</h3></div><span className="font-mono text-xs text-muted-foreground">{new Date(r.record_date+"T12:00:00").toLocaleDateString("pt-BR")}</span></div>
-    <p className="mt-2 text-sm text-muted-foreground">{r.animal_group==="matriz"?sowName(r.sow_id):r.animal_group==="leitegada"?litterName(r.litter_id):r.animal_group==="lote"?"Lote de produção":"Reprodutor"}</p>
+    <p className="mt-2 text-sm text-muted-foreground">{r.animal_group==="matriz"?sowName(r.sow_id):r.animal_group==="leitegada"?litterName(r.litter_id):r.animal_group==="lote"?batchName(r.batch_id):"Reprodutor"}</p>
     <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">{r.dosage&&<span>Dose: {r.dosage}</span>}{r.responsible&&<span>Responsável: {r.responsible}</span>}{r.withdrawal_days>0&&<span className="text-warn">Carência: {r.withdrawal_days} dias</span>}</div>
     {r.notes&&<p className="mt-2 whitespace-pre-wrap text-sm">{r.notes}</p>}
    </article>)}</div>}
