@@ -15,6 +15,7 @@ function Painel() {
   const sows = useQuery(sowsQuery);
   const breedings = useQuery(breedingsQuery);
   const litters = useQuery(littersQuery);
+  const litterEvents = useQuery(litterEventsQuery);
   const tasks = useQuery(tasksQuery);
   const today = todayISO();
   const in7 = addDaysISO(today, 7);
