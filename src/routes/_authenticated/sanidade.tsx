@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 const db = supabase as any;
+const batchesQuery = { queryKey: ["production_batches"], queryFn: async () => { const { data, error } = await db.from("production_batches").select("id,name,phase").eq("status","ativo").order("name"); if (error) throw error; return data ?? []; } };
 const healthQuery = { queryKey: ["health_records"], queryFn: async () => {
  const {data,error}=await db.from("health_records").select("*").order("record_date",{ascending:false});
  if(error)throw error;return data??[];
@@ -21,7 +22,7 @@ const GROUPS:Record<string,string>={matriz:"Matriz",leitegada:"Leitegada",lote:"
 export const Route=createFileRoute("/_authenticated/sanidade")({head:()=>({meta:[{title:"Sanidade | Fazenda Santo Antônio"}]}),component:Sanidade});
 
 function Sanidade(){
- const qc=useQueryClient();const q=useQuery(healthQuery);const sows=useQuery(sowsQuery);const litters=useQuery(littersQuery);
+ const qc=useQueryClient();const q=useQuery(healthQuery);const sows=useQuery(sowsQuery);const litters=useQuery(littersQuery);const batches=useQuery(batchesQuery);const batches=useQuery(batchesQuery);
  const [search,setSearch]=useState("");const refresh=()=>qc.invalidateQueries({queryKey:["health_records"]});
  const sowName=(id:string|null)=>sows.data?.find(s=>s.id===id)?.ear_tag??"Matriz";
  const litterName=(id:string|null)=>{const l=litters.data?.find(x=>x.id===id);return l?"Leitegada · "+sowName(l.sow_id):"Leitegada";};
@@ -50,7 +51,7 @@ function NewHealth({onDone}:{onDone:()=>void}){
  <div className="grid grid-cols-2 gap-3"><Field label="Tipo de registro"><select name="category" className={selectCls}>{Object.entries(CATEGORIES).map(([k,v])=><option key={k} value={k}>{v}</option>)}</select></Field><Field label="Categoria animal"><select value={group} onChange={e=>setGroup(e.target.value)} className={selectCls}><option value="matriz">Matriz</option><option value="leitegada">Leitegada</option><option value="lote">Lote</option><option value="reprodutor">Reprodutor</option></select></Field></div>
  {group==="matriz"&&<Field label="Matriz"><select name="animal" required className={selectCls}><option value="">Selecione</option>{(sows.data??[]).map(s=><option key={s.id} value={s.id}>{s.ear_tag} {s.name??""}</option>)}</select></Field>}
  {group==="leitegada"&&<Field label="Leitegada"><select name="animal" required className={selectCls}><option value="">Selecione</option>{(litters.data??[]).map(l=><option key={l.id} value={l.id}>{l.farrowing_date} · {sows.data?.find(s=>s.id===l.sow_id)?.ear_tag??"Matriz"}</option>)}</select></Field>}
- {group==="lote"&&<Field label="ID / identificação do lote"><Input name="animal" required className="h-11" placeholder="Informe o ID do lote"/></Field>}
+ {group==="lote"&&<Field label="Lote"><select name="animal" required className={selectCls}><option value="">Selecione</option>{(batches.data??[]).map((b:any)=><option key={b.id} value={b.id}>{b.name} · {b.phase}</option>)}</select></Field>}
  <Field label="Produto / vacina / medicamento"><Input name="product" className="h-11"/></Field>
  <div className="grid grid-cols-2 gap-3"><Field label="Dose / via"><Input name="dosage" className="h-11" placeholder="Conforme bula"/></Field><Field label="Carência (dias)"><Input name="withdrawal" type="number" min="0" defaultValue="0" className="h-11"/></Field></div>
  <Field label="Responsável"><Input name="responsible" className="h-11"/></Field>
