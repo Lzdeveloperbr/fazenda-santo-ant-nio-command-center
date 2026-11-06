@@ -8,6 +8,20 @@
       "when": 1793290150595,
       "tag": "0000_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794000000000,
+      "tag": "0001_suinocultura_operacao",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794008887678,
+      "tag": "0002_pesagens_lotes",
+      "breakpoints": true
     }
   ]
 }
