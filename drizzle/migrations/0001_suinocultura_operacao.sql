@@ -116,7 +116,7 @@ for each row execute function public.apply_feed_movement();
 
 do $$ declare t text; begin
   foreach t in array array['production_batches','health_records','feed_products','feed_movements','batch_events'] loop
-    if t = 'feed_movements' or t = 'batch_events' then
+    if t = 'feed_movements' or t = 'batch_events' or t = 'health_records' then
       execute format('grant select, insert on public.%I to authenticated', t);
     else
       execute format('grant select, insert, update, delete on public.%I to authenticated', t);
@@ -128,6 +128,8 @@ do $$ declare t text; begin
 end $$;
 
 revoke update on public.feed_products from authenticated;
+revoke update on public.production_batches from authenticated;
+grant update (name, phase, entry_date, origin, pen, status, notes) on public.production_batches to authenticated;
 grant update (name, feed_stage, unit, minimum_stock, cost_per_unit, supplier, notes) on public.feed_products to authenticated;
 
 create index batch_events_batch_date_idx on public.batch_events(batch_id, event_date desc);
