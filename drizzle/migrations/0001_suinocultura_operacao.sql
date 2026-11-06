@@ -12,7 +12,7 @@ create table public.production_batches (
   pen text,
   status text not null default 'ativo' check (status in ('ativo','encerrado')),
   notes text,
-  created_at timestamptz not null default now(),
+  created_at timestamptz not null default now()
 );
 
 create table public.batch_events (
@@ -28,7 +28,7 @@ create table public.batch_events (
 
 create or replace function public.apply_batch_event()
 returns trigger language plpgsql security definer set search_path = public
-as $
+as $function$
 declare
   delta integer;
 begin
@@ -40,7 +40,7 @@ begin
     raise exception 'Quantidade inválida: o lote não pode ficar com saldo negativo';
   end if;
   return new;
-end $;
+end $function$;
 
 create trigger on_batch_event after insert on public.batch_events
 for each row execute function public.apply_batch_event();
