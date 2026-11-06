@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend } from "recharts";
 import { PiggyBank, HeartPulse, CalendarClock, Baby, Sprout, Skull, ArrowUpRight, CalendarDays, Activity, ClipboardCheck, Clock3, Layers3, Wheat } from "lucide-react";
 import { Kpi, SectionTitle, Empty } from "@/components/farm/Kpi";
-import { sowsQuery, breedingsQuery, littersQuery, tasksQuery, livePiglets, todayISO, addDaysISO, fmtDate, PRIORITY } from "@/lib/farm";
+import { sowsQuery, breedingsQuery, littersQuery, litterEventsQuery, tasksQuery, livePiglets, todayISO, addDaysISO, fmtDate, PRIORITY } from "@/lib/farm";
 
 export const Route = createFileRoute("/_authenticated/painel")({
   head: () => ({ meta: [{ title: "Visão geral | Fazenda Santo Antônio" }, { name: "description", content: "Painel de manejo e indicadores da suinocultura." }] }),
@@ -18,11 +18,11 @@ function Painel() {
   const tasks = useQuery(tasksQuery);
   const today = todayISO();
   const in7 = addDaysISO(today, 7);
-  const loading = sows.isLoading || breedings.isLoading || litters.isLoading || tasks.isLoading;
-  const failed = sows.isError || breedings.isError || litters.isError || tasks.isError;
+  const loading = sows.isLoading || breedings.isLoading || litters.isLoading || litterEvents.isLoading || tasks.isLoading;
+  const failed = sows.isError || breedings.isError || litters.isError || litterEvents.isError || tasks.isError;
 
   const s = useMemo(() => {
-    const S = sows.data ?? [], B = breedings.data ?? [], L = litters.data ?? [], T = tasks.data ?? [];
+    const S = sows.data ?? [], B = breedings.data ?? [], L = litters.data ?? [], E = litterEvents.data ?? [], T = tasks.data ?? [];
     const active = S.filter((x) => x.status !== "descartada");
     const latestBySow = new Map<string, (typeof B)[number]>();
     for (const b of B) if (!latestBySow.has(b.sow_id)) latestBySow.set(b.sow_id, b);
@@ -35,7 +35,7 @@ function Painel() {
     const overdue = openTasks.filter((t) => t.due_date && t.due_date < today);
     const month = today.slice(0, 7);
     const monthLitters = L.filter((l) => l.farrowing_date.startsWith(month));
-    const deathsMonth = monthLitters.reduce((a, l) => a + l.deaths, 0);
+    const deathsMonth = E.filter((e) => e.event_type === "morte" && e.event_date.startsWith(month)).reduce((a, e) => a + e.quantity, 0);
     const bornMonth = monthLitters.reduce((a, l) => a + l.born_alive + l.stillborn, 0);
     const byMonth = new Map<string, { m: string; vivos: number; natimortos: number; desmamados: number }>();
     for (const l of [...L].reverse()) {
@@ -54,7 +54,7 @@ function Painel() {
       sowName: (id: string) => S.find((x) => x.id === id)?.ear_tag ?? "Sem brinco",
       recent: [...L].slice(0, 5),
     };
-  }, [sows.data, breedings.data, litters.data, tasks.data, today, in7]);
+  }, [sows.data, breedings.data, litters.data, litterEvents.data, tasks.data, today, in7]);
 
   if (loading) return <div className="farm-surface p-8 text-center text-sm text-muted-foreground">Carregando indicadores do rebanho…</div>;
 
