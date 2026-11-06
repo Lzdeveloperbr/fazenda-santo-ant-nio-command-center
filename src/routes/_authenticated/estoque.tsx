@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 const db=supabase as any;
+const batchesQuery={queryKey:["production_batches"],queryFn:async()=>{const {data,error}=await db.from("production_batches").select("id,name,phase").eq("status","ativo").order("name");if(error)throw error;return data??[];}};
 const stockQuery={queryKey:["feed_products"],queryFn:async()=>{const {data,error}=await db.from("feed_products").select("*").order("name");if(error)throw error;return data??[];}};
 const movementsQuery={queryKey:["feed_movements"],queryFn:async()=>{const {data,error}=await db.from("feed_movements").select("*, feed_products(name,unit)").order("movement_date",{ascending:false}).limit(30);if(error)throw error;return data??[];}};
 const STAGES:Record<string,string>={pre_inicial:"Pré-inicial",inicial:"Inicial",crescimento:"Crescimento",terminacao:"Terminação",gestacao:"Gestação",lactacao:"Lactação",reprodutor:"Reprodutor",outro:"Outro"};
@@ -52,12 +53,12 @@ function NewProduct({onDone}:{onDone:()=>void}){
 }
 
 function Movement({product,type,onDone}:{product:any;type:"entrada"|"saida";onDone:()=>void}){
- const [busy,setBusy]=useState(false);
- return <FormDialog title={(type==="entrada"?"Entrada de estoque · ":"Saída de estoque · ")+product.name} trigger={<Button size="sm" variant={type==="entrada"?"default":"outline"} className="flex-1">{type==="entrada"?<ArrowDownToLine className="mr-1 h-3.5 w-3.5"/>:<ArrowUpFromLine className="mr-1 h-3.5 w-3.5"/>}{type==="entrada"?"Entrada":"Saída"}</Button>}>{close=><form className="space-y-4" onSubmit={async e=>{e.preventDefault();setBusy(true);const f=new FormData(e.currentTarget);const quantity=Number(f.get("quantity"));if(type==="saida"&&quantity>Number(product.current_stock)){setBusy(false);return toast.error("Quantidade maior que o estoque disponível.");}const {error}=await db.from("feed_movements").insert({product_id:product.id,movement_type:type,quantity,movement_date:String(f.get("date")),unit_cost:type==="entrada"&&f.get("cost")?Number(f.get("cost")):null,notes:String(f.get("notes")||"")||null});setBusy(false);if(error)return toast.error(error.message);toast.success(type==="entrada"?"Entrada registrada":"Saída registrada");onDone();close();}}>
+ const [busy,setBusy]=useState(false);const batches=useQuery(batchesQuery);
+ return <FormDialog title={(type==="entrada"?"Entrada de estoque · ":"Saída de estoque · ")+product.name} trigger={<Button size="sm" variant={type==="entrada"?"default":"outline"} className="flex-1">{type==="entrada"?<ArrowDownToLine className="mr-1 h-3.5 w-3.5"/>:<ArrowUpFromLine className="mr-1 h-3.5 w-3.5"/>}{type==="entrada"?"Entrada":"Saída"}</Button>}>{close=><form className="space-y-4" onSubmit={async e=>{e.preventDefault();setBusy(true);const f=new FormData(e.currentTarget);const quantity=Number(f.get("quantity"));if(type==="saida"&&quantity>Number(product.current_stock)){setBusy(false);return toast.error("Quantidade maior que o estoque disponível.");}const {error}=await db.from("feed_movements").insert({product_id:product.id,movement_type:type,quantity,movement_date:String(f.get("date")),batch_id:String(f.get("batch")||"")||null,unit_cost:type==="entrada"&&f.get("cost")?Number(f.get("cost")):null,notes:String(f.get("notes")||"")||null});setBusy(false);if(error)return toast.error(error.message);toast.success(type==="entrada"?"Entrada registrada":"Saída registrada");onDone();close();}}>
  <p className="text-sm text-muted-foreground">Saldo atual: <strong className="text-foreground">{Number(product.current_stock).toLocaleString("pt-BR")} {product.unit}</strong></p>
  <Field label={"Quantidade ("+product.unit+")"}><Input name="quantity" type="number" min="0.01" step="0.01" required className="h-11"/></Field>
  <Field label="Data"><Input name="date" type="date" defaultValue={todayISO()} required className="h-11"/></Field>
- {type==="entrada"&&<Field label="Custo unitário (R$)"><Input name="cost" type="number" min="0" step="0.01" className="h-11"/></Field>}
+ {type==="entrada"&&<Field label="Custo unitário (R$)"><Input name="cost" type="number" min="0" step="0.01" className="h-11"/></Field>}\n <Field label="Lote relacionado (opcional)"><select name="batch" className={selectCls}><option value="">Sem vínculo</option>{(batches.data??[]).map((b:any)=><option key={b.id} value={b.id}>{b.name} · {b.phase}</option>)}</select></Field>
  <Field label="Observação"><Input name="notes" className="h-11"/></Field><SubmitRow busy={busy} label="Confirmar movimentação"/>
  </form>}</FormDialog>;
 }
