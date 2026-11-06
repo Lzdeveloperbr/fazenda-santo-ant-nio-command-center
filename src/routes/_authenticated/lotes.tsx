@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Plus, Users, Archive, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SectionTitle, Empty } from "@/components/farm/Kpi";
+import { todayISO } from "@/lib/farm";
 import { FormDialog, SubmitRow, Field, selectCls } from "@/components/farm/FormDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,7 +58,7 @@ function NewBatch({onDone}:{onDone:()=>void}) {
  return <FormDialog title="Cadastrar lote" trigger={<Button className="h-10"><Plus className="mr-1 h-4 w-4"/>Novo lote</Button>}>{close=><form className="space-y-4" onSubmit={async e=>{e.preventDefault();setBusy(true);const f=new FormData(e.currentTarget);const n=Number(f.get("heads"));const {error}=await db.from("production_batches").insert({name:String(f.get("name")),phase:String(f.get("phase")),entry_date:String(f.get("date")),initial_headcount:n,current_headcount:n,pen:String(f.get("pen")||"")||null,origin:String(f.get("origin")||"")||null,notes:String(f.get("notes")||"")||null});setBusy(false);if(error)return toast.error(error.message);toast.success("Lote cadastrado");onDone();close();}}>
  <Field label="Identificação do lote"><Input name="name" required className="h-11" placeholder="Ex.: Lote 01 - Novembro"/></Field>
  <Field label="Fase"><select name="phase" className={selectCls}><option value="creche">Creche</option><option value="crescimento">Crescimento</option><option value="terminacao">Terminação</option><option value="reprodutores">Reprodutores</option><option value="quarentena">Quarentena</option></select></Field>
- <div className="grid grid-cols-2 gap-3"><Field label="Data de entrada"><Input name="date" type="date" required defaultValue={new Date().toISOString().slice(0,10)} className="h-11"/></Field><Field label="Quantidade inicial"><Input name="heads" type="number" min="0" required className="h-11"/></Field></div>
+ <div className="grid grid-cols-2 gap-3"><Field label="Data de entrada"><Input name="date" type="date" required defaultValue={todayISO()} className="h-11"/></Field><Field label="Quantidade inicial"><Input name="heads" type="number" min="0" required className="h-11"/></Field></div>
  <div className="grid grid-cols-2 gap-3"><Field label="Baia / instalação"><Input name="pen" className="h-11"/></Field><Field label="Origem"><Input name="origin" className="h-11"/></Field></div>
  <Field label="Observações"><Input name="notes" className="h-11"/></Field><SubmitRow busy={busy} label="Salvar lote"/>
  </form>}</FormDialog>;
@@ -69,7 +70,7 @@ function AdjustHeads({batch,onDone}:{batch:any;onDone:()=>void}) {
  <p className="text-sm text-muted-foreground">Saldo atual: <strong className="text-foreground">{batch.current_headcount} animais</strong></p>
  <Field label="Tipo de movimentação"><select name="type" className={selectCls}><option value="morte">Mortalidade</option><option value="entrada">Entrada de animais</option><option value="saida">Saída / transferência</option></select></Field>
  <Field label="Quantidade"><Input name="quantity" type="number" min="1" required className="h-11"/></Field>
- <Field label="Data"><Input name="date" type="date" defaultValue={new Date().toISOString().slice(0,10)} required className="h-11"/></Field>
+ <Field label="Data"><Input name="date" type="date" defaultValue={todayISO()} required className="h-11"/></Field>
  <Field label="Observação"><Input name="notes" className="h-11"/></Field>
  <p className="text-xs text-muted-foreground">O saldo será atualizado automaticamente pelo registro de movimentação. O histórico não poderá ser apagado pela tela de estoque.</p>
  <SubmitRow busy={busy} label="Registrar movimentação"/>
