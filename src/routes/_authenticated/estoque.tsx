@@ -58,7 +58,8 @@ function Movement({product,type,onDone}:{product:any;type:"entrada"|"saida";onDo
  <p className="text-sm text-muted-foreground">Saldo atual: <strong className="text-foreground">{Number(product.current_stock).toLocaleString("pt-BR")} {product.unit}</strong></p>
  <Field label={"Quantidade ("+product.unit+")"}><Input name="quantity" type="number" min="0.01" step="0.01" required className="h-11"/></Field>
  <Field label="Data"><Input name="date" type="date" defaultValue={todayISO()} required className="h-11"/></Field>
- {type==="entrada"&&<Field label="Custo unitário (R$)"><Input name="cost" type="number" min="0" step="0.01" className="h-11"/></Field>}\n <Field label="Lote relacionado (opcional)"><select name="batch" className={selectCls}><option value="">Sem vínculo</option>{(batches.data??[]).map((b:any)=><option key={b.id} value={b.id}>{b.name} · {b.phase}</option>)}</select></Field>
+ {type==="entrada"&&<Field label="Custo unitário (R$)"><Input name="cost" type="number" min="0" step="0.01" className="h-11"/></Field>}
+ <Field label="Lote relacionado (opcional)"><select name="batch" className={selectCls}><option value="">Sem vínculo</option>{(batches.data??[]).map((b:any)=><option key={b.id} value={b.id}>{b.name} · {b.phase}</option>)}</select></Field>
  <Field label="Observação"><Input name="notes" className="h-11"/></Field><SubmitRow busy={busy} label="Confirmar movimentação"/>
  </form>}</FormDialog>;
 }
