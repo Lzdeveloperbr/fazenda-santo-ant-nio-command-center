@@ -25,7 +25,8 @@ function Sanidade(){
  const qc=useQueryClient();const q=useQuery(healthQuery);const sows=useQuery(sowsQuery);const litters=useQuery(littersQuery);const batches=useQuery(batchesQuery);
  const [search,setSearch]=useState("");const refresh=()=>qc.invalidateQueries({queryKey:["health_records"]});
  const sowName=(id:string|null)=>sows.data?.find(s=>s.id===id)?.ear_tag??"Matriz";
- const litterName=(id:string|null)=>{const l=litters.data?.find(x=>x.id===id);return l?"Leitegada · "+sowName(l.sow_id):"Leitegada";};\n const batchName=(id:string|null)=>batches.data?.find((b:any)=>b.id===id)?.name??"Lote de produção";
+ const litterName=(id:string|null)=>{const l=litters.data?.find(x=>x.id===id);return l?"Leitegada · "+sowName(l.sow_id):"Leitegada";};
+ const batchName=(id:string|null)=>batches.data?.find((b:any)=>b.id===id)?.name??"Lote de produção";
  const rows=(q.data??[]).filter((r:any)=>[r.product,r.notes,r.responsible,CATEGORIES[r.category],GROUPS[r.animal_group]].join(" ").toLowerCase().includes(search.toLowerCase()));
  const today=new Date();const withdrawal=rows.filter((r:any)=>r.withdrawal_days>0&&new Date(r.record_date+"T12:00:00").getTime()+r.withdrawal_days*86400000>=new Date(today.toDateString()).getTime()).length;
  return <div className="space-y-6">
