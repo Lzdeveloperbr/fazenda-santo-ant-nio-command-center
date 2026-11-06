@@ -129,6 +129,7 @@ end $$;
 
 revoke update on public.feed_products from authenticated;
 revoke update on public.production_batches from authenticated;
+revoke delete on public.production_batches from authenticated;
 grant update (name, phase, entry_date, origin, pen, status, notes) on public.production_batches to authenticated;
 grant update (name, feed_stage, unit, minimum_stock, cost_per_unit, supplier, notes) on public.feed_products to authenticated;
 
