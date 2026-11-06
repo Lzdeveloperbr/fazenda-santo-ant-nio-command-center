@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Plus, ArrowDownToLine, ArrowUpFromLine, Package, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SectionTitle, Empty } from "@/components/farm/Kpi";
+import { todayISO } from "@/lib/farm";
 import { FormDialog, SubmitRow, Field, selectCls } from "@/components/farm/FormDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,7 +56,7 @@ function Movement({product,type,onDone}:{product:any;type:"entrada"|"saida";onDo
  return <FormDialog title={(type==="entrada"?"Entrada de estoque · ":"Saída de estoque · ")+product.name} trigger={<Button size="sm" variant={type==="entrada"?"default":"outline"} className="flex-1">{type==="entrada"?<ArrowDownToLine className="mr-1 h-3.5 w-3.5"/>:<ArrowUpFromLine className="mr-1 h-3.5 w-3.5"/>}{type==="entrada"?"Entrada":"Saída"}</Button>}>{close=><form className="space-y-4" onSubmit={async e=>{e.preventDefault();setBusy(true);const f=new FormData(e.currentTarget);const quantity=Number(f.get("quantity"));if(type==="saida"&&quantity>Number(product.current_stock)){setBusy(false);return toast.error("Quantidade maior que o estoque disponível.");}const {error}=await db.from("feed_movements").insert({product_id:product.id,movement_type:type,quantity,movement_date:String(f.get("date")),unit_cost:type==="entrada"&&f.get("cost")?Number(f.get("cost")):null,notes:String(f.get("notes")||"")||null});setBusy(false);if(error)return toast.error(error.message);toast.success(type==="entrada"?"Entrada registrada":"Saída registrada");onDone();close();}}>
  <p className="text-sm text-muted-foreground">Saldo atual: <strong className="text-foreground">{Number(product.current_stock).toLocaleString("pt-BR")} {product.unit}</strong></p>
  <Field label={"Quantidade ("+product.unit+")"}><Input name="quantity" type="number" min="0.01" step="0.01" required className="h-11"/></Field>
- <Field label="Data"><Input name="date" type="date" defaultValue={new Date().toISOString().slice(0,10)} required className="h-11"/></Field>
+ <Field label="Data"><Input name="date" type="date" defaultValue={todayISO()} required className="h-11"/></Field>
  {type==="entrada"&&<Field label="Custo unitário (R$)"><Input name="cost" type="number" min="0" step="0.01" className="h-11"/></Field>}
  <Field label="Observação"><Input name="notes" className="h-11"/></Field><SubmitRow busy={busy} label="Confirmar movimentação"/>
  </form>}</FormDialog>;
