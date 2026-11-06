@@ -132,6 +132,15 @@ function Painel() {
         </section>
       </div>
 
+      <section>
+        <SectionTitle kicker="Gestão integrada" title="Módulos da granja" />
+        <div className="grid gap-3 md:grid-cols-3">
+          <ModuleLink to="/lotes" icon={Layers3} title="Lotes por fase" text="Acompanhe creche, crescimento, terminação e movimentações." />
+          <ModuleLink to="/sanidade" icon={HeartPulse} title="Sanidade" text="Histórico de vacinas, medicações, ocorrências e carências." />
+          <ModuleLink to="/estoque" icon={Wheat} title="Estoque de ração" text="Controle entradas, saídas, saldo e alertas de reposição." />
+        </div>
+      </section>
+
       <section className="farm-surface p-4 md:p-5">
         <div className="mb-4 flex items-center justify-between gap-3"><div><p className="label-tech">Rotina operacional</p><h2 className="mt-1 text-lg font-semibold">Próximos manejos</h2></div><Link to="/tarefas" className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">Abrir tarefas <ArrowUpRight className="h-3.5 w-3.5" /></Link></div>
         {s.openTasks.length === 0 ? <Empty>Nenhum manejo pendente cadastrado.</Empty> : (
