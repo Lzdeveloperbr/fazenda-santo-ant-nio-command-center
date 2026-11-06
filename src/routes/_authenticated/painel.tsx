@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend } from "recharts";
-import { PiggyBank, HeartPulse, CalendarClock, Baby, Sprout, Skull, ListChecks, AlertTriangle, ArrowUpRight, CalendarDays, Activity, ClipboardCheck, Clock3 } from "lucide-react";
+import { PiggyBank, HeartPulse, CalendarClock, Baby, Sprout, Skull, ListChecks, AlertTriangle, ArrowUpRight, CalendarDays, Activity, ClipboardCheck, Clock3, Layers3, Wheat } from "lucide-react";
 import { Kpi, SectionTitle, Empty } from "@/components/farm/Kpi";
 import { sowsQuery, breedingsQuery, littersQuery, tasksQuery, livePiglets, todayISO, addDaysISO, fmtDate, PRIORITY } from "@/lib/farm";
 
@@ -146,4 +146,8 @@ function Painel() {
 
 function Quick({ label, value, icon: Icon }: { label: string; value: number; icon: typeof PiggyBank }) {
   return <div className="rounded-2xl border border-border/70 bg-background/45 p-3 backdrop-blur-sm"><div className="flex items-center justify-between gap-2"><p className="text-[0.68rem] text-muted-foreground">{label}</p><Icon className="h-4 w-4 shrink-0 text-primary" /></div><p className="mt-2 font-mono text-2xl font-semibold tabular-nums">{value}</p></div>;
+}
+
+function ModuleLink({to,icon:Icon,title,text}:{to:"/lotes"|"/sanidade"|"/estoque";icon:typeof Layers3;title:string;text:string}) {
+  return <Link to={to} className="farm-surface group flex items-start gap-3 p-4 transition-transform hover:-translate-y-0.5"><span className="rounded-xl bg-primary/10 p-2.5 text-primary"><Icon className="h-5 w-5"/></span><span className="min-w-0 flex-1"><span className="block text-sm font-semibold">{title}</span><span className="mt-1 block text-xs leading-5 text-muted-foreground">{text}</span></span><ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary"/></Link>;
 }
