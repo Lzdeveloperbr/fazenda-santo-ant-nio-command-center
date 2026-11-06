@@ -21,7 +21,7 @@ export const Route=createFileRoute("/_authenticated/estoque")({head:()=>({meta:[
 function Estoque(){
  const qc=useQueryClient();const products=useQuery(stockQuery);const moves=useQuery(movementsQuery);
  const refresh=()=>{qc.invalidateQueries({queryKey:["feed_products"]});qc.invalidateQueries({queryKey:["feed_movements"]});};
- const rows=products.data??[];const low=rows.filter((p:any)=>p.current_stock<=p.minimum_stock);
+ const rows=products.data??[];const low=rows.filter((p:any)=>Number(p.current_stock)<=Number(p.minimum_stock));
  const value=rows.reduce((n:number,p:any)=>n+Number(p.current_stock)*Number(p.cost_per_unit),0);
  return <div className="space-y-6">
   <SectionTitle kicker="Almoxarifado e nutrição" title="Estoque de ração" action={<NewProduct onDone={refresh}/>}/>
