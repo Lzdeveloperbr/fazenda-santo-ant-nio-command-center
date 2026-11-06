@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend } from "recharts";
-import { PiggyBank, HeartPulse, CalendarClock, Baby, Sprout, Skull, ListChecks, AlertTriangle, ArrowUpRight, CalendarDays, Activity, ClipboardCheck, Clock3, Layers3, Wheat } from "lucide-react";
+import { PiggyBank, HeartPulse, CalendarClock, Baby, Sprout, Skull, ArrowUpRight, CalendarDays, Activity, ClipboardCheck, Clock3, Layers3, Wheat } from "lucide-react";
 import { Kpi, SectionTitle, Empty } from "@/components/farm/Kpi";
 import { sowsQuery, breedingsQuery, littersQuery, tasksQuery, livePiglets, todayISO, addDaysISO, fmtDate, PRIORITY } from "@/lib/farm";
 
