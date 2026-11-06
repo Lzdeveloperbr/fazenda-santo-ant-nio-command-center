@@ -77,6 +77,9 @@ export interface FileRoutesByTo {
   '/matrizes': typeof AuthenticatedMatrizesRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
+  '/lotes': typeof AuthenticatedLotesRoute
+  '/sanidade': typeof AuthenticatedSanidadeRoute
+  '/estoque': typeof AuthenticatedEstoqueRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -94,9 +97,9 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/maternidade' | '/matrizes' | '/painel' | '/tarefas'
+    '/' | '/auth' | '/maternidade' | '/matrizes' | '/painel' | '/tarefas' | '/lotes' | '/sanidade' | '/estoque'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/maternidade' | '/matrizes' | '/painel' | '/tarefas'
+  to: '/' | '/auth' | '/maternidade' | '/matrizes' | '/painel' | '/tarefas' | '/lotes' | '/sanidade' | '/estoque'
   id:
     | '__root__'
     | '/'
