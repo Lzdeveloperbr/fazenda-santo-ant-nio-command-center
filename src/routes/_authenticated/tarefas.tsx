@@ -33,13 +33,13 @@ function Tarefas() {
 
   async function complete(t: Task) {
     const { error } = await supabase.from("tasks").update({ status: "concluida", completed_at: new Date().toISOString() }).eq("id", t.id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Tarefa concluída"); refresh();
   }
   async function remove(t: Task) {
     if (!confirm(`Excluir a tarefa “${t.title}”?`)) return;
     const { error } = await supabase.from("tasks").delete().eq("id", t.id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     refresh();
   }
 
@@ -106,7 +106,7 @@ function NewTask({ profiles, onDone }: { profiles: { id: string; display_name: s
             due_date: String(f.get("due") || "") || null, assignee_id: String(f.get("who") || "") || null, sow_id: String(f.get("sow") || "") || null,
           });
           setBusy(false);
-          if (error) return toast.error(error.message);
+          if (error) { toast.error(error.message); return; }
           toast.success("Tarefa criada"); onDone(); close();
         }}>
           <Field label="Tarefa *"><Input name="title" required className="h-11" /></Field>

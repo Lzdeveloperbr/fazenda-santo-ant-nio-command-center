@@ -119,8 +119,8 @@ function EventAction({ a, l, tag, live, onDone }: { a: (typeof ACTIONS)[number];
           e.preventDefault();
           const f = new FormData(e.currentTarget);
           const qty = Number(f.get("qty") || 0);
-          if (a.qty && qty <= 0) return toast.error("Informe a quantidade");
-          if ((a.type === "morte" || a.type === "transferencia_saida") && qty > live) return toast.error(`A leitegada tem ${live} leitões vivos registrados`);
+          if (a.qty && qty <= 0) { toast.error("Informe a quantidade"); return; }
+          if ((a.type === "morte" || a.type === "transferencia_saida") && qty > live) { toast.error(`A leitegada tem ${live} leitões vivos registrados`); return; }
           if (a.confirm && !confirm(`Confirmar ${a.label.toLowerCase()} de ${qty} leitão(ões) na matriz ${tag}?`)) return;
           setBusy(true);
           const { error } = await supabase.from("litter_events").insert({
@@ -129,7 +129,7 @@ function EventAction({ a, l, tag, live, onDone }: { a: (typeof ACTIONS)[number];
           });
           if (!error && a.type === "desmame") await supabase.from("sows").update({ status: "vazia" }).eq("id", l.sow_id);
           setBusy(false);
-          if (error) return toast.error(error.message);
+          if (error) { toast.error(error.message); return; }
           toast.success("Registrado"); onDone(); close();
         }}>
           <Field label="Data"><Input name="date" type="date" defaultValue={todayISO()} required className="h-11" /></Field>

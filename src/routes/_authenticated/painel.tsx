@@ -122,7 +122,7 @@ function Painel() {
           )}
           {s.openTasks.length > 0 && (
             <p className="mt-3 font-mono text-[0.65rem] text-muted-foreground">
-              {s.openTasks.filter((t) => t.priority === "alta").length} tarefa(s) de prioridade {PRIORITY.alta.label.toLowerCase()} abertas
+              {s.openTasks.filter((t) => t.priority === "alta").length} tarefa(s) de prioridade alta abertas
             </p>
           )}
         </section>
