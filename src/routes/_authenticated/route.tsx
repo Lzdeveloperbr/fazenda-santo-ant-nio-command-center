@@ -124,7 +124,7 @@ function Shell() {
       </main>
 
       <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t bg-panel/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden">
-        {NAV.map((n) => <Link key={n.to} to={n.to} className={`flex flex-col items-center gap-1.5 px-1 py-3 text-center text-[0.62rem] ${path.startsWith(n.to) ? "font-semibold text-primary" : "text-muted-foreground"}`}><n.icon className="h-5 w-5" />{n.label === "Matrizes e reprodução" ? "Matrizes" : n.label === "Rotinas e manejo" ? "Manejo" : n.label}</Link>)}
+        {NAV.filter((n) => ["/painel", "/matrizes", "/maternidade", "/tarefas"].includes(n.to)).map((n) => <Link key={n.to} to={n.to} className={`flex flex-col items-center gap-1.5 px-1 py-3 text-center text-[0.62rem] ${path.startsWith(n.to) ? "font-semibold text-primary" : "text-muted-foreground"}`}><n.icon className="h-5 w-5" />{n.label === "Matrizes e reprodução" ? "Matrizes" : n.label === "Rotinas e manejo" ? "Manejo" : n.label}</Link>)}
       </nav>
     </div>
   );
