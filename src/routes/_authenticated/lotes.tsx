@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 const db = supabase as any;
+const eventsQuery = { queryKey: ["batch_events"], queryFn: async () => { const { data, error } = await db.from("batch_events").select("*").order("event_date", { ascending: false }).limit(50); if (error) throw error; return data ?? []; } };
 const batchesQuery = { queryKey: ["production_batches"], queryFn: async () => {
   const { data, error } = await db.from("production_batches").select("*").order("entry_date", { ascending: false });
   if (error) throw error;
@@ -25,9 +26,9 @@ export const Route = createFileRoute("/_authenticated/lotes")({
 
 function Lotes() {
   const qc = useQueryClient();
-  const q = useQuery(batchesQuery);
+  const q = useQuery(batchesQuery); const events = useQuery(eventsQuery);
   const [search, setSearch] = useState("");
-  const refresh = () => qc.invalidateQueries({ queryKey: ["production_batches"] });
+  const refresh = () => { qc.invalidateQueries({ queryKey: ["production_batches"] }); qc.invalidateQueries({ queryKey: ["batch_events"] }); };
   const rows = (q.data ?? []).filter((b: any) => [b.name,b.pen,b.origin].join(" ").toLowerCase().includes(search.toLowerCase()));
   const active = rows.filter((b: any) => b.status === "ativo");
   const heads = active.reduce((n: number,b: any) => n + b.current_headcount,0);
@@ -45,7 +46,7 @@ function Lotes() {
         <div className="flex items-start justify-between gap-2"><div><p className="label-tech">{PHASES[b.phase] ?? b.phase}</p><h3 className="mt-1 text-lg font-semibold">{b.name}</h3></div><span className={`rounded-full px-2.5 py-1 text-xs ${b.status === "ativo" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>{b.status === "ativo" ? "Ativo" : "Encerrado"}</span></div>
         <div className="mt-4 grid grid-cols-2 gap-3"><div className="rounded-xl bg-background/60 p-3"><p className="text-xs text-muted-foreground">Animais atuais</p><p className="mt-1 font-mono text-2xl">{b.current_headcount}</p></div><div className="rounded-xl bg-background/60 p-3"><p className="text-xs text-muted-foreground">Entrada</p><p className="mt-2 text-sm font-semibold">{new Date(b.entry_date+"T12:00:00").toLocaleDateString("pt-BR")}</p></div></div>
         <p className="mt-3 text-xs text-muted-foreground">{b.pen ? "Baia: "+b.pen : "Baia não informada"}{b.origin ? " · Origem: "+b.origin : ""}</p>
-        {b.notes && <p className="mt-2 text-xs text-muted-foreground">{b.notes}</p>}
+        {b.notes && <p className="mt-2 text-xs text-muted-foreground">{b.notes}</p>}\n        {events.data?.filter((e:any)=>e.batch_id===b.id).slice(0,3).map((e:any)=><p key={e.id} className="mt-1 text-[0.68rem] text-muted-foreground">{e.event_type==="morte"?"Mortalidade":e.event_type==="entrada"?"Entrada":"Saída"}: {e.quantity} · {new Date(e.event_date+"T12:00:00").toLocaleDateString("pt-BR")}</p>)}
         {b.status === "ativo" && <div className="mt-4 flex flex-wrap gap-2"><AdjustHeads batch={b} onDone={refresh}/><Button size="sm" variant="outline" onClick={async()=>{if(!confirm("Encerrar este lote?"))return;const {error}=await db.from("production_batches").update({status:"encerrado"}).eq("id",b.id);if(error)toast.error(error.message);else{toast.success("Lote encerrado");refresh();}}}><Archive className="mr-1 h-3.5 w-3.5"/>Encerrar</Button></div>}
       </article>)}</div>}
   </div>;
@@ -64,7 +65,13 @@ function NewBatch({onDone}:{onDone:()=>void}) {
 
 function AdjustHeads({batch,onDone}:{batch:any;onDone:()=>void}) {
  const [busy,setBusy]=useState(false);
- return <FormDialog title={`Atualizar quantidade · ${batch.name}`} trigger={<Button size="sm" variant="outline"><Users className="mr-1 h-3.5 w-3.5"/>Ajustar animais</Button>}>{close=><form className="space-y-4" onSubmit={async e=>{e.preventDefault();setBusy(true);const f=new FormData(e.currentTarget);const count=Number(f.get("count"));if(count>batch.initial_headcount){setBusy(false);return toast.error("Quantidade atual não pode superar a quantidade inicial.");}const {error}=await db.from("production_batches").update({current_headcount:count}).eq("id",batch.id);setBusy(false);if(error)return toast.error(error.message);toast.success("Quantidade atualizada");onDone();close();}}>
- <Field label="Quantidade atual de animais"><Input name="count" type="number" min="0" max={batch.initial_headcount} defaultValue={batch.current_headcount} required className="h-11"/></Field><p className="text-xs text-muted-foreground">Registre a quantidade atual após mortes, transferências ou saídas. O histórico detalhado de ocorrências será ampliado no módulo de sanidade.</p><SubmitRow busy={busy} label="Atualizar"/>
+ return <FormDialog title={`Registrar movimentação · ${batch.name}`} trigger={<Button size="sm" variant="outline"><Users className="mr-1 h-3.5 w-3.5"/>Movimentar lote</Button>}>{close=><form className="space-y-4" onSubmit={async e=>{e.preventDefault();setBusy(true);const f=new FormData(e.currentTarget);const type=String(f.get("type"));const quantity=Number(f.get("quantity"));if((type==="morte"||type==="saida")&&quantity>batch.current_headcount){setBusy(false);return toast.error("Quantidade maior que o saldo atual do lote.");}const {error}=await db.from("batch_events").insert({batch_id:batch.id,event_type:type,quantity,event_date:String(f.get("date")),notes:String(f.get("notes")||"")||null});setBusy(false);if(error)return toast.error(error.message);toast.success("Movimentação registrada no histórico");onDone();close();}}>
+ <p className="text-sm text-muted-foreground">Saldo atual: <strong className="text-foreground">{batch.current_headcount} animais</strong></p>
+ <Field label="Tipo de movimentação"><select name="type" className={selectCls}><option value="morte">Mortalidade</option><option value="entrada">Entrada de animais</option><option value="saida">Saída / transferência</option></select></Field>
+ <Field label="Quantidade"><Input name="quantity" type="number" min="1" required className="h-11"/></Field>
+ <Field label="Data"><Input name="date" type="date" defaultValue={new Date().toISOString().slice(0,10)} required className="h-11"/></Field>
+ <Field label="Observação"><Input name="notes" className="h-11"/></Field>
+ <p className="text-xs text-muted-foreground">O saldo será atualizado automaticamente pelo registro de movimentação. O histórico não poderá ser apagado pela tela de estoque.</p>
+ <SubmitRow busy={busy} label="Registrar movimentação"/>
  </form>}</FormDialog>;
 }
