@@ -13,8 +13,37 @@ create table public.production_batches (
   status text not null default 'ativo' check (status in ('ativo','encerrado')),
   notes text,
   created_at timestamptz not null default now(),
-  check (current_headcount <= initial_headcount)
 );
+
+create table public.batch_events (
+  id uuid primary key default gen_random_uuid(),
+  batch_id uuid not null references public.production_batches(id) on delete cascade,
+  event_type text not null check (event_type in ('morte','entrada','saida')),
+  quantity integer not null check (quantity > 0),
+  event_date date not null default current_date,
+  notes text,
+  created_by uuid default auth.uid(),
+  created_at timestamptz not null default now()
+);
+
+create or replace function public.apply_batch_event()
+returns trigger language plpgsql security definer set search_path = public
+as $
+declare
+  delta integer;
+begin
+  delta := case when new.event_type = 'entrada' then new.quantity else -new.quantity end;
+  update public.production_batches
+     set current_headcount = current_headcount + delta
+   where id = new.batch_id and current_headcount + delta >= 0;
+  if not found then
+    raise exception 'Quantidade inválida: o lote não pode ficar com saldo negativo';
+  end if;
+  return new;
+end $;
+
+create trigger on_batch_event after insert on public.batch_events
+for each row execute function public.apply_batch_event();
 
 create table public.health_records (
   id uuid primary key default gen_random_uuid(),
@@ -55,7 +84,7 @@ create table public.feed_products (
 create table public.feed_movements (
   id uuid primary key default gen_random_uuid(),
   product_id uuid not null references public.feed_products(id) on delete restrict,
-  movement_type text not null check (movement_type in ('entrada','saida','ajuste')),
+  movement_type text not null check (movement_type in ('entrada','saida')),
   quantity numeric(12,2) not null check (quantity > 0),
   unit_cost numeric(12,2),
   movement_date date not null default current_date,
@@ -86,14 +115,22 @@ create trigger on_feed_movement after insert on public.feed_movements
 for each row execute function public.apply_feed_movement();
 
 do $$ declare t text; begin
-  foreach t in array array['production_batches','health_records','feed_products','feed_movements'] loop
-    execute format('grant select, insert, update, delete on public.%I to authenticated', t);
+  foreach t in array array['production_batches','health_records','feed_products','feed_movements','batch_events'] loop
+    if t = 'feed_movements' or t = 'batch_events' then
+      execute format('grant select, insert on public.%I to authenticated', t);
+    else
+      execute format('grant select, insert, update, delete on public.%I to authenticated', t);
+    end if;
     execute format('grant all on public.%I to service_role', t);
     execute format('alter table public.%I enable row level security', t);
     execute format('create policy "members all" on public.%I for all to authenticated using (public.is_member()) with check (public.is_member())', t);
   end loop;
 end $$;
 
+revoke update on public.feed_products from authenticated;
+grant update (name, feed_stage, unit, minimum_stock, cost_per_unit, supplier, notes) on public.feed_products to authenticated;
+
+create index batch_events_batch_date_idx on public.batch_events(batch_id, event_date desc);
 create index production_batches_phase_status_idx on public.production_batches(phase, status);
 create index health_records_date_idx on public.health_records(record_date desc);
 create index feed_movements_product_date_idx on public.feed_movements(product_id, movement_date desc);
