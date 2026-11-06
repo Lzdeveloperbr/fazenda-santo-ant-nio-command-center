@@ -16,6 +16,9 @@ import { Route as AuthenticatedMaternidadeRouteImport } from './routes/_authenti
 import { Route as AuthenticatedMatrizesRouteImport } from './routes/_authenticated/matrizes'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
 import { Route as AuthenticatedTarefasRouteImport } from './routes/_authenticated/tarefas'
+import { Route as AuthenticatedLotesRouteImport } from './routes/_authenticated/lotes'
+import { Route as AuthenticatedSanidadeRouteImport } from './routes/_authenticated/sanidade'
+import { Route as AuthenticatedEstoqueRouteImport } from './routes/_authenticated/estoque'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -52,6 +55,9 @@ const AuthenticatedTarefasRoute = AuthenticatedTarefasRouteImport.update({
   path: '/tarefas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedLotesRoute = AuthenticatedLotesRouteImport.update({ id: '/lotes', path: '/lotes', getParentRoute: () => AuthenticatedRouteRoute } as any)
+const AuthenticatedSanidadeRoute = AuthenticatedSanidadeRouteImport.update({ id: '/sanidade', path: '/sanidade', getParentRoute: () => AuthenticatedRouteRoute } as any)
+const AuthenticatedEstoqueRoute = AuthenticatedEstoqueRouteImport.update({ id: '/estoque', path: '/estoque', getParentRoute: () => AuthenticatedRouteRoute } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -60,6 +66,9 @@ export interface FileRoutesByFullPath {
   '/matrizes': typeof AuthenticatedMatrizesRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
+  '/lotes': typeof AuthenticatedLotesRoute
+  '/sanidade': typeof AuthenticatedSanidadeRoute
+  '/estoque': typeof AuthenticatedEstoqueRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -68,6 +77,9 @@ export interface FileRoutesByTo {
   '/matrizes': typeof AuthenticatedMatrizesRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
+  '/lotes': typeof AuthenticatedLotesRoute
+  '/sanidade': typeof AuthenticatedSanidadeRoute
+  '/estoque': typeof AuthenticatedEstoqueRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -78,13 +90,16 @@ export interface FileRoutesById {
   '/_authenticated/matrizes': typeof AuthenticatedMatrizesRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
   '/_authenticated/tarefas': typeof AuthenticatedTarefasRoute
+  '/_authenticated/lotes': typeof AuthenticatedLotesRoute
+  '/_authenticated/sanidade': typeof AuthenticatedSanidadeRoute
+  '/_authenticated/estoque': typeof AuthenticatedEstoqueRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/maternidade' | '/matrizes' | '/painel' | '/tarefas'
+    '/' | '/auth' | '/maternidade' | '/matrizes' | '/painel' | '/tarefas' | '/lotes' | '/sanidade' | '/estoque'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/maternidade' | '/matrizes' | '/painel' | '/tarefas'
+  to: '/' | '/auth' | '/maternidade' | '/matrizes' | '/painel' | '/tarefas' | '/lotes' | '/sanidade' | '/estoque'
   id:
     | '__root__'
     | '/'
@@ -94,6 +109,9 @@ export interface FileRouteTypes {
     | '/_authenticated/matrizes'
     | '/_authenticated/painel'
     | '/_authenticated/tarefas'
+    | '/_authenticated/lotes'
+    | '/_authenticated/sanidade'
+    | '/_authenticated/estoque'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -153,6 +171,9 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTarefasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/lotes': { id: '/_authenticated/lotes'; path: '/lotes'; fullPath: '/lotes'; preLoaderRoute: typeof AuthenticatedLotesRouteImport; parentRoute: typeof AuthenticatedRouteRoute }
+    '/_authenticated/sanidade': { id: '/_authenticated/sanidade'; path: '/sanidade'; fullPath: '/sanidade'; preLoaderRoute: typeof AuthenticatedSanidadeRouteImport; parentRoute: typeof AuthenticatedRouteRoute }
+    '/_authenticated/estoque': { id: '/_authenticated/estoque'; path: '/estoque'; fullPath: '/estoque'; preLoaderRoute: typeof AuthenticatedEstoqueRouteImport; parentRoute: typeof AuthenticatedRouteRoute }
   }
 }
 
@@ -161,6 +182,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMatrizesRoute: typeof AuthenticatedMatrizesRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
   AuthenticatedTarefasRoute: typeof AuthenticatedTarefasRoute
+  AuthenticatedLotesRoute: typeof AuthenticatedLotesRoute
+  AuthenticatedSanidadeRoute: typeof AuthenticatedSanidadeRoute
+  AuthenticatedEstoqueRoute: typeof AuthenticatedEstoqueRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -168,6 +192,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMatrizesRoute: AuthenticatedMatrizesRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
   AuthenticatedTarefasRoute: AuthenticatedTarefasRoute,
+  AuthenticatedLotesRoute: AuthenticatedLotesRoute,
+  AuthenticatedSanidadeRoute: AuthenticatedSanidadeRoute,
+  AuthenticatedEstoqueRoute: AuthenticatedEstoqueRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
