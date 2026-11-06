@@ -22,7 +22,7 @@ const GROUPS:Record<string,string>={matriz:"Matriz",leitegada:"Leitegada",lote:"
 export const Route=createFileRoute("/_authenticated/sanidade")({head:()=>({meta:[{title:"Sanidade | Fazenda Santo Antônio"}]}),component:Sanidade});
 
 function Sanidade(){
- const qc=useQueryClient();const q=useQuery(healthQuery);const sows=useQuery(sowsQuery);const litters=useQuery(littersQuery);const batches=useQuery(batchesQuery);const batches=useQuery(batchesQuery);
+ const qc=useQueryClient();const q=useQuery(healthQuery);const sows=useQuery(sowsQuery);const litters=useQuery(littersQuery);const batches=useQuery(batchesQuery);
  const [search,setSearch]=useState("");const refresh=()=>qc.invalidateQueries({queryKey:["health_records"]});
  const sowName=(id:string|null)=>sows.data?.find(s=>s.id===id)?.ear_tag??"Matriz";
  const litterName=(id:string|null)=>{const l=litters.data?.find(x=>x.id===id);return l?"Leitegada · "+sowName(l.sow_id):"Leitegada";};
@@ -45,7 +45,7 @@ function Sanidade(){
 
 function NewHealth({onDone}:{onDone:()=>void}){
  const [busy,setBusy]=useState(false);const [group,setGroup]=useState("matriz");
- const sows=useQuery(sowsQuery);const litters=useQuery(littersQuery);
+ const sows=useQuery(sowsQuery);const litters=useQuery(littersQuery);const batches=useQuery(batchesQuery);
  return <FormDialog title="Novo registro sanitário" trigger={<Button className="h-10"><Plus className="mr-1 h-4 w-4"/>Registrar</Button>}>{close=><form className="space-y-4" onSubmit={async e=>{e.preventDefault();setBusy(true);const f=new FormData(e.currentTarget);const animal=String(f.get("animal")||"");const payload:any={record_date:String(f.get("date")),category:String(f.get("category")),animal_group:group,product:String(f.get("product")||"")||null,dosage:String(f.get("dosage")||"")||null,responsible:String(f.get("responsible")||"")||null,withdrawal_days:Number(f.get("withdrawal")||0),notes:String(f.get("notes"))};if(group==="matriz")payload.sow_id=animal||null;if(group==="leitegada")payload.litter_id=animal||null;if(group==="lote")payload.batch_id=animal||null;const {error}=await db.from("health_records").insert(payload);setBusy(false);if(error)return toast.error(error.message);toast.success("Registro sanitário salvo");onDone();close();}}>
  <Field label="Data"><Input name="date" type="date" defaultValue={new Date().toISOString().slice(0,10)} required className="h-11"/></Field>
  <div className="grid grid-cols-2 gap-3"><Field label="Tipo de registro"><select name="category" className={selectCls}>{Object.entries(CATEGORIES).map(([k,v])=><option key={k} value={k}>{v}</option>)}</select></Field><Field label="Categoria animal"><select value={group} onChange={e=>setGroup(e.target.value)} className={selectCls}><option value="matriz">Matriz</option><option value="leitegada">Leitegada</option><option value="lote">Lote</option><option value="reprodutor">Reprodutor</option></select></Field></div>
