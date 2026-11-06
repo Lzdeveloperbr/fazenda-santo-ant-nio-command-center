@@ -109,6 +109,9 @@ export interface FileRouteTypes {
     | '/_authenticated/matrizes'
     | '/_authenticated/painel'
     | '/_authenticated/tarefas'
+    | '/_authenticated/lotes'
+    | '/_authenticated/sanidade'
+    | '/_authenticated/estoque'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
