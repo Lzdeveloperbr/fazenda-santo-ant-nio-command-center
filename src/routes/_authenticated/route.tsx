@@ -73,7 +73,7 @@ function Shell() {
         <button onClick={() => setMobileOpen(false)} className="rounded-lg p-2 text-white/70 hover:bg-white/10 md:hidden" aria-label="Fechar menu"><X className="h-5 w-5" /></button>
       </div>
       <div className="mt-9 px-2">
-        <p className="label-tech mb-3">Fazenda Santo Antônio</p>
+        <p className="mb-3 px-3 text-[0.65rem] font-bold uppercase tracking-[0.16em] text-white/55">Fazenda Santo Antônio</p>
         {(["Operação", "Rebanho"] as const).map((group) => (
           <div key={group} className="mb-6">
             <p className="mb-2 px-3 text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-white/45">{group}</p>
