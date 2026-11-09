@@ -18,7 +18,7 @@ const NAV=[
  {to:"/tarefas",label:"Rotinas e manejo",icon:ListChecks,group:"Manejo"},
  {to:"/lotes",label:"Lotes por fase",icon:Layers3,group:"Manejo"},
  {to:"/baias",label:"Baias e caderno",icon:Fence,group:"Manejo"},
- {to:"/sanidade",label:"Sanidade",icon:HeartPulse,group:"Manejo"},
+ {to:"/sanidade",label:"Saúde e prevenção",icon:HeartPulse,group:"Manejo"},
  {to:"/estoque",label:"Estoque de ração",icon:Wheat,group:"Manejo"},
  {to:"/desempenho" as any,label:"Desempenho",icon:TrendingUp,group:"Manejo"},
 ] as const;
