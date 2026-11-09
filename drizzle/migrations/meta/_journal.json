@@ -29,6 +29,13 @@
       "when": 1794217200000,
       "tag": "0003_baias_racao_manejo",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794265446309,
+      "tag": "0004_saude_monitoramento_livro",
+      "breakpoints": true
     }
   ]
 }
