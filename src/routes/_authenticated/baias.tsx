@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Fence, Plus, ClipboardList, Wheat, Boxes, AlertTriangle, Search, CalendarDays, Users, Droplets, Thermometer, ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,7 +34,6 @@ function Baias() {
   const refresh=()=>{qc.invalidateQueries({queryKey:["farm_pens"]});qc.invalidateQueries({queryKey:["feed_products"]});qc.invalidateQueries({queryKey:["pen_records"]});qc.invalidateQueries({queryKey:["feed_movements"]});};
   const penRows=pens.data??[], productRows=products.data??[], recordRows=records.data??[];
   const filtered=penRows.filter((p:any)=>(sector==="todos"||p.sector===sector)&&(!search||p.code.toLowerCase().includes(search.toLowerCase())||p.sector.toLowerCase().includes(search.toLowerCase())));
-  const totalAnimals=recordRows.reduce((sum:number,r:any)=>r.animal_count!==null&&r.animal_count!==undefined?sum:sum,0);
   const stock=productRows.reduce((sum:number,p:any)=>sum+Number(p.stock_kg||0),0);
   const lowStock=productRows.filter((p:any)=>Number(p.stock_kg)<=Number(p.minimum_stock_kg));
   const latestByPen=new Map<string,any>();for(const r of recordRows){if(!latestByPen.has(r.pen_id))latestByPen.set(r.pen_id,r);}
