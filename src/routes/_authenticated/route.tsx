@@ -1,7 +1,7 @@
 import { createFileRoute, redirect, Outlet, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, PiggyBank, Baby, ListChecks, LogOut, Activity, ChevronRight, Menu, X, Layers3, HeartPulse, Wheat, TrendingUp, CalendarDays } from "lucide-react";
+import { LayoutDashboard, PiggyBank, Baby, ListChecks, LogOut, Activity, ChevronRight, Menu, X, Layers3, HeartPulse, Wheat, TrendingUp, CalendarDays, Fence } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Wordmark, LogoMark } from "@/components/farm/Logo";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ const NAV=[
  {to:"/maternidade",label:"Maternidade",icon:Baby,group:"Rebanho"},
  {to:"/tarefas",label:"Rotinas e manejo",icon:ListChecks,group:"Manejo"},
  {to:"/lotes",label:"Lotes por fase",icon:Layers3,group:"Manejo"},
+ {to:"/baias",label:"Baias e caderno",icon:Fence,group:"Manejo"},
  {to:"/sanidade",label:"Sanidade",icon:HeartPulse,group:"Manejo"},
  {to:"/estoque",label:"Estoque de ração",icon:Wheat,group:"Manejo"},
  {to:"/desempenho" as any,label:"Desempenho",icon:TrendingUp,group:"Manejo"},
