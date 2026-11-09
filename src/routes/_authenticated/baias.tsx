@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { toast } from "sonner";
 import { Fence, Plus, ClipboardList, Wheat, Boxes, AlertTriangle, Search, CalendarDays, Users, Droplets, Thermometer, ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,7 +35,7 @@ function Baias() {
   const penRows=pens.data??[], productRows=products.data??[], recordRows=records.data??[];
   const filtered=penRows.filter((p:any)=>(sector==="todos"||p.sector===sector)&&(!search||p.code.toLowerCase().includes(search.toLowerCase())||p.sector.toLowerCase().includes(search.toLowerCase())));
   const stock=productRows.reduce((sum:number,p:any)=>sum+Number(p.stock_kg||0),0);
-  const lowStock=productRows.filter((p:any)=>Number(p.stock_kg)<=Number(p.minimum_stock_kg));
+  const lowStock=productRows.filter((p:any)=>Number(p.minimum_stock_kg)>0&&Number(p.stock_kg)<=Number(p.minimum_stock_kg));
   const latestByPen=new Map<string,any>();for(const r of recordRows){if(!latestByPen.has(r.pen_id))latestByPen.set(r.pen_id,r);}
   const activePens=penRows.filter((p:any)=>p.status==="ativa").length;
   const visibleRecords=recordRows.filter((r:any)=>(selectedPen==="todos"||r.pen_id===selectedPen));
@@ -74,7 +74,7 @@ function Baias() {
 
 function GuideStep({number,title,detail}:{number:string;title:string;detail:string}){return <div className="flex gap-3 rounded-2xl border border-border/70 bg-white p-4"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EAF0E8] text-sm font-bold text-[#315E40]">{number}</span><div><p className="text-sm font-bold">{title}</p><p className="mt-1 text-xs leading-5 text-muted-foreground">{detail}</p></div></div>;}
 
-function Metric({label,value,icon}:{label:string;value:string|number;icon:React.ReactNode}){return <div className="panel p-4"><div className="flex items-center justify-between text-muted-foreground"><p className="label-tech">{label}</p>{icon}</div><p className="mt-2 text-2xl font-bold tabular-nums">{value}</p></div>;}
+function Metric({label,value,icon}:{label:string;value:string|number;icon:ReactNode}){return <div className="panel p-4"><div className="flex items-center justify-between text-muted-foreground"><p className="label-tech">{label}</p>{icon}</div><p className="mt-2 text-2xl font-bold tabular-nums">{value}</p></div>;}
 
 function NewPen({onDone}:{onDone:()=>void}){
  const [busy,setBusy]=useState(false);
