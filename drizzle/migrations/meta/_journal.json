@@ -22,6 +22,13 @@
       "when": 1794008887678,
       "tag": "0002_pesagens_lotes",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794217200000,
+      "tag": "0003_baias_racao_manejo",
+      "breakpoints": true
     }
   ]
 }
