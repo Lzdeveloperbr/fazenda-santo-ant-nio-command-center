@@ -86,6 +86,7 @@ export interface FileRoutesByTo {
   '/lotes': typeof AuthenticatedLotesRoute
   '/sanidade': typeof AuthenticatedSanidadeRoute
   '/estoque': typeof AuthenticatedEstoqueRoute
+  '/baias': typeof AuthenticatedBaiasRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
