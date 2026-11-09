@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { toast } from "sonner";
-import { Activity, AlertTriangle, BookOpen, CalendarDays, ClipboardCheck, ClipboardList, FlaskConical, HeartPulse, Plus, ShieldCheck, Syringe, Pill, Stethoscope, FileText } from "lucide-react";
+import { BookOpen, FlaskConical, HeartPulse, Plus, Syringe, Pill } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SectionTitle, Empty } from "@/components/farm/Kpi";
 import { FormDialog, SubmitRow, Field, selectCls } from "@/components/farm/FormDialog";
@@ -63,7 +63,7 @@ function NewHealthEvent({pens,onDone}:{pens:any[];onDone:()=>void}) {
   <Field label="Sinais observados (descreva, sem concluir diagnóstico)"><Textarea name="clinical_signs" placeholder="Ex.: tosse, diarreia, falta de apetite, claudicação, quando começou e como evoluiu..." required/></Field>
   <FieldGrid cols={3}><Field label="Animais no grupo"><Input name="animal_count" type="number" min="0" defaultValue="0"/></Field><Field label="Afetados"><Input name="affected_count" type="number" min="0" defaultValue="0"/></Field><Field label="Mortes"><Input name="death_count" type="number" min="0" defaultValue="0"/></Field></FieldGrid>
   <Field label="Condição suspeita (opcional)"><Input name="suspected_condition" placeholder="Somente hipótese anotada para avaliação veterinária"/></Field>
-  <div className="grid gap-2 rounded-xl bg-muted/50 p-3 text-sm sm:grid-cols-2">{[["feed_change","Houve mudança de ração"],["water_change","Houve mudança na água"],["isolation_started","Animais foram separados/is olados"],["veterinarian_notified","Veterinário foi avisado"]].map(([name,label])=><label key={name} className="flex items-center gap-2"><input name={name} type="checkbox" className="h-4 w-4 accent-primary"/>{label}</label>)}</div>
+  <div className="grid gap-2 rounded-xl bg-muted/50 p-3 text-sm sm:grid-cols-2">{[["feed_change","Houve mudança de ração"],["water_change","Houve mudança na água"],["isolation_started","Animais foram separados/isolados"],["veterinarian_notified","Veterinário foi avisado"]].map(([name,label])=><label key={name} className="flex items-center gap-2"><input name={name} type="checkbox" className="h-4 w-4 accent-primary"/>{label}</label>)}</div>
   <FieldGrid><Field label="Veterinário contatado"><Input name="veterinarian" placeholder="Nome"/></Field><Field label="Data de retorno/acompanhar"><Input name="follow_up_date" type="date"/></Field></FieldGrid>
   <Field label="Medidas adotadas / orientação recebida"><Textarea name="action_taken" placeholder="Registre somente o que foi feito ou orientado pelo responsável técnico."/></Field>
   <Field label="Observações adicionais"><Textarea name="notes"/></Field>
