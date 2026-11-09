@@ -163,6 +163,6 @@ begin
     execute format('alter table public.%I enable row level security', t);
     execute format('grant select, insert, update, delete on public.%I to authenticated', t);
     execute format('grant all on public.%I to service_role', t);
-    execute format('create policy "members all %I" on public.%I for all to authenticated using (public.is_member()) with check (public.is_member())', t, t);
+    execute format('create policy %I on public.%I for all to authenticated using (public.is_member()) with check (public.is_member())', 'members all ' || t, t);
   end loop;
 end $$;
