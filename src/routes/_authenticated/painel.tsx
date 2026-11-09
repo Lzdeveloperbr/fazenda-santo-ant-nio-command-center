@@ -2,131 +2,34 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend } from "recharts";
-import { PiggyBank, HeartPulse, CalendarClock, Baby, Sprout, Skull, ListChecks, AlertTriangle } from "lucide-react";
+import { PiggyBank, HeartPulse, CalendarClock, Baby, Sprout, Skull, ListChecks, AlertTriangle, ArrowUpRight, CalendarDays } from "lucide-react";
 import { Kpi, SectionTitle, Empty } from "@/components/farm/Kpi";
-import { sowsQuery, breedingsQuery, littersQuery, tasksQuery, livePiglets, todayISO, addDaysISO, fmtDate, PRIORITY } from "@/lib/farm";
-
-export const Route = createFileRoute("/_authenticated/painel")({
-  head: () => ({ meta: [{ title: "Painel | AgroTech Command Center" }, { name: "description", content: "Indicadores do rebanho em tempo real." }] }),
-  component: Painel,
-});
-
-function Painel() {
-  const sows = useQuery(sowsQuery);
-  const breedings = useQuery(breedingsQuery);
-  const litters = useQuery(littersQuery);
-  const tasks = useQuery(tasksQuery);
-  const today = todayISO();
-  const in7 = addDaysISO(today, 7);
-  const loading = sows.isLoading || breedings.isLoading || litters.isLoading || tasks.isLoading;
-
-  const s = useMemo(() => {
-    const S = sows.data ?? [], B = breedings.data ?? [], L = litters.data ?? [], T = tasks.data ?? [];
-    const active = S.filter((x) => x.status !== "descartada");
-    const latestBySow = new Map<string, (typeof B)[number]>();
-    for (const b of B) if (!latestBySow.has(b.sow_id)) latestBySow.set(b.sow_id, b);
-    const farrowedAfter = (sowId: string, date: string) => L.some((l) => l.sow_id === sowId && l.farrowing_date >= date);
-    const pending = [...latestBySow.values()].filter((b) => b.pregnancy_check !== "negativo" && !farrowedAfter(b.sow_id, b.breeding_date));
-    const due7 = pending.filter((b) => b.expected_farrowing && b.expected_farrowing <= in7);
-    const inMat = L.filter((l) => l.status === "maternidade");
-    const openTasks = T.filter((t) => t.status !== "concluida");
-    const overdue = openTasks.filter((t) => t.due_date && t.due_date < today);
-    const month = today.slice(0, 7);
-    const deathsMonth = L.filter((l) => l.farrowing_date.startsWith(month)).reduce((a, l) => a + l.deaths, 0);
-
-    const byMonth = new Map<string, { m: string; vivos: number; natimortos: number; desmamados: number }>();
-    for (const l of [...L].reverse()) {
-      const m = l.farrowing_date.slice(0, 7);
-      const row = byMonth.get(m) ?? { m, vivos: 0, natimortos: 0, desmamados: 0 };
-      row.vivos += l.born_alive; row.natimortos += l.stillborn; row.desmamados += l.weaned ?? 0;
-      byMonth.set(m, row);
-    }
-    return {
-      active: active.length,
-      gestantes: S.filter((x) => x.status === "gestante").length,
-      due7, inMat,
-      liveMat: inMat.reduce((a, l) => a + livePiglets(l), 0),
-      weaned: L.reduce((a, l) => a + (l.weaned ?? 0), 0),
-      deathsMonth, openTasks, overdue,
-      chart: [...byMonth.values()].slice(-12).map((r) => ({ ...r, m: r.m.split("-").reverse().join("/") })),
-      sowName: (id: string) => S.find((x) => x.id === id)?.ear_tag ?? "?",
-    };
-  }, [sows.data, breedings.data, litters.data, tasks.data, today, in7]);
-
-  if (loading) return <p className="label-tech animate-pulse-soft">Carregando telemetria…</p>;
-
-  const attention = [
-    ...s.overdue.map((t) => ({ k: "t" + t.id, tone: "text-destructive", text: `Tarefa atrasada: ${t.title}`, sub: `Prevista ${fmtDate(t.due_date)}`, to: "/tarefas" as const })),
-    ...s.due7.map((b) => ({ k: "b" + b.id, tone: "text-warn", text: `Parto previsto · matriz ${s.sowName(b.sow_id)}`, sub: fmtDate(b.expected_farrowing), to: "/matrizes" as const })),
-  ];
-
-  return (
-    <div className="space-y-8">
-      <div className="animate-rise">
-        <p className="label-tech">Centro de comando</p>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight md:text-3xl">Visão geral da produção</h1>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Kpi label="Matrizes ativas" value={s.active} icon={PiggyBank} source="Matrizes" to="/matrizes" delay={0} />
-        <Kpi label="Gestantes" value={s.gestantes} icon={HeartPulse} tone="text-cyan" source="Matrizes" to="/matrizes" delay={40} />
-        <Kpi label="Partos em 7 dias" value={s.due7.length} icon={CalendarClock} tone={s.due7.length ? "text-warn" : "text-foreground"} source="Coberturas +114d" to="/matrizes" delay={80} />
-        <Kpi label="Leitões na maternidade" value={s.liveMat} unit={`em ${s.inMat.length} leitegadas`} icon={Baby} tone="text-ok-glow" source="Leitegadas" to="/maternidade" delay={120} />
-        <Kpi label="Leitões desmamados" value={s.weaned} unit="total" icon={Sprout} source="Leitegadas" to="/maternidade" delay={160} />
-        <Kpi label="Mortes no mês" value={s.deathsMonth} unit="leitegadas do mês" icon={Skull} tone={s.deathsMonth ? "text-destructive" : "text-foreground"} source="Leitegadas" to="/maternidade" delay={200} />
-        <Kpi label="Tarefas abertas" value={s.openTasks.length} icon={ListChecks} tone="text-info" source="Tarefas" to="/tarefas" delay={240} />
-        <Kpi label="Tarefas atrasadas" value={s.overdue.length} icon={AlertTriangle} tone={s.overdue.length ? "text-destructive" : "text-foreground"} source="Tarefas" to="/tarefas" delay={280} />
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-5">
-        <section className="panel p-4 lg:col-span-3">
-          <SectionTitle kicker="Produção de leitões" title="Nascimentos por mês" />
-          {s.chart.length === 0 ? (
-            <Empty>Ainda não há partos registrados. O gráfico aparece após o primeiro parto.</Empty>
-          ) : (
-            <div className="h-64">
-              <ResponsiveContainer>
-                <BarChart data={s.chart}>
-                  <CartesianGrid stroke="var(--border)" vertical={false} />
-                  <XAxis dataKey="m" stroke="var(--muted-foreground)" fontSize={11} tickLine={false} />
-                  <YAxis stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} allowDecimals={false} />
-                  <Tooltip cursor={{ fill: "var(--accent)" }} contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8 }} />
-                  <Legend wrapperStyle={{ fontSize: 12 }} />
-                  <Bar dataKey="vivos" name="Nascidos vivos" fill="var(--ok)" radius={[3, 3, 0, 0]} />
-                  <Bar dataKey="natimortos" name="Natimortos" fill="var(--destructive)" radius={[3, 3, 0, 0]} />
-                  <Bar dataKey="desmamados" name="Desmamados" fill="var(--info)" radius={[3, 3, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-        </section>
-
-        <section className="panel p-4 lg:col-span-2">
-          <SectionTitle kicker="Prioridades" title="Precisa de atenção agora" />
-          {attention.length === 0 ? (
-            <Empty>Nada pendente. Tudo em dia.</Empty>
-          ) : (
-            <ul className="divide-y">
-              {attention.slice(0, 8).map((a) => (
-                <li key={a.k}>
-                  <Link to={a.to} className="flex items-center gap-3 py-3">
-                    <span className={`h-2 w-2 shrink-0 rounded-full bg-current ${a.tone}`} />
-                    <div className="min-w-0">
-                      <p className="truncate text-sm">{a.text}</p>
-                      <p className="font-mono text-[0.7rem] text-muted-foreground">{a.sub}</p>
-                    </div>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-          {s.openTasks.length > 0 && (
-            <p className="mt-3 font-mono text-[0.65rem] text-muted-foreground">
-              {s.openTasks.filter((t) => t.priority === "alta").length} tarefa(s) de prioridade alta abertas
-            </p>
-          )}
-        </section>
-      </div>
-    </div>
-  );
+import { sowsQuery, breedingsQuery, littersQuery, tasksQuery, livePiglets, todayISO, addDaysISO, fmtDate } from "@/lib/farm";
+export const Route=createFileRoute("/_authenticated/painel")({head:()=>({meta:[{title:"Painel | Fazenda Santo Antônio"},{name:"description",content:"Indicadores da produção e da rotina da suinocultura."}]}),component:Painel});
+function Painel(){
+ const sows=useQuery(sowsQuery),breedings=useQuery(breedingsQuery),litters=useQuery(littersQuery),tasks=useQuery(tasksQuery);const today=todayISO(),in7=addDaysISO(today,7);const loading=sows.isLoading||breedings.isLoading||litters.isLoading||tasks.isLoading;
+ const s=useMemo(()=>{const S=sows.data??[],B=breedings.data??[],L=litters.data??[],T=tasks.data??[];const active=S.filter(x=>x.status!=="descartada");const latest=new Map<string,(typeof B)[number]>();for(const b of B)if(!latest.has(b.sow_id))latest.set(b.sow_id,b);const farrowed=(id:string,date:string)=>L.some(l=>l.sow_id===id&&l.farrowing_date>=date);const pending=[...latest.values()].filter(b=>b.pregnancy_check!=="negativo"&&!farrowed(b.sow_id,b.breeding_date));const due7=pending.filter(b=>b.expected_farrowing&&b.expected_farrowing<=in7);const inMat=L.filter(l=>l.status==="maternidade");const open=T.filter(t=>t.status!=="concluida");const overdue=open.filter(t=>t.due_date&&t.due_date<today);const month=today.slice(0,7);const deaths=L.filter(l=>l.farrowing_date.startsWith(month)).reduce((a,l)=>a+l.deaths,0);const monthly=new Map<string,{m:string;vivos:number;natimortos:number;desmamados:number}>();for(const l of [...L].reverse()){const m=l.farrowing_date.slice(0,7),r=monthly.get(m)??{m,vivos:0,natimortos:0,desmamados:0};r.vivos+=l.born_alive;r.natimortos+=l.stillborn;r.desmamados+=l.weaned??0;monthly.set(m,r);}return {active:active.length,gestantes:S.filter(x=>x.status==="gestante").length,due7,inMat,liveMat:inMat.reduce((a,l)=>a+livePiglets(l),0),weaned:L.reduce((a,l)=>a+(l.weaned??0),0),deaths,open,overdue,chart:[...monthly.values()].slice(-12).map(r=>({...r,m:r.m.split("-").reverse().join("/")})),sowName:(id:string)=>S.find(x=>x.id===id)?.ear_tag??"?"};},[sows.data,breedings.data,litters.data,tasks.data,today,in7]);
+ if(loading)return <div className="panel p-8 text-center text-sm text-muted-foreground animate-pulse-soft">Preparando os indicadores da fazenda…</div>;
+ const attention=[...s.overdue.map(t=>({k:"t"+t.id,tone:"text-destructive",text:`Tarefa atrasada: ${t.title}`,sub:`Prevista ${fmtDate(t.due_date)}`,to:"/tarefas" as const})),...s.due7.map(b=>({k:"b"+b.id,tone:"text-warn",text:`Parto previsto · matriz ${s.sowName(b.sow_id)}`,sub:fmtDate(b.expected_farrowing),to:"/matrizes" as const}))];
+ return <div className="space-y-7">
+  <section className="relative isolate overflow-hidden rounded-[1.6rem] bg-[#173F2B] px-5 py-6 text-white shadow-lg shadow-[#173F2B]/10 sm:px-7 sm:py-8">
+   <div className="absolute -right-12 -top-24 -z-10 h-64 w-64 rounded-full border border-white/10"/><div className="absolute -right-1 -top-12 -z-10 h-44 w-44 rounded-full border border-white/10"/>
+   <div className="flex flex-wrap items-end justify-between gap-4"><div><p className="text-[.65rem] font-bold uppercase tracking-[.18em] text-[#D7B66C]">Centro de gestão · Fazenda Santo Antônio</p><h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">Bom trabalho. Vamos cuidar da produção.</h1><p className="mt-2 max-w-xl text-sm leading-6 text-white/65">Acompanhe os principais números e prioridades da sua granja em um só lugar.</p></div><div className="flex items-center gap-2 rounded-xl border border-white/15 bg-white/[.07] px-3 py-2 text-xs font-semibold text-white/80"><CalendarDays className="h-4 w-4 text-[#D7B66C]"/>{new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"2-digit",month:"long"})}</div></div>
+  </section>
+  <div className="flex items-center justify-between gap-3"><div><p className="label-tech">Resumo da operação</p><h2 className="mt-1 text-lg font-bold tracking-tight">Indicadores da granja</h2></div><span className="hidden rounded-full bg-[#EAF0E8] px-3 py-1.5 text-[.68rem] font-bold text-[#315E40] sm:inline-flex">Dados registrados no sistema</span></div>
+  <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+   <Kpi label="Matrizes ativas" value={s.active} icon={PiggyBank} source="Matrizes" to="/matrizes"/>
+   <Kpi label="Gestantes" value={s.gestantes} icon={HeartPulse} tone="text-cyan" source="Matrizes" to="/matrizes" delay={35}/>
+   <Kpi label="Partos em 7 dias" value={s.due7.length} icon={CalendarClock} tone={s.due7.length?"text-warn":"text-foreground"} source="Coberturas" to="/matrizes" delay={70}/>
+   <Kpi label="Leitões na maternidade" value={s.liveMat} unit={`em ${s.inMat.length} leitegadas`} icon={Baby} tone="text-ok-glow" source="Leitegadas" to="/maternidade" delay={105}/>
+   <Kpi label="Leitões desmamados" value={s.weaned} unit="total" icon={Sprout} source="Leitegadas" to="/maternidade" delay={140}/>
+   <Kpi label="Mortes no mês" value={s.deaths} unit="leitegadas do mês" icon={Skull} tone={s.deaths?"text-destructive":"text-foreground"} source="Leitegadas" to="/maternidade" delay={175}/>
+   <Kpi label="Tarefas abertas" value={s.open.length} icon={ListChecks} tone="text-info" source="Tarefas" to="/tarefas" delay={210}/>
+   <Kpi label="Tarefas atrasadas" value={s.overdue.length} icon={AlertTriangle} tone={s.overdue.length?"text-destructive":"text-foreground"} source="Tarefas" to="/tarefas" delay={245}/>
+  </div>
+  <div className="grid gap-5 lg:grid-cols-5">
+   <section className="panel p-4 sm:p-5 lg:col-span-3"><SectionTitle kicker="Produção de leitões" title="Nascimentos por mês"/>{s.chart.length===0?<Empty>Ainda não há partos registrados. O gráfico aparecerá após o primeiro parto.</Empty>:<div className="h-64"><ResponsiveContainer><BarChart data={s.chart} margin={{top:8,right:8,left:-18,bottom:0}}><CartesianGrid stroke="var(--border)" vertical={false} strokeDasharray="4 5"/><XAxis dataKey="m" stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false}/><YAxis stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} allowDecimals={false}/><Tooltip cursor={{fill:"var(--accent)"}} contentStyle={{background:"var(--card)",border:"1px solid var(--border)",borderRadius:12,boxShadow:"0 12px 30px -18px rgba(0,0,0,.25)"}}/><Legend wrapperStyle={{fontSize:12,paddingTop:12}}/><Bar dataKey="vivos" name="Nascidos vivos" fill="var(--ok)" radius={[5,5,0,0]}/><Bar dataKey="natimortos" name="Natimortos" fill="var(--destructive)" radius={[5,5,0,0]}/><Bar dataKey="desmamados" name="Desmamados" fill="var(--info)" radius={[5,5,0,0]}/></BarChart></ResponsiveContainer></div>}</section>
+   <section className="panel p-4 sm:p-5 lg:col-span-2"><SectionTitle kicker="Acompanhamento" title="Prioridades do dia" action={<span className="rounded-full bg-[#F4EEDC] px-2.5 py-1 text-[.65rem] font-bold text-[#856A2C]">{attention.length} alertas</span>}/>{attention.length===0?<Empty>Nenhuma pendência crítica registrada. Continue mantendo os manejos em dia.</Empty>:<ul className="divide-y divide-border/70">{attention.slice(0,8).map(a=><li key={a.k}><Link to={a.to} className="group flex items-center gap-3 py-3"><span className={`h-2.5 w-2.5 shrink-0 rounded-full bg-current ${a.tone}`}/><div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold">{a.text}</p><p className="mt-1 font-mono text-[.68rem] text-muted-foreground">{a.sub}</p></div><ArrowUpRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"/></Link></li>)}</ul>}{s.open.length>0&&<p className="mt-3 border-t border-border/70 pt-3 text-[.68rem] text-muted-foreground">{s.open.filter(t=>t.priority==="alta").length} tarefa(s) de prioridade alta em aberto</p>}</section>
+  </div>
+ </div>;
 }
