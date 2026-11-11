@@ -46,6 +46,16 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, anonKey, { global: { headers: { Authorization: authHeader } } });
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) return new Response(JSON.stringify({ error: "Sessão inválida" }), { status: 401, headers: { ...cors, "Content-Type": "application/json" } });
+    const windowStart = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const { count: recentAnalyses, error: rateError } = await supabase
+      .from("ai_health_analyses")
+      .select("id", { count: "exact", head: true })
+      .eq("created_by", user.id)
+      .gte("created_at", windowStart);
+    if (rateError) throw rateError;
+    if ((recentAnalyses ?? 0) >= 30) {
+      return new Response(JSON.stringify({ error: "Limite de 30 análises por hora atingido para esta conta. Registre os sinais e procure o veterinário se houver urgência." }), { status: 429, headers: { ...cors, "Content-Type": "application/json" } });
+    }
     const body = await req.json();
     if (body.image_url) {
       let imageUrl: URL;
@@ -98,6 +108,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         model: Deno.env.get("OPENAI_MODEL") || "gpt-4o-mini",
         temperature: 0.2,
+        max_tokens: 1800,
         response_format: { type: "json_object" },
         messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userContent }],
       }),
