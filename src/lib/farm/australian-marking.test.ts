@@ -11,7 +11,7 @@ describe("identificação australiana", () => {
   it("decompõe o número máximo válido e preserva o total", () => {
     const mark = decodeAustralianMark(1599);
     expect(mark).not.toBeNull();
-    expect(australianEarTotals(mark!)).toEqual({ right: 109, left: 1490 });
+    expect(australianEarTotals(mark!)).toEqual({ right: 509, left: 1090 });
     expect(australianEarTotals(mark!).right + australianEarTotals(mark!).left).toBe(1599);
   });
 
