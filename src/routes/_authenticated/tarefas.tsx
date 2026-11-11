@@ -121,7 +121,11 @@ function QuickRoutine({onDone}:{onDone:()=>void}) {
   ];
   async function add(title:string,sector:string){
     setBusy(true);
-    const{error}=await supabase.from("tasks").insert({title,priority:"media",sector,due_date:todayISO()});
+    const date=todayISO();
+    const {data:existing,error:lookupError}=await supabase.from("tasks").select("id").eq("title",title).eq("sector",sector).eq("due_date",date).neq("status","concluida").limit(1);
+    if(lookupError){setBusy(false);toast.error(lookupError.message);return;}
+    if(existing?.length){setBusy(false);toast.info("Essa rotina já está aberta para hoje.");setOpen(false);return;}
+    const{error}=await supabase.from("tasks").insert({title,priority:"media",sector,due_date:date});
     setBusy(false);
     if(error){toast.error(error.message);return;}
     toast.success("Rotina adicionada às tarefas de hoje");
