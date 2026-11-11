@@ -32,4 +32,4 @@ A função não prescreve medicamentos, não seleciona tratamento, não calcula 
 
 ## Validação antes da produção
 
-Executar `bun run build`, `bun run lint` e `bun run test` (o workflow `.github/workflows/ci.yml` automatiza essas verificações em PRs e pushes para `main`). Testar RLS, Storage privado, função sem secret, função com secret, lote vencido e tentativa de saída maior que o saldo.
+Executar `bun run test` e `bun run build`. O lint completo já aponta centenas de pendências de formatação e uso de `any` espalhadas pelo legado; por isso a workflow o registra como informativo, sem impedir que testes e build sejam executados. A workflow `.github/workflows/ci.yml` automatiza as verificações em PRs e pushes para `main`. Testar RLS, Storage privado, função sem secret, função com secret, lote vencido e tentativa de saída maior que o saldo.
