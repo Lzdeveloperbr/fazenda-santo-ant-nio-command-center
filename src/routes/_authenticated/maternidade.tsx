@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { ClipboardList } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { sowsQuery, littersQuery, livePiglets, fmtDate, todayISO, type Litter } from "@/lib/farm";
 import { SectionTitle, Empty } from "@/components/farm/Kpi";
@@ -32,6 +34,7 @@ function Maternidade() {
   const recentWeaned = (litters.data ?? []).filter((l) => l.status === "desmamada").sort((a, b) => (b.weaning_date ?? "").localeCompare(a.weaning_date ?? "")).slice(0, 6);
   const tag = (id: string) => sows.data?.find((s) => s.id === id)?.ear_tag ?? "?";
   const total = active.reduce((a, l) => a + livePiglets(l), 0);
+  const ageGroups = useMemo(() => { const groups = [{ faixa: "0–7 dias", total: 0 }, { faixa: "8–14 dias", total: 0 }, { faixa: "15–21 dias", total: 0 }, { faixa: "22+ dias", total: 0 }]; for (const l of active) { const age = Math.max(0, Math.floor((Date.now() - new Date(l.farrowing_date + "T12:00:00").getTime()) / 86400000)); const index = age <= 7 ? 0 : age <= 14 ? 1 : age <= 21 ? 2 : 3; groups[index].total += livePiglets(l); } return groups; }, [active]);
 
   return (
     <div className="space-y-6">
@@ -41,6 +44,18 @@ function Maternidade() {
         <Stat label="Leitões vivos" v={total} tone="text-ok-glow" />
         <Stat label="Mortes registradas" v={active.reduce((a, l) => a + l.deaths, 0)} tone="text-destructive" />
       </div>
+
+      {!litters.isLoading && active.length > 0 && <div className="grid gap-4 lg:grid-cols-5">
+        <section className="panel p-4 sm:p-5 lg:col-span-2">
+          <SectionTitle kicker="Distribuição etária" title="Leitões por idade"/>
+          <p className="mb-2 text-xs text-muted-foreground">Quantidade de leitões vivos por faixa de dias desde o parto.</p>
+          <div className="h-56"><ResponsiveContainer width="100%" height="100%"><BarChart data={ageGroups} margin={{top:8,right:8,left:-18,bottom:0}}><CartesianGrid stroke="var(--border)" vertical={false} strokeDasharray="4 5"/><XAxis dataKey="faixa" tick={{fontSize:10}} tickLine={false} axisLine={false}/><YAxis allowDecimals={false} tick={{fontSize:10}} tickLine={false} axisLine={false}/><Tooltip contentStyle={{background:"var(--card)",border:"1px solid var(--border)",borderRadius:12}}/><Bar dataKey="total" name="Leitões vivos" fill="var(--ok)" radius={[5,5,0,0]}/></BarChart></ResponsiveContainer></div>
+        </section>
+        <section className="panel overflow-hidden lg:col-span-3">
+          <div className="flex items-center gap-2 border-b border-border px-4 py-4"><ClipboardList className="h-4 w-4 text-muted-foreground"/><div><h2 className="text-sm font-semibold">Resumo das leitegadas</h2><p className="text-xs text-muted-foreground">Conferência rápida da maternidade</p></div></div>
+          <div className="overflow-x-auto"><table className="w-full min-w-[570px] text-sm"><thead className="bg-muted/40 text-left text-xs text-muted-foreground"><tr><th className="px-4 py-3 font-medium">Matriz</th><th className="px-3 py-3 font-medium">Parto</th><th className="px-3 py-3 font-medium">Dias</th><th className="px-3 py-3 font-medium">Nascidos vivos</th><th className="px-3 py-3 font-medium">Mortes</th><th className="px-3 py-3 font-medium">Vivos agora</th></tr></thead><tbody className="divide-y divide-border">{active.map(l=>{const days=Math.max(0,Math.floor((Date.now()-new Date(l.farrowing_date+"T12:00:00").getTime())/86400000));return <tr key={l.id}><td className="px-4 py-3 font-mono font-semibold">{tag(l.sow_id)}</td><td className="px-3 py-3 font-mono text-xs">{fmtDate(l.farrowing_date)}</td><td className="px-3 py-3 font-mono">{days}</td><td className="px-3 py-3 font-mono">{l.born_alive}</td><td className="px-3 py-3 font-mono">{l.deaths}</td><td className="px-3 py-3 font-mono font-semibold">{livePiglets(l)}</td></tr>})}</tbody></table></div>
+        </section>
+      </div>}
 
       {litters.isLoading ? <p className="label-tech animate-pulse-soft">Carregando…</p> : active.length === 0 ? (
         <Empty>Nenhuma leitegada na maternidade. Registre um parto em <Link to="/matrizes" className="text-info underline">Matrizes</Link>.</Empty>
