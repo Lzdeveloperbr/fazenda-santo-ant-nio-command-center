@@ -21,6 +21,7 @@ import { Route as AuthenticatedSanidadeRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedEstoqueRouteImport } from './routes/_authenticated/estoque'
 import { Route as AuthenticatedDesempenhoRouteImport } from './routes/_authenticated/desempenho'
 import { Route as AuthenticatedBaiasRouteImport } from './routes/_authenticated/baias'
+import { Route as AuthenticatedDesmameRouteImport } from './routes/_authenticated/desmame'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -62,6 +63,7 @@ const AuthenticatedSanidadeRoute = AuthenticatedSanidadeRouteImport.update({ id:
 const AuthenticatedEstoqueRoute = AuthenticatedEstoqueRouteImport.update({ id: '/estoque', path: '/estoque', getParentRoute: () => AuthenticatedRouteRoute } as any)
 const AuthenticatedDesempenhoRoute = AuthenticatedDesempenhoRouteImport.update({ id: '/desempenho', path: '/desempenho', getParentRoute: () => AuthenticatedRouteRoute } as any)
 const AuthenticatedBaiasRoute = AuthenticatedBaiasRouteImport.update({ id: '/baias', path: '/baias', getParentRoute: () => AuthenticatedRouteRoute } as any)
+const AuthenticatedDesmameRoute = AuthenticatedDesmameRouteImport.update({ id: '/desmame', path: '/desmame', getParentRoute: () => AuthenticatedRouteRoute } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/estoque': typeof AuthenticatedEstoqueRoute
   '/desempenho': typeof AuthenticatedDesempenhoRoute
   '/baias': typeof AuthenticatedBaiasRoute
+  '/desmame': typeof AuthenticatedDesmameRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -87,6 +90,7 @@ export interface FileRoutesByTo {
   '/sanidade': typeof AuthenticatedSanidadeRoute
   '/estoque': typeof AuthenticatedEstoqueRoute
   '/baias': typeof AuthenticatedBaiasRoute
+  '/desmame': typeof AuthenticatedDesmameRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -102,11 +106,12 @@ export interface FileRoutesById {
   '/_authenticated/estoque': typeof AuthenticatedEstoqueRoute
   '/_authenticated/desempenho': typeof AuthenticatedDesempenhoRoute
   '/_authenticated/baias': typeof AuthenticatedBaiasRoute
+  '/_authenticated/desmame': typeof AuthenticatedDesmameRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/maternidade' | '/matrizes' | '/painel' | '/tarefas' | '/lotes' | '/sanidade' | '/estoque' | '/desempenho' | '/baias'
+    '/' | '/auth' | '/maternidade' | '/matrizes' | '/painel' | '/tarefas' | '/lotes' | '/sanidade' | '/estoque' | '/desempenho' | '/desmame' | '/baias' | '/desmame'
   fileRoutesByTo: FileRoutesByTo
   to: '/' | '/auth' | '/maternidade' | '/matrizes' | '/painel' | '/tarefas' | '/lotes' | '/sanidade' | '/estoque' | '/desempenho'
   id:
@@ -185,6 +190,7 @@ declare module '@tanstack/react-router' {
     '/_authenticated/estoque': { id: '/_authenticated/estoque'; path: '/estoque'; fullPath: '/estoque'; preLoaderRoute: typeof AuthenticatedEstoqueRouteImport; parentRoute: typeof AuthenticatedRouteRoute }
     '/_authenticated/desempenho': { id: '/_authenticated/desempenho'; path: '/desempenho'; fullPath: '/desempenho'; preLoaderRoute: typeof AuthenticatedDesempenhoRouteImport; parentRoute: typeof AuthenticatedRouteRoute }
     '/_authenticated/baias': { id: '/_authenticated/baias'; path: '/baias'; fullPath: '/baias'; preLoaderRoute: typeof AuthenticatedBaiasRouteImport; parentRoute: typeof AuthenticatedRouteRoute }
+    '/_authenticated/desmame': { id: '/_authenticated/desmame'; path: '/desmame'; fullPath: '/desmame'; preLoaderRoute: typeof AuthenticatedDesmameRouteImport; parentRoute: typeof AuthenticatedRouteRoute }
   }
 }
 
@@ -198,6 +204,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedEstoqueRoute: typeof AuthenticatedEstoqueRoute
   AuthenticatedDesempenhoRoute: typeof AuthenticatedDesempenhoRoute
   AuthenticatedBaiasRoute: typeof AuthenticatedBaiasRoute
+  AuthenticatedDesmameRoute: typeof AuthenticatedDesmameRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -210,6 +217,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedEstoqueRoute: AuthenticatedEstoqueRoute,
   AuthenticatedDesempenhoRoute: AuthenticatedDesempenhoRoute,
   AuthenticatedBaiasRoute: AuthenticatedBaiasRoute,
+  AuthenticatedDesmameRoute: AuthenticatedDesmameRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
