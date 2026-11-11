@@ -139,6 +139,12 @@ export const KNOWLEDGE_SOURCES: Record<string, KnowledgeSource> = {
     url: "https://www.gov.br/agricultura/pt-br/assuntos/producao-animal/boas-praticas-de-producao-animal/cursos/cursos",
     note: "Lista cursos de bem-estar e transporte legal de suínos, atualizada em fevereiro de 2026.",
   },
+  nioshDejetos: {
+    title: "Prevenção de mortes em fossas e depósitos de dejetos",
+    institution: "NIOSH · CDC",
+    url: "https://archive.cdc.gov/www_cdc_gov/niosh/updates/upd-07-03-07.html",
+    note: "Alerta de segurança sobre gases tóxicos/asfixiantes, avaliação atmosférica, proteção respiratória, vigia externo e resgate sem entrada improvisada.",
+  },
   woahBemEstar: {
     title: "Código Terrestre: bem-estar e sistemas de produção de suínos",
     institution: "Organização Mundial de Saúde Animal (OMSA/WOAH)",
@@ -709,6 +715,31 @@ export const SWINE_KNOWLEDGE: KnowledgeTopic[] = [
     ],
     urgency: "Mortalidade súbita, mortes em grupo ou suspeita de doença de notificação exigem contato imediato com o veterinário e, conforme o caso, com o Serviço Veterinário Oficial. Não movimente animais ou carcaças de forma que possa disseminar a doença.",
     sourceIds: ["embrapaCarcacas", "embrapaBiosseguridade", "mapaNotificacao", "mapaSanidade"],
+  },
+  {
+    id: "seguranca-dejetos",
+    category: "Sustentabilidade",
+    phase: "Instalações e dejetos",
+    title: "Segurança de trabalhadores em fossas e depósitos de dejetos",
+    summary: "A decomposição de dejetos pode liberar sulfeto de hidrogênio, metano, dióxido de carbono e amônia, além de reduzir o oxigênio. A concentração pode mudar rapidamente, especialmente durante agitação e bombeamento.",
+    practices: [
+      "Trate fossas, tanques, esterqueiras cobertas, poços, galerias e áreas semelhantes como espaços potencialmente perigosos quando houver risco de atmosfera contaminada ou deficiência de oxigênio.",
+      "Não entre em fossas, tanques, esterqueiras ou espaços confinados para desentupir, inspecionar, limpar ou recuperar objetos sem um programa formal de entrada em espaço confinado conduzido por profissionais capacitados.",
+      "Nunca faça resgate improvisado entrando atrás de uma pessoa que desmaiou. Acione os serviços de emergência e a equipe de resgate treinada.",
+      "Qualquer intervenção excepcional exige avaliação e monitoramento atmosférico com instrumentos adequados, controle de ventilação, proteção respiratória apropriada, sistema de retirada e vigia externo, conforme avaliação profissional e normas de segurança do trabalho.",
+      "Planeje agitação, mistura e bombeamento de dejetos com avaliação de risco, ventilação e isolamento da área por equipe capacitada. Não permaneça em áreas potencialmente atingidas por gases.",
+      "Mantenha tampas, grades, guarda-corpos e sinalização; impeça a aproximação de crianças, visitantes e animais às aberturas e depósitos.",
+      "Não confie no cheiro para avaliar segurança: gases podem ser inodoros ou reduzir a capacidade de sentir odores, e ausência de cheiro não prova que o ar está seguro.",
+      "Em caso de tontura, irritação, falta de ar ou suspeita de vazamento de gás, afaste-se para local seguro e procure ajuda de emergência. Não retorne para buscar outra pessoa sem equipe e equipamento de resgate.",
+    ],
+    watch: [
+      "Agitação ou bombeamento de dejetos, ventilação parada, pessoa desorientada ou caída, odor incomum, tontura, irritação ocular ou dificuldade respiratória.",
+    ],
+    records: [
+      "Plano de atividade, responsável capacitado, avaliação de risco, manutenção da ventilação, isolamento, monitoramento, treinamento e incidentes.",
+    ],
+    urgency: "Suspeita de intoxicação ou pessoa caída em fossa/área de dejetos é emergência. Não entre para resgatar. Chame imediatamente o serviço de emergência e a equipe especializada.",
+    sourceIds: ["nioshDejetos", "embrapaPerguntas"],
   },
   {
     id: "indicadores",
