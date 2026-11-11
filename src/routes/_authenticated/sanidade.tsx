@@ -180,7 +180,7 @@ function Sanidade() {
    <Metric label="Vacinas em até 30 dias" value={dueVaccines.length} icon={<Syringe className="h-4 w-4"/>}/>
    <Metric label="Carência em acompanhamento" value={withdrawalActive.length} icon={<Pill className="h-4 w-4"/>} tone={withdrawalActive.length?"amber":"green"}/>
   </div>
-  <div className="flex gap-1 overflow-x-auto rounded-xl bg-muted/60 p-1">{tabs.map(([id,label])=><button key={id} onClick={()=>setTab(id)} className={`shrink-0 rounded-lg px-3 py-2.5 text-sm font-semibold transition ${tab===id?"bg-white text-primary shadow-sm":"text-muted-foreground hover:text-foreground"}`}>{label}</button>)}</div>
+  <div className="flex gap-1 overflow-x-auto rounded-xl bg-muted/60 p-1">{tabs.map(([id,label])=><button key={id} onClick={()=>setTab(id!)} className={`shrink-0 rounded-lg px-3 py-2.5 text-sm font-semibold transition ${tab===id?"bg-white text-primary shadow-sm":"text-muted-foreground hover:text-foreground"}`}>{label}</button>)}</div>
   {dataError&&<div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-950"><p className="font-bold">Estrutura do banco ainda não está ativa.</p><p className="mt-1 text-xs leading-5">Aplique a migration <code>drizzle/migrations/0004_saude_monitoramento_livro.sql</code> no projeto Supabase e atualize a página. Detalhe: {dataError.message}</p></div>}
   {(events.isLoading||samples.isLoading||vaccines.isLoading||medications.isLoading||monitoring.isLoading||checks.isLoading||visits.isLoading||pens.isLoading)?<div className="panel p-8 text-center text-sm text-muted-foreground">Carregando histórico sanitário...</div>:<>
    {tab==="resumo"&&<div className="grid gap-4 xl:grid-cols-2">
