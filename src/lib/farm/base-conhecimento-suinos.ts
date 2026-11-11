@@ -85,6 +85,48 @@ export const KNOWLEDGE_SOURCES: Record<string, KnowledgeSource> = {
     url: "https://www.gov.br/agricultura/pt-br/assuntos/insumos-agropecuarios/insumos-pecuarios/resistencia-aos-antimicrobianos/uso-responsavel-de-antimicrobianos",
     note: "Explica a importância sanitária e de saúde pública do uso prudente de antimicrobianos.",
   },
+  mapaNotificacao: {
+    title: "Doenças de notificação obrigatória na suinocultura",
+    institution: "Ministério da Agricultura e Pecuária",
+    url: "https://www.gov.br/agricultura/pt-br/assuntos/sanidade-animal-e-vegetal/saude-animal/programas-de-saude-animal/sanidade-suidea/notificacao-de-doencas-relativas-a-suinocultura",
+    note: "Lista oficial de doenças com exigência de notificação imediata em caso suspeito ou confirmado, conforme a categoria.",
+  },
+  mapaPSC: {
+    title: "Peste Suína Clássica (PSC)",
+    institution: "Ministério da Agricultura e Pecuária",
+    url: "https://www.gov.br/agricultura/pt-br/assuntos/sanidade-animal-e-vegetal/saude-animal/programas-de-saude-animal/sanidade-suidea/peste-suina-classica-psc",
+    note: "Página oficial atualizada em 22/07/2026; qualquer caso suspeito de PSC deve ser notificado imediatamente ao Serviço Veterinário Oficial.",
+  },
+  embrapaBiosseguridade: {
+    title: "Biosseguridade na granja de suínos",
+    institution: "Embrapa Suínos e Aves",
+    url: "https://www.embrapa.br/qualidade-da-carne/carne-suina/producao-de-suinos/biosseguridade",
+    note: "Isolamento, controle de visitantes e veículos, limpeza, vazio sanitário, água, ração, vetores e destinação de resíduos.",
+  },
+  embrapaLeitoa: {
+    title: "Manejo da leitoa de reposição",
+    institution: "Embrapa Ater+",
+    url: "https://www.atermaisdigital.cnptia.embrapa.br/web/suinos/producao/manejo-da-leitoa-de-reposicao",
+    note: "Critérios de seleção como aprumos, conformação, tetos funcionais e acompanhamento do desenvolvimento.",
+  },
+  embrapaBemEstar: {
+    title: "Bem-estar de suínos",
+    institution: "Embrapa Suínos e Aves",
+    url: "https://www.embrapa.br/web/suinos-e-aves/bes",
+    note: "Materiais sobre gestação coletiva, produção, embarque e transporte.",
+  },
+  embrapaCarcacas: {
+    title: "Tecnologias para destinação de animais mortos (TEC-DAM)",
+    institution: "Embrapa Suínos e Aves",
+    url: "https://www.embrapa.br/web/suinos-e-aves/tec-dam",
+    note: "Pesquisa alternativas de destinação de carcaças; a escolha deve respeitar normas ambientais e sanitárias locais.",
+  },
+  mapaNormas: {
+    title: "Principais normas sanitárias vigentes para suínos",
+    institution: "Ministério da Agricultura e Pecuária",
+    url: "https://www.gov.br/agricultura/pt-br/assuntos/sanidade-animal-e-vegetal/saude-animal/programas-de-saude-animal/sanidade-suidea/legislacao/legislacao-suideos/portugues/principais-normas-sanitarias-vigentes",
+    note: "Página oficial atualizada em 06/08/2026 com normas e requisitos sanitários aplicáveis à suinocultura.",
+  },
 };
 
 export const KNOWLEDGE_CATEGORIES = [
@@ -147,7 +189,7 @@ export const SWINE_KNOWLEDGE: KnowledgeTopic[] = [
       "Livro de visitantes, origem e destino de animais, quarentena, limpeza e desinfecção, controle de pragas e manutenção de barreiras.",
     ],
     urgency: "Suspeita de doença de notificação obrigatória ou ocorrência incomum com mortalidade elevada exige contato imediato com o Serviço Veterinário Oficial, seguindo o PNSS. Não transporte animais suspeitos nem tente esconder ou resolver o foco por conta própria.",
-    sourceIds: ["embrapaDoencas", "mapaSanidade", "mapaBoasPraticas"],
+    sourceIds: ["embrapaDoencas", "embrapaBiosseguridade", "mapaSanidade", "mapaNotificacao", "mapaPSC", "mapaBoasPraticas", "mapaNormas"],
   },
   {
     id: "reposicao",
@@ -169,7 +211,7 @@ export const SWINE_KNOWLEDGE: KnowledgeTopic[] = [
     records: [
       "Origem, identificação, raça ou linhagem, data de entrada, documentos, quarentena, avaliação, cobertura e desempenho reprodutivo.",
     ],
-    sourceIds: ["embrapaGestacao", "embrapaProducao", "mapaSanidade"],
+    sourceIds: ["embrapaGestacao", "embrapaProducao", "embrapaLeitoa", "mapaSanidade"],
   },
   {
     id: "cio-cobertura",
@@ -374,6 +416,28 @@ export const SWINE_KNOWLEDGE: KnowledgeTopic[] = [
     sourceIds: ["embrapaProducao", "embrapaDoencas", "mapaBoasPraticas"],
   },
   {
+    id: "cachacos",
+    category: "Reprodução",
+    phase: "Reprodutores",
+    title: "Manejo dos cachaços",
+    summary: "O macho reprodutor influencia diretamente a eficiência reprodutiva. Saúde, aprumos, condição corporal, comportamento, conforto, higiene e qualidade do sêmen precisam ser acompanhados de forma contínua.",
+    practices: [
+      "Mantenha identificação individual, histórico sanitário, idade, origem, linhagem e registros de uso reprodutivo.",
+      "Observe locomoção, aprumos, cascos, pele, apetite, condição corporal e comportamento. Dor ou dificuldade de caminhar pode comprometer a monta.",
+      "Ofereça baia segura, piso não escorregadio, espaço para movimentação e contato visual/olfativo adequado com outros suínos, conforme o projeto e o bem-estar.",
+      "Evite calor excessivo, estresse, manejo brusco e excesso de uso. A frequência de monta ou coleta deve seguir plano reprodutivo individual e orientação técnica.",
+      "Na coleta e avaliação de sêmen, siga procedimento higiênico e treinamento; registre identificação, data, avaliação de qualidade, conservação e destino.",
+      "Planeje avaliação veterinária e nutricional periódica e substituição do reprodutor quando saúde, fertilidade ou desempenho indicarem necessidade.",
+    ],
+    watch: [
+      "Claudicação, lesões, apatia, perda ou excesso de condição corporal, falta de libido, dificuldade de monta ou alteração no sêmen.",
+    ],
+    records: [
+      "Identificação, origem, peso/condição corporal, saúde, vacinações prescritas, coberturas, coletas, resultados de fertilidade e ocorrências.",
+    ],
+    sourceIds: ["embrapaProducao", "embrapaGestacao", "mapaBoasPraticas", "mapaNormas"],
+  },
+  {
     id: "nutricao-racao",
     category: "Nutrição e água",
     phase: "Todas as fases",
@@ -486,7 +550,7 @@ export const SWINE_KNOWLEDGE: KnowledgeTopic[] = [
       "Data e hora, setor, baia, fase, sinais observados, número total, afetados, mortes, fotos, mudanças recentes e contato veterinário.",
     ],
     urgency: "Morte súbita, vários animais doentes ao mesmo tempo, febre acompanhada de manchas arroxeadas, sinais neurológicos, hemorragias ou suspeita de doença de notificação devem ser tratados como alerta urgente. Acione o veterinário e o Serviço Veterinário Oficial conforme orientação do PNSS.",
-    sourceIds: ["embrapaDoencas", "mapaSanidade"],
+    sourceIds: ["embrapaDoencas", "mapaSanidade", "mapaNotificacao", "mapaPSC"],
   },
   {
     id: "doencas-prioritarias",
@@ -554,7 +618,7 @@ export const SWINE_KNOWLEDGE: KnowledgeTopic[] = [
     records: [
       "Lesões, agressões, intervenções, enriquecimento disponível, treinamento de equipe, mortalidade e medidas corretivas.",
     ],
-    sourceIds: ["mapaBoasPraticas", "mapaIN113", "embrapaProducao"],
+    sourceIds: ["mapaBoasPraticas", "mapaIN113", "embrapaBemEstar", "embrapaProducao"],
   },
   {
     id: "dejetos",
@@ -576,7 +640,7 @@ export const SWINE_KNOWLEDGE: KnowledgeTopic[] = [
     records: [
       "Volume e destino dos resíduos, manutenção, retirada, tratamento, análises, aplicação em solo e documentos ambientais.",
     ],
-    sourceIds: ["embrapaPerguntas", "mapaBoasPraticas"],
+    sourceIds: ["embrapaPerguntas", "embrapaCarcacas", "mapaBoasPraticas"],
   },
   {
     id: "indicadores",
