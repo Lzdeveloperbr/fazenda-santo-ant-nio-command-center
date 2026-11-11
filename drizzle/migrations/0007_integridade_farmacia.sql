@@ -52,3 +52,21 @@ alter table public.ai_health_analyses
   not veterinarian_reviewed or
   (nullif(trim(coalesce(veterinarian_name,'')),'') is not null and veterinarian_review_date is not null)
  );
+
+-- Prevent closing an active production batch while animals remain assigned to it.
+create or replace function public.prevent_closing_batch_with_animals()
+returns trigger language plpgsql set search_path=public as $$
+begin
+ if new.status='encerrado' and old.status<>'encerrado' and new.current_headcount>0 then
+  raise exception 'Não é possível encerrar lote com animais restantes. Registre saída ou transferência primeiro.';
+ end if;
+ return new;
+end $$;
+create trigger production_batch_close_guard
+before update of status on public.production_batches
+for each row execute function public.prevent_closing_batch_with_animals();
+
+-- Keep occurrence counts coherent when the total is known.
+alter table public.health_events
+ add constraint health_event_affected_not_above_total
+ check (animal_count=0 or affected_count<=animal_count);
