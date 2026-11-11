@@ -2,7 +2,7 @@
 
 A interface, o esquema de dados e a função de backend estão no repositório. Para habilitar análises reais, conclua estas etapas no projeto Supabase/Lovable:
 
-1. Conferir a sequência e aplicar as migrations `0001` a `0007` na ordem do journal. A migration `0001_suinocultura_operacao.sql`, que já era referenciada pelo journal mas estava ausente da árvore de arquivos, foi restaurada nesta branch.
+1. Conferir a sequência e aplicar as migrations `0001` a `0007` na ordem do journal. A migration `0001_suinocultura_operacao.sql`, que já era referenciada pelo journal mas estava ausente da árvore de arquivos, foi restaurada nesta branch. O estoque antigo de lotes usa `batch_feed_products` e `batch_feed_movements`; o estoque diário por baia usa `feed_products` e `feed_movements`, evitando colisão de nomes e estruturas.
 2. Fazer deploy da Edge Function `supabase/functions/vet-assistant/index.ts` com o nome `vet-assistant`.
 3. Cadastrar `OPENAI_API_KEY` como secret da Edge Function. Nunca colocar essa chave em variável `VITE_*`, no frontend ou no Git.
 4. Opcionalmente cadastrar `OPENAI_MODEL`; o padrão é `gpt-4o-mini`.
