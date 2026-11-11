@@ -55,7 +55,7 @@ function Desempenho(){
 function Stat({label,value,icon}:{label:string;value:number;icon:ReactNode}){return <div className="farm-surface p-4"><div className="flex items-center justify-between text-muted-foreground"><p className="label-tech">{label}</p>{icon}</div><p className="mt-2 font-mono text-3xl">{value}</p></div>;}
 function WeighForm({batch,onDone}:{batch:any;onDone:()=>void}){
  const [busy,setBusy]=useState(false);
- return <FormDialog title={"Registrar pesagem · "+batch.name} trigger={<Button size="sm" className="h-9"><Plus className="mr-1 h-4 w-4"/>Pesagem</Button>}>{close=><form className="space-y-4" onSubmit={async e=>{
+ return <FormDialog title={"Registrar pesagem · "+batch.name} trigger={<Button size="sm" className="h-9"><Plus className="mr-1 h-4 w-4"/>Pesagem</Button>}>{close=><form className="space-y-4" onSubmit={async (e):Promise<any>=>{
   e.preventDefault();setBusy(true);const f=new FormData(e.currentTarget);const weight=Number(f.get("weight"));const sample=Number(f.get("sample"));
   if(!Number.isFinite(weight)||weight<=0||!Number.isInteger(sample)||sample<1||sample>Number(batch.current_headcount)){setBusy(false);return toast.error("Confira o peso e o tamanho da amostra.");}
   const {error}=await db.from("batch_weights").insert({batch_id:batch.id,weigh_date:String(f.get("date")),average_weight_kg:weight,sample_size:sample,notes:String(f.get("notes")||"")||null});
