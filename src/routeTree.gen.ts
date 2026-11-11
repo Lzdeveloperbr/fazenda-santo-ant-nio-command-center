@@ -23,6 +23,7 @@ import { Route as AuthenticatedDesempenhoRouteImport } from './routes/_authentic
 import { Route as AuthenticatedBaiasRouteImport } from './routes/_authenticated/baias'
 import { Route as AuthenticatedDesmameRouteImport } from './routes/_authenticated/desmame'
 import { Route as AuthenticatedFarmaciaAiRouteImport } from './routes/_authenticated/farmacia-ai'
+import { Route as AuthenticatedBibliotecaSuinosRouteImport } from './routes/_authenticated/biblioteca-suinos'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -66,6 +67,7 @@ const AuthenticatedDesempenhoRoute = AuthenticatedDesempenhoRouteImport.update({
 const AuthenticatedBaiasRoute = AuthenticatedBaiasRouteImport.update({ id: '/baias', path: '/baias', getParentRoute: () => AuthenticatedRouteRoute } as any)
 const AuthenticatedDesmameRoute = AuthenticatedDesmameRouteImport.update({ id: '/desmame', path: '/desmame', getParentRoute: () => AuthenticatedRouteRoute } as any)
 const AuthenticatedFarmaciaAiRoute = AuthenticatedFarmaciaAiRouteImport.update({ id: '/farmacia-ai', path: '/farmacia-ai', getParentRoute: () => AuthenticatedRouteRoute } as any)
+const AuthenticatedBibliotecaSuinosRoute = AuthenticatedBibliotecaSuinosRouteImport.update({ id: '/biblioteca-suinos', path: '/biblioteca-suinos', getParentRoute: () => AuthenticatedRouteRoute } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -81,6 +83,7 @@ export interface FileRoutesByFullPath {
   '/baias': typeof AuthenticatedBaiasRoute
   '/desmame': typeof AuthenticatedDesmameRoute
   '/farmacia-ai': typeof AuthenticatedFarmaciaAiRoute
+  '/biblioteca-suinos': typeof AuthenticatedBibliotecaSuinosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -95,6 +98,7 @@ export interface FileRoutesByTo {
   '/baias': typeof AuthenticatedBaiasRoute
   '/desmame': typeof AuthenticatedDesmameRoute
   '/farmacia-ai': typeof AuthenticatedFarmaciaAiRoute
+  '/biblioteca-suinos': typeof AuthenticatedBibliotecaSuinosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -112,11 +116,12 @@ export interface FileRoutesById {
   '/_authenticated/baias': typeof AuthenticatedBaiasRoute
   '/_authenticated/desmame': typeof AuthenticatedDesmameRoute
   '/_authenticated/farmacia-ai': typeof AuthenticatedFarmaciaAiRoute
+  '/_authenticated/biblioteca-suinos': typeof AuthenticatedBibliotecaSuinosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/maternidade' | '/matrizes' | '/painel' | '/tarefas' | '/lotes' | '/sanidade' | '/estoque' | '/desempenho' | '/desmame' | '/baias' | '/farmacia-ai'
+    '/' | '/auth' | '/maternidade' | '/matrizes' | '/painel' | '/tarefas' | '/lotes' | '/sanidade' | '/estoque' | '/desempenho' | '/desmame' | '/baias' | '/farmacia-ai' | '/biblioteca-suinos'
   fileRoutesByTo: FileRoutesByTo
   to: '/' | '/auth' | '/maternidade' | '/matrizes' | '/painel' | '/tarefas' | '/lotes' | '/sanidade' | '/estoque' | '/desempenho' | '/desmame' | '/baias' | '/farmacia-ai'
   id:
@@ -216,6 +221,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedBaiasRoute: typeof AuthenticatedBaiasRoute
   AuthenticatedDesmameRoute: typeof AuthenticatedDesmameRoute
   AuthenticatedFarmaciaAiRoute: typeof AuthenticatedFarmaciaAiRoute
+  AuthenticatedBibliotecaSuinosRoute: typeof AuthenticatedBibliotecaSuinosRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -230,6 +236,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBaiasRoute: AuthenticatedBaiasRoute,
   AuthenticatedDesmameRoute: AuthenticatedDesmameRoute,
   AuthenticatedFarmaciaAiRoute: AuthenticatedFarmaciaAiRoute,
+  AuthenticatedBibliotecaSuinosRoute: AuthenticatedBibliotecaSuinosRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
