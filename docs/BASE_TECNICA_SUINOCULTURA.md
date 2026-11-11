@@ -30,7 +30,7 @@ A biblioteca cobre reposição, reprodução, cachaços, gestação, maternidade
 - Medicamentos, prescrição, lote, validade e carência.
 - Bem-estar, comportamento, enriquecimento e manejo calmo.
 - Transporte, embarque, mortalidade e destinação de carcaças.
-- Dejetos, sustentabilidade e indicadores da granja.
+- Dejetos, sustentabilidade, segurança de trabalhadores em espaços confinados e indicadores da granja.
 
 ## Alertas sanitários
 A página oficial do MAPA apresenta doenças de notificação obrigatória na suinocultura e separa as exigências por categoria de notificação. Em caso de suspeita ou confirmação, siga a exigência oficial aplicável e comunique o Serviço Veterinário Oficial. A suspeita de Peste Suína Clássica exige notificação imediata ao Serviço Veterinário Oficial.
@@ -56,6 +56,7 @@ Não movimente animais, produtos ou materiais de modo que possa disseminar uma d
 - [Biosseguridade em granjas](https://www.embrapa.br/qualidade-da-carne/carne-suina/producao-de-suinos/biosseguridade)
 - [Bem-estar de suínos](https://www.embrapa.br/web/suinos-e-aves/bes)
 - [TEC-DAM — destinação de animais mortos](https://www.embrapa.br/web/suinos-e-aves/tec-dam)
+- [Gases nocivos da suinocultura — acervo histórico Embrapa](https://www.atermaisdigital.cnptia.embrapa.br/web/suinos/listagem-perguntas-e-respostas)
 - [500 perguntas e 500 respostas — acervo histórico](https://www.atermaisdigital.cnptia.embrapa.br/web/suinos/listagem-perguntas-e-respostas)
 
 ### MAPA
@@ -69,6 +70,9 @@ Não movimente animais, produtos ou materiais de modo que possa disseminar uma d
 - [Uso responsável e prudente de antimicrobianos](https://www.gov.br/agricultura/pt-br/assuntos/insumos-agropecuarios/insumos-pecuarios/resistencia-aos-antimicrobianos/uso-responsavel-de-antimicrobianos)
 - [Cursos de boas práticas e bem-estar](https://www.gov.br/agricultura/pt-br/assuntos/producao-animal/boas-praticas-de-producao-animal/cursos/cursos)
 - [Instrução Normativa MAPA nº 113/2020](https://www.gov.br/agricultura/pt-br/assuntos/sanidade-animal-e-vegetal/saude-animal/programas-de-saude-animal/sanidade-suidea/legislacao-suideos/2020IN113de16dedezembroBPMeBEAgranjasdesunoscomerciais.pdf/@@download/file)
+
+### Segurança do trabalho
+- [Prevenção de mortes em fossas e depósitos de dejetos — NIOSH/CDC](https://archive.cdc.gov/www_cdc_gov/niosh/updates/upd-07-03-07.html)
 
 ### OMSA/WOAH
 - [Código Terrestre — bem-estar e sistemas de produção de suínos (Capítulo 7.13)](https://www.woah.org/fileadmin/Home/eng/Health_standards/tahc/2024/en_chapitre_aw_pigs.htm)
