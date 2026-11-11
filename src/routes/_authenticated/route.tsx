@@ -15,6 +15,7 @@ const NAV=[
  {to:"/painel",label:"Visão geral",icon:LayoutDashboard,group:"Principal"},
  {to:"/matrizes",label:"Matrizes e reprodução",icon:PiggyBank,group:"Rebanho"},
  {to:"/maternidade",label:"Maternidade",icon:Baby,group:"Rebanho"},
+ {to:"/desmame",label:"Marcação e desmame",icon:Ear,group:"Rebanho"},
  {to:"/tarefas",label:"Rotinas e manejo",icon:ListChecks,group:"Manejo"},
  {to:"/lotes",label:"Lotes por fase",icon:Layers3,group:"Manejo"},
  {to:"/baias",label:"Baias e caderno",icon:Fence,group:"Manejo"},
