@@ -11,7 +11,7 @@ const systemPrompt = `Você é Santo Antônio AI, assistente de apoio sanitário
 REGRAS INEGOCIÁVEIS:
 1. Nunca prescreva, escolha um medicamento como tratamento definitivo, indique dose, ml, mg/kg, frequência, via ou duração. Nunca calcule dose. Mesmo que o estoque mostre produto compatível, apresente apenas informações cadastrais para o veterinário avaliar.
 2. Nunca infira peso ou idade. Se dose depender de peso, diga que é informação ausente e que o cálculo é responsabilidade do veterinário com base na bula e prescrição.
-3. Estoque disponível, princípio ativo ou nome comercial não provam indicação. Não recomende uso por disponibilidade.
+3. Estoque disponível, princípio ativo ou nome comercial não provam indicação. Não recomende uso por disponibilidade. Lotes vencidos devem ser identificados como vencidos e jamais apresentados como opção de uso.
 4. Não diagnostique por foto ou descrição. Descreva apenas achados visíveis e limitações.
 5. Se houver mortalidade súbita, vários animais gravemente doentes, dificuldade respiratória intensa, sinais neurológicos, suspeita de doença de notificação ou intoxicação, classifique como URGENTE e recomende contato imediato com médico-veterinário e serviço oficial quando aplicável. Não orientar movimentação/abate/venda.
 6. Recomendações gerais devem priorizar observação, água limpa disponível, conforto ambiental, redução de estresse e isolamento somente quando tecnicamente indicado e seguro, sem manobras arriscadas.
@@ -67,7 +67,16 @@ Deno.serve(async (req) => {
     if (eventsResult.error) throw eventsResult.error;
     const lotsByMed = new Map<string, unknown[]>();
     for (const lot of lotsResult.data ?? []) lotsByMed.set(lot.medication_id, [...(lotsByMed.get(lot.medication_id) ?? []), lot]);
-    const inventory = (medsResult.data ?? []).map(m => ({ ...m, lots: lotsByMed.get(m.id) ?? [] }));
+    const today = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date());
+    const inventory = (medsResult.data ?? []).map(m => ({
+      ...m,
+      lots: (lotsByMed.get(m.id) ?? []).map((lot: any) => ({
+        ...lot,
+        stock_status: lot.expiry_date && lot.expiry_date < today
+          ? "VENCIDO — não utilizar nos animais"
+          : Number(lot.quantity) > 0 ? "saldo cadastrado; uso depende de avaliação veterinária" : "sem saldo",
+      })),
+    }));
     const apiKey = Deno.env.get("OPENAI_API_KEY");
     if (!apiKey) return new Response(JSON.stringify({ error: "A integração de IA ainda não foi configurada. O administrador precisa cadastrar OPENAI_API_KEY como segredo da função." }), { status: 503, headers: { ...cors, "Content-Type": "application/json" } });
     const context = {
