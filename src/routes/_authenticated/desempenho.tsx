@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { toast } from "sonner";
-import { Activity, Plus, Scale, TrendingUp, Wheat } from "lucide-react";
+import { Activity, Plus, Scale, TrendingUp, Wheat, Table2 } from "lucide-react";
+import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { SectionTitle, Empty } from "@/components/farm/Kpi";
 import { FormDialog, SubmitRow, Field } from "@/components/farm/FormDialog";
@@ -23,6 +24,7 @@ function Desempenho(){
  const refresh=()=>{qc.invalidateQueries({queryKey:["batch_weights"]});qc.invalidateQueries({queryKey:["production_batches"]});};
  const active=(batches.data??[]).filter((b:any)=>b.status==="ativo"); const rows=weights.data??[];
  const weighed=new Set(rows.map((w:any)=>w.batch_id)).size;
+ const summary=useMemo(()=>active.map((b:any)=>{const history=rows.filter((w:any)=>w.batch_id===b.id).sort((a:any,c:any)=>a.weigh_date.localeCompare(c.weigh_date));const last=history.at(-1),prev=history.at(-2);const days=last&&prev?Math.round((new Date(last.weigh_date+"T12:00:00").getTime()-new Date(prev.weigh_date+"T12:00:00").getTime())/86400000):0;const gmd=last&&prev&&days>0?(Number(last.average_weight_kg)-Number(prev.average_weight_kg))/days*1000:null;return {id:b.id,name:b.name,phase:PHASES[b.phase]??b.phase,headcount:b.current_headcount,last:last?Number(last.average_weight_kg):null,date:last?.weigh_date??null,sample:last?.sample_size??null,gmd};}),[active,rows]);
  return <div className="space-y-6">
   <SectionTitle kicker="Indicadores zootécnicos" title="Desempenho e pesagens"/>
   <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
@@ -30,6 +32,10 @@ function Desempenho(){
    <Stat label="Lotes com pesagem" value={weighed} icon={<Scale className="h-4 w-4"/>}/>
    <Stat label="Pesagens registradas" value={rows.length} icon={<TrendingUp className="h-4 w-4"/>}/>
   </div>
+  {summary.length>0&&<section className="farm-surface overflow-hidden">
+   <div className="flex items-center gap-2 border-b border-border px-4 py-3"><Table2 className="h-4 w-4 text-muted-foreground"/><div><h2 className="text-sm font-semibold">Comparativo dos lotes ativos</h2><p className="text-xs text-muted-foreground">Última pesagem disponível por lote</p></div></div>
+   <div className="overflow-x-auto"><table className="w-full min-w-[620px] text-sm"><thead className="bg-muted/40 text-left text-xs text-muted-foreground"><tr><th className="px-4 py-3 font-medium">Lote / fase</th><th className="px-3 py-3 font-medium">Animais</th><th className="px-3 py-3 font-medium">Peso médio</th><th className="px-3 py-3 font-medium">GMD</th><th className="px-3 py-3 font-medium">Data</th><th className="px-3 py-3 font-medium">Amostra</th></tr></thead><tbody className="divide-y divide-border">{summary.map((r:any)=><tr key={r.id}><td className="px-4 py-3"><strong>{r.name}</strong><p className="text-xs text-muted-foreground">{r.phase}</p></td><td className="px-3 py-3 font-mono">{r.headcount}</td><td className="px-3 py-3 font-mono">{r.last===null?"—":r.last.toFixed(2)+" kg"}</td><td className="px-3 py-3 font-mono">{r.gmd===null?"—":Math.round(r.gmd)+" g/dia"}</td><td className="px-3 py-3 font-mono text-xs">{fmtDate(r.date)}</td><td className="px-3 py-3 font-mono">{r.sample??"—"}</td></tr>)}</tbody></table></div>
+  </section>}
   {(batches.isError||weights.isError||feed.isError)&&<p className="rounded-xl border border-destructive/40 p-3 text-sm text-destructive">Falha ao carregar dados. Verifique a conexão e a migração de pesagens.</p>}
   {(batches.isLoading||weights.isLoading||feed.isLoading)?<p className="label-tech">Carregando desempenho…</p>:active.length===0?<Empty>Cadastre um lote ativo em “Lotes por fase” para iniciar o acompanhamento.</Empty>:
    <div className="grid gap-4 xl:grid-cols-2">{active.map((b:any)=>{
@@ -46,7 +52,7 @@ function Desempenho(){
       <div className="rounded-xl bg-background/70 p-3"><p className="text-xs text-muted-foreground">Ganho médio diário</p><p className="mt-1 font-mono text-2xl">{gmd!==null&&Number.isFinite(gmd)?Math.round(gmd)+" g/dia":"—"}</p><p className="mt-1 text-[0.68rem] text-muted-foreground">{prev?"Entre as duas últimas pesagens":"Registre duas pesagens"}</p></div>
      </div>
      <div className="flex items-center justify-between rounded-xl border border-border/70 px-3 py-2.5 text-sm"><span className="flex items-center gap-2 text-muted-foreground"><Wheat className="h-4 w-4"/>Saída de ração (kg)</span><strong className="font-mono">{feedKg===null?"—":feedKg.toLocaleString("pt-BR",{maximumFractionDigits:1})+" kg"}</strong></div>
-     {history.length>0?<div className="space-y-2"><p className="label-tech">Histórico de pesagens</p>{history.slice(-4).reverse().map((w:any)=><div key={w.id} className="flex justify-between border-b border-border/60 pb-2 text-sm last:border-0"><span className="text-muted-foreground">{fmtDate(w.weigh_date)} · {w.sample_size} animais</span><strong className="font-mono">{Number(w.average_weight_kg).toFixed(2)} kg</strong></div>)}</div>:<Empty>Registre a primeira pesagem para iniciar o histórico.</Empty>}
+     {history.length>0?<div className="space-y-3"><p className="label-tech">Evolução do peso médio</p><div className="h-52"><ResponsiveContainer width="100%" height="100%"><LineChart data={history.map((w:any)=>({date:fmtDate(w.weigh_date),weight:Number(w.average_weight_kg)}))} margin={{top:8,right:12,left:-16,bottom:0}}><CartesianGrid stroke="var(--border)" strokeDasharray="4 5" vertical={false}/><XAxis dataKey="date" tick={{fontSize:10}} tickLine={false} axisLine={false}/><YAxis tick={{fontSize:10}} tickLine={false} axisLine={false} domain={["auto","auto"]}/><Tooltip formatter={(v:any)=>[Number(v).toFixed(2)+" kg","Peso médio"]} contentStyle={{background:"var(--card)",border:"1px solid var(--border)",borderRadius:12}}/><Line type="monotone" dataKey="weight" name="Peso médio" stroke="var(--ok)" strokeWidth={2.5} dot={{r:3}} activeDot={{r:5}}/></LineChart></ResponsiveContainer></div><p className="label-tech">Pesagens recentes</p>{history.slice(-4).reverse().map((w:any)=><div key={w.id} className="flex justify-between border-b border-border/60 pb-2 text-sm last:border-0"><span className="text-muted-foreground">{fmtDate(w.weigh_date)} · {w.sample_size} animais</span><strong className="font-mono">{Number(w.average_weight_kg).toFixed(2)} kg</strong></div>)}</div>:<Empty>Registre a primeira pesagem para iniciar o histórico.</Empty>}
      <p className="text-[0.68rem] text-muted-foreground">GMD estimado pela variação do peso médio entre pesagens. A ração considera somente saídas em kg vinculadas ao lote; não é conversão alimentar.</p>
     </article>;
    })}</div>}
