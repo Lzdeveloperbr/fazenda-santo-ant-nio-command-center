@@ -94,6 +94,7 @@ export interface FileRoutesByTo {
   '/estoque': typeof AuthenticatedEstoqueRoute
   '/baias': typeof AuthenticatedBaiasRoute
   '/desmame': typeof AuthenticatedDesmameRoute
+  '/farmacia-ai': typeof AuthenticatedFarmaciaAiRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -116,7 +117,7 @@ export interface FileRouteTypes {
   fullPaths:
     '/' | '/auth' | '/maternidade' | '/matrizes' | '/painel' | '/tarefas' | '/lotes' | '/sanidade' | '/estoque' | '/desempenho' | '/desmame' | '/baias' | '/farmacia-ai'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/maternidade' | '/matrizes' | '/painel' | '/tarefas' | '/lotes' | '/sanidade' | '/estoque' | '/desempenho'
+  to: '/' | '/auth' | '/maternidade' | '/matrizes' | '/painel' | '/tarefas' | '/lotes' | '/sanidade' | '/estoque' | '/desempenho' | '/desmame' | '/baias' | '/farmacia-ai'
   id:
     | '__root__'
     | '/'
@@ -129,6 +130,10 @@ export interface FileRouteTypes {
     | '/_authenticated/lotes'
     | '/_authenticated/sanidade'
     | '/_authenticated/estoque'
+    | '/_authenticated/desempenho'
+    | '/_authenticated/baias'
+    | '/_authenticated/desmame'
+    | '/_authenticated/farmacia-ai'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
