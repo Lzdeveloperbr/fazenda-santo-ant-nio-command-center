@@ -111,6 +111,7 @@ export interface FileRoutesById {
   '/_authenticated/desempenho': typeof AuthenticatedDesempenhoRoute
   '/_authenticated/baias': typeof AuthenticatedBaiasRoute
   '/_authenticated/desmame': typeof AuthenticatedDesmameRoute
+  '/_authenticated/farmacia-ai': typeof AuthenticatedFarmaciaAiRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
