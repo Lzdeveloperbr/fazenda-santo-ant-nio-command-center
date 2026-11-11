@@ -1,16 +1,19 @@
 -- Hardening do livro de estoque e integridade das prescrições.
 create or replace function public.apply_medication_movement()
 returns trigger language plpgsql security definer set search_path=public as $$
-declare lot_unit text;
+declare lot_unit text; lot_expiry date;
 begin
  if new.lot_id is null then raise exception 'Selecione o lote do medicamento para movimentar o estoque.'; end if;
- select unit into lot_unit from public.farm_medication_lots
+ select unit, expiry_date into lot_unit, lot_expiry from public.farm_medication_lots
   where id=new.lot_id and medication_id=new.medication_id for update;
  if not found then raise exception 'O lote selecionado não pertence a este medicamento.'; end if;
  if lot_unit <> new.unit then raise exception 'A unidade da movimentação deve ser igual à unidade cadastrada no lote (%).',lot_unit; end if;
  if new.movement_type='entrada' then
   update public.farm_medication_lots set quantity=quantity+new.quantity where id=new.lot_id;
  elsif new.movement_type='saida' then
+  if lot_expiry is not null and lot_expiry < current_date and lower(coalesce(new.reason,'')) not like '%descarte%' then
+   raise exception 'Lote vencido: não utilizar nos animais. Registre saída somente para descarte identificado.';
+  end if;
   update public.farm_medication_lots set quantity=quantity-new.quantity where id=new.lot_id and quantity>=new.quantity;
   if not found then raise exception 'Estoque insuficiente para esta saída.'; end if;
  else

@@ -22,6 +22,7 @@ import { Route as AuthenticatedEstoqueRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedDesempenhoRouteImport } from './routes/_authenticated/desempenho'
 import { Route as AuthenticatedBaiasRouteImport } from './routes/_authenticated/baias'
 import { Route as AuthenticatedDesmameRouteImport } from './routes/_authenticated/desmame'
+import { Route as AuthenticatedFarmaciaAiRouteImport } from './routes/_authenticated/farmacia-ai'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -64,6 +65,7 @@ const AuthenticatedEstoqueRoute = AuthenticatedEstoqueRouteImport.update({ id: '
 const AuthenticatedDesempenhoRoute = AuthenticatedDesempenhoRouteImport.update({ id: '/desempenho', path: '/desempenho', getParentRoute: () => AuthenticatedRouteRoute } as any)
 const AuthenticatedBaiasRoute = AuthenticatedBaiasRouteImport.update({ id: '/baias', path: '/baias', getParentRoute: () => AuthenticatedRouteRoute } as any)
 const AuthenticatedDesmameRoute = AuthenticatedDesmameRouteImport.update({ id: '/desmame', path: '/desmame', getParentRoute: () => AuthenticatedRouteRoute } as any)
+const AuthenticatedFarmaciaAiRoute = AuthenticatedFarmaciaAiRouteImport.update({ id: '/farmacia-ai', path: '/farmacia-ai', getParentRoute: () => AuthenticatedRouteRoute } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -78,6 +80,7 @@ export interface FileRoutesByFullPath {
   '/desempenho': typeof AuthenticatedDesempenhoRoute
   '/baias': typeof AuthenticatedBaiasRoute
   '/desmame': typeof AuthenticatedDesmameRoute
+  '/farmacia-ai': typeof AuthenticatedFarmaciaAiRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -91,6 +94,7 @@ export interface FileRoutesByTo {
   '/estoque': typeof AuthenticatedEstoqueRoute
   '/baias': typeof AuthenticatedBaiasRoute
   '/desmame': typeof AuthenticatedDesmameRoute
+  '/farmacia-ai': typeof AuthenticatedFarmaciaAiRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -107,13 +111,14 @@ export interface FileRoutesById {
   '/_authenticated/desempenho': typeof AuthenticatedDesempenhoRoute
   '/_authenticated/baias': typeof AuthenticatedBaiasRoute
   '/_authenticated/desmame': typeof AuthenticatedDesmameRoute
+  '/_authenticated/farmacia-ai': typeof AuthenticatedFarmaciaAiRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/maternidade' | '/matrizes' | '/painel' | '/tarefas' | '/lotes' | '/sanidade' | '/estoque' | '/desempenho' | '/desmame' | '/baias'
+    '/' | '/auth' | '/maternidade' | '/matrizes' | '/painel' | '/tarefas' | '/lotes' | '/sanidade' | '/estoque' | '/desempenho' | '/desmame' | '/baias' | '/farmacia-ai'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/maternidade' | '/matrizes' | '/painel' | '/tarefas' | '/lotes' | '/sanidade' | '/estoque' | '/desempenho'
+  to: '/' | '/auth' | '/maternidade' | '/matrizes' | '/painel' | '/tarefas' | '/lotes' | '/sanidade' | '/estoque' | '/desempenho' | '/desmame' | '/baias' | '/farmacia-ai'
   id:
     | '__root__'
     | '/'
@@ -126,6 +131,10 @@ export interface FileRouteTypes {
     | '/_authenticated/lotes'
     | '/_authenticated/sanidade'
     | '/_authenticated/estoque'
+    | '/_authenticated/desempenho'
+    | '/_authenticated/baias'
+    | '/_authenticated/desmame'
+    | '/_authenticated/farmacia-ai'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -191,6 +200,7 @@ declare module '@tanstack/react-router' {
     '/_authenticated/desempenho': { id: '/_authenticated/desempenho'; path: '/desempenho'; fullPath: '/desempenho'; preLoaderRoute: typeof AuthenticatedDesempenhoRouteImport; parentRoute: typeof AuthenticatedRouteRoute }
     '/_authenticated/baias': { id: '/_authenticated/baias'; path: '/baias'; fullPath: '/baias'; preLoaderRoute: typeof AuthenticatedBaiasRouteImport; parentRoute: typeof AuthenticatedRouteRoute }
     '/_authenticated/desmame': { id: '/_authenticated/desmame'; path: '/desmame'; fullPath: '/desmame'; preLoaderRoute: typeof AuthenticatedDesmameRouteImport; parentRoute: typeof AuthenticatedRouteRoute }
+    '/_authenticated/farmacia-ai': { id: '/_authenticated/farmacia-ai'; path: '/farmacia-ai'; fullPath: '/farmacia-ai'; preLoaderRoute: typeof AuthenticatedFarmaciaAiRouteImport; parentRoute: typeof AuthenticatedRouteRoute }
   }
 }
 
@@ -205,6 +215,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDesempenhoRoute: typeof AuthenticatedDesempenhoRoute
   AuthenticatedBaiasRoute: typeof AuthenticatedBaiasRoute
   AuthenticatedDesmameRoute: typeof AuthenticatedDesmameRoute
+  AuthenticatedFarmaciaAiRoute: typeof AuthenticatedFarmaciaAiRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -218,6 +229,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDesempenhoRoute: AuthenticatedDesempenhoRoute,
   AuthenticatedBaiasRoute: AuthenticatedBaiasRoute,
   AuthenticatedDesmameRoute: AuthenticatedDesmameRoute,
+  AuthenticatedFarmaciaAiRoute: AuthenticatedFarmaciaAiRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Check, Trash2 } from "lucide-react";
+import { Plus, Check, Trash2, ClipboardCheck, Droplets, Wheat, HeartPulse, ClipboardList, Thermometer } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { tasksQuery, profilesQuery, sowsQuery, PRIORITY, fmtDate, todayISO, type Task } from "@/lib/farm";
 import { SectionTitle, Empty } from "@/components/farm/Kpi";
@@ -45,7 +45,13 @@ function Tarefas() {
 
   return (
     <div className="space-y-5">
-      <SectionTitle kicker="Operations center" title="Tarefas" action={<NewTask profiles={profiles.data ?? []} onDone={refresh} />} />
+      <SectionTitle kicker="Rotina da granja" title="Tarefas" action={<div className="flex gap-2"><QuickRoutine onDone={refresh}/><NewTask profiles={profiles.data ?? []} onDone={refresh} /></div>} />
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="panel p-3"><p className="text-xs text-muted-foreground">Abertas</p><p className="mt-1 text-2xl font-bold tabular-nums">{(tasks.data??[]).filter(t=>t.status!=="concluida").length}</p></div>
+        <div className="panel p-3"><p className="text-xs text-muted-foreground">Para hoje</p><p className="mt-1 text-2xl font-bold tabular-nums">{(tasks.data??[]).filter(t=>t.status!=="concluida"&&t.due_date===today).length}</p></div>
+        <div className="panel p-3"><p className="text-xs text-muted-foreground">Atrasadas</p><p className="mt-1 text-2xl font-bold tabular-nums text-destructive">{(tasks.data??[]).filter(t=>t.status!=="concluida"&&t.due_date&&t.due_date<today).length}</p></div>
+        <div className="panel p-3"><p className="text-xs text-muted-foreground">Concluídas</p><p className="mt-1 text-2xl font-bold tabular-nums">{(tasks.data??[]).filter(t=>t.status==="concluida").length}</p></div>
+      </div>
       <div className="flex flex-wrap gap-2">
         <div className="inline-flex rounded-md border p-1">
           {(["abertas", "concluidas"] as const).map((v) => (
@@ -90,6 +96,33 @@ function Tarefas() {
       )}
     </div>
   );
+}
+
+function QuickRoutine({onDone}:{onDone:()=>void}) {
+  const [open,setOpen]=useState(false);
+  const [busy,setBusy]=useState(false);
+  const routines=[
+    {title:"Conferir água e funcionamento dos bebedouros",sector:"Geral",icon:Droplets},
+    {title:"Conferir ração e funcionamento dos comedouros",sector:"Ração",icon:Wheat},
+    {title:"Observar comportamento e apetite dos animais",sector:"Sanidade",icon:HeartPulse},
+    {title:"Verificar temperatura e ventilação dos setores",sector:"Geral",icon:Thermometer},
+    {title:"Conferir limpeza e condições das baias",sector:"Geral",icon:ClipboardList},
+  ];
+  async function add(title:string,sector:string){
+    setBusy(true);
+    const{error}=await supabase.from("tasks").insert({title,priority:"media",sector,due_date:todayISO()});
+    setBusy(false);
+    if(error){toast.error(error.message);return;}
+    toast.success("Rotina adicionada às tarefas de hoje");
+    setOpen(false);onDone();
+  }
+  return <div className="relative">
+    <Button variant="outline" className="h-10" onClick={()=>setOpen(v=>!v)}><ClipboardCheck className="mr-1 h-4 w-4"/>Rotina rápida</Button>
+    {open&&<div className="absolute right-0 top-12 z-30 w-[min(88vw,340px)] rounded-xl border bg-card p-2 shadow-xl">
+      <p className="px-3 py-2 text-xs font-semibold text-muted-foreground">Adicionar tarefa de rotina para hoje</p>
+      {routines.map(item=><button key={item.title} disabled={busy} onClick={()=>add(item.title,item.sector)} className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm hover:bg-muted disabled:opacity-50"><item.icon className="h-4 w-4 shrink-0 text-primary"/><span>{item.title}</span></button>)}
+    </div>}
+  </div>;
 }
 
 function NewTask({ profiles, onDone }: { profiles: { id: string; display_name: string }[]; onDone: () => void }) {

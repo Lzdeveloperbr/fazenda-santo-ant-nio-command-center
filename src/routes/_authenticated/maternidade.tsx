@@ -29,7 +29,7 @@ function Maternidade() {
   const sows = useQuery(sowsQuery);
   const litters = useQuery(littersQuery);
   const active = (litters.data ?? []).filter((l) => l.status === "maternidade");
-  const recentWeaned = (litters.data ?? []).filter((l) => l.status === "desmamada").slice(0, 6);
+  const recentWeaned = (litters.data ?? []).filter((l) => l.status === "desmamada").sort((a, b) => (b.weaning_date ?? "").localeCompare(a.weaning_date ?? "")).slice(0, 6);
   const tag = (id: string) => sows.data?.find((s) => s.id === id)?.ear_tag ?? "?";
   const total = active.reduce((a, l) => a + livePiglets(l), 0);
 
