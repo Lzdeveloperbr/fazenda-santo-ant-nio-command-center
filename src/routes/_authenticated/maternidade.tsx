@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { ClipboardList } from "lucide-react";
+import { ClipboardList, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { sowsQuery, littersQuery, livePiglets, fmtDate, todayISO, type Litter } from "@/lib/farm";
 import { SectionTitle, Empty } from "@/components/farm/Kpi";
@@ -120,8 +120,29 @@ function LitterCard({ l, tag, delay, onDone }: { l: Litter; tag: string; delay: 
       <p className="mt-2 font-mono text-[0.7rem] text-muted-foreground">Parto {fmtDate(l.farrowing_date)} · {days} dias</p>
       <div className="mt-3 grid grid-cols-2 gap-2">
         {ACTIONS.map((a) => <EventAction key={a.type} a={a} l={l} tag={tag} live={live} onDone={onDone} />)}
+        <DeleteLitter l={l} tag={tag} onDone={onDone} />
       </div>
     </div>
+  );
+}
+
+function DeleteLitter({ l, tag, onDone }: { l: Litter; tag: string; onDone: () => void }) {
+  const [busy, setBusy] = useState(false);
+  async function remove() {
+    const ok = confirm(`Excluir definitivamente o cadastro da leitegada da matriz ${tag}, do parto de ${fmtDate(l.farrowing_date)}? Os eventos e observações vinculados a essa leitegada também serão excluídos. Essa ação não pode ser desfeita.`);
+    if (!ok) return;
+    setBusy(true);
+    const { error } = await supabase.from("litters").delete().eq("id", l.id);
+    setBusy(false);
+    if (error) { toast.error(error.message); return; }
+    await supabase.from("sows").update({ status: "vazia" }).eq("id", l.sow_id).eq("status", "lactante");
+    toast.success("Cadastro da leitegada excluído");
+    onDone();
+  }
+  return (
+    <Button type="button" size="sm" variant="destructive" className="h-10 col-span-2" disabled={busy} onClick={remove}>
+      <Trash2 className="mr-2 h-4 w-4" />{busy ? "Excluindo…" : "Excluir leitegada"}
+    </Button>
   );
 }
 
