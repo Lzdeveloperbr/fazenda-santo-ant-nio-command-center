@@ -140,6 +140,7 @@ export interface FileRouteTypes {
     | '/_authenticated/baias'
     | '/_authenticated/desmame'
     | '/_authenticated/farmacia-ai'
+    | '/_authenticated/biblioteca-suinos'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -206,6 +207,7 @@ declare module '@tanstack/react-router' {
     '/_authenticated/baias': { id: '/_authenticated/baias'; path: '/baias'; fullPath: '/baias'; preLoaderRoute: typeof AuthenticatedBaiasRouteImport; parentRoute: typeof AuthenticatedRouteRoute }
     '/_authenticated/desmame': { id: '/_authenticated/desmame'; path: '/desmame'; fullPath: '/desmame'; preLoaderRoute: typeof AuthenticatedDesmameRouteImport; parentRoute: typeof AuthenticatedRouteRoute }
     '/_authenticated/farmacia-ai': { id: '/_authenticated/farmacia-ai'; path: '/farmacia-ai'; fullPath: '/farmacia-ai'; preLoaderRoute: typeof AuthenticatedFarmaciaAiRouteImport; parentRoute: typeof AuthenticatedRouteRoute }
+    '/_authenticated/biblioteca-suinos': { id: '/_authenticated/biblioteca-suinos'; path: '/biblioteca-suinos'; fullPath: '/biblioteca-suinos'; preLoaderRoute: typeof AuthenticatedBibliotecaSuinosRouteImport; parentRoute: typeof AuthenticatedRouteRoute }
   }
 }
 
