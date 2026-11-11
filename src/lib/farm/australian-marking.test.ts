@@ -15,9 +15,8 @@ describe("identificação australiana", () => {
     expect(australianEarTotals(mark!).right + australianEarTotals(mark!).left).toBe(1599);
   });
 
-  it("não aceita números que não podem ser representados pelo padrão", () => {
-    expect(decodeAustralianMark(2)).not.toBeNull();
-    expect(decodeAustralianMark(4)).toBeNull();
+  it("representa corretamente números pequenos combinando os valores das marcações", () => {
+    expect(decodeAustralianMark(4)).toEqual({ ones: 1, threes: 1, tip100: 0, hole400: 0, tens: 0, thirties: 0, tip200: 0, hole800: 0 });
   });
 });
 
