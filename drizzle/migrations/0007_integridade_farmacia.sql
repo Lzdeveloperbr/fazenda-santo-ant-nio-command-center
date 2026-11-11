@@ -21,13 +21,20 @@ end $$;
 
 create or replace function public.validate_veterinary_treatment_lot()
 returns trigger language plpgsql set search_path=public as $$
+declare lot_medication uuid;
 begin
  if new.end_date is not null and new.end_date < new.start_date then
   raise exception 'A data final do tratamento não pode ser anterior à data inicial.';
  end if;
- if new.lot_id is not null and new.medication_id is not null and not exists(
-  select 1 from public.farm_medication_lots where id=new.lot_id and medication_id=new.medication_id
- ) then raise exception 'O lote selecionado não pertence ao medicamento informado.'; end if;
+ if new.lot_id is not null then
+  select medication_id into lot_medication from public.farm_medication_lots where id=new.lot_id;
+  if not found then raise exception 'Lote informado não encontrado.'; end if;
+  if new.medication_id is null then
+   new.medication_id := lot_medication;
+  elsif new.medication_id <> lot_medication then
+   raise exception 'O lote selecionado não pertence ao medicamento informado.';
+  end if;
+ end if;
  return new;
 end $$;
 create trigger veterinary_treatment_validate before insert or update on public.veterinary_treatment_records
