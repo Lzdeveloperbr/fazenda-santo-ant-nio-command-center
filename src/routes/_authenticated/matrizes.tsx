@@ -46,7 +46,7 @@ function Matrizes() {
   function exportCsv() {
     const head = ["Brinco", "Nome", "Situação", "Última cobertura", "Diagnóstico", "Parto estimado", "Último parto", "Partos"];
     const lines = rows.map((r) => [r.s.ear_tag, r.s.name ?? "", SOW_STATUS[r.s.status]?.label ?? r.s.status, r.lastB?.breeding_date ?? "", r.lastB?.pregnancy_check ?? "", r.lastB?.expected_farrowing ?? "", r.lastL?.farrowing_date ?? "", r.parity]);
-    const csv = [head, ...lines].map((l) => l.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(";")).join("\n");
+    const csv = [head, ...lines].map((l) => l.map((c) => { const value = String(c); const safe = /^[=+\\-@\\t\\r]/.test(value) ? "\'" + value : value; return `"${safe.replace(/"/g, '\"')}"`; }).join(";")).join("\n");
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob(["\ufeff" + csv], { type: "text/csv" }));
     a.download = "matrizes.csv";
