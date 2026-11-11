@@ -127,6 +127,18 @@ export const KNOWLEDGE_SOURCES: Record<string, KnowledgeSource> = {
     url: "https://www.gov.br/agricultura/pt-br/assuntos/sanidade-animal-e-vegetal/saude-animal/programas-de-saude-animal/sanidade-suidea/legislacao/legislacao-suideos/portugues/principais-normas-sanitarias-vigentes",
     note: "Página oficial atualizada em 06/08/2026 com normas e requisitos sanitários aplicáveis à suinocultura.",
   },
+  mapaTransporte: {
+    title: "Transporte de animais vivos",
+    institution: "Ministério da Agricultura e Pecuária",
+    url: "https://www.gov.br/agricultura/pt-br/assuntos/producao-animal/boas-praticas-de-producao-animal/transporte-de-animais-vivos",
+    note: "Página oficial atualizada em 24/09/2026; reúne materiais sobre transporte legal de suínos e bem-estar no trajeto.",
+  },
+  woahBemEstar: {
+    title: "Código Terrestre: bem-estar e sistemas de produção de suínos",
+    institution: "Organização Mundial de Saúde Animal (OMSA/WOAH)",
+    url: "https://www.woah.org/fileadmin/Home/eng/Health_standards/tahc/2024/en_chapitre_aw_pigs.htm",
+    note: "Padrão internacional: inspeção diária e mais frequente para categorias vulneráveis, alojamento adequado, manejo e enriquecimento ambiental.",
+  },
 };
 
 export const KNOWLEDGE_CATEGORIES = [
@@ -621,6 +633,32 @@ export const SWINE_KNOWLEDGE: KnowledgeTopic[] = [
     sourceIds: ["mapaBoasPraticas", "mapaIN113", "embrapaBemEstar", "embrapaProducao"],
   },
   {
+    id: "transporte",
+    category: "Bem-estar",
+    phase: "Terminação e saída",
+    title: "Embarque, transporte e preparação de saída",
+    summary: "O pré-abate é uma etapa de alto risco de estresse, lesões e perdas. Planejamento, equipe treinada, instalações adequadas, transporte limpo e condução calma protegem os animais e a qualidade do produto.",
+    practices: [
+      "Confirme com antecedência data, horário, quantidade, categoria, documentação exigida e programação do frigorífico ou destino.",
+      "Planeje o embarque para evitar espera, aglomeração e calor excessivo. Em dias quentes, avalie os horários mais amenos e a previsão do tempo.",
+      "Verifique rampas, piso antiderrapante, iluminação, corredores, portões, acesso de caminhões e área de manobra antes de começar.",
+      "Use equipe treinada, tábuas e equipamentos apropriados; conduza os animais sem gritos, pancadas, torções ou uso rotineiro de instrumentos dolorosos.",
+      "Evite misturar grupos desconhecidos e segmente por categoria e tamanho conforme plano de carregamento e exigência do transportador/destino.",
+      "Confira se o veículo está limpo, higienizado, ventilado, protegido das intempéries e adequado à categoria e ao peso. A densidade e a capacidade precisam seguir os requisitos oficiais aplicáveis.",
+      "Mantenha acesso à água até a saída conforme o protocolo de jejum definido pelo responsável técnico e pelo estabelecimento de destino. Não improvise horas de jejum.",
+      "Animais doentes, feridos, incapazes de caminhar ou com sofrimento devem ser avaliados pelo veterinário antes de qualquer decisão de transporte.",
+      "Registre incidentes, quedas, lesões, mortes, atrasos, temperatura, duração do embarque e problemas observados no recebimento.",
+    ],
+    watch: [
+      "Ofegação intensa, animais caídos, escorregões, quedas, luta, lesões, demora excessiva, falta de ventilação ou aglomeração no embarcadouro.",
+    ],
+    records: [
+      "Data, lote, quantidade e peso estimado, destino, veículo, transportador, equipe, documentos, horário, duração, ocorrências e perdas.",
+    ],
+    urgency: "Animal incapaz de caminhar, com lesão grave, colapso ou sofrimento intenso não deve ser forçado a embarcar. Acione o médico-veterinário e siga o protocolo de bem-estar e a legislação aplicável.",
+    sourceIds: ["mapaTransporte", "mapaBoasPraticas", "embrapaBemEstar", "woahBemEstar"],
+  },
+  {
     id: "dejetos",
     category: "Sustentabilidade",
     phase: "Toda a granja",
@@ -674,6 +712,7 @@ export const DAILY_CHECKLIST = [
   "Medir temperatura e umidade em pontos representativos; conferir ventilação e alarmes.",
   "Retirar resíduos e cama molhada quando necessário; manter corredores e baias seguros.",
   "Registrar mortes, nascimentos, transferências, pesagens, tratamentos prescritos e ocorrências.",
+  "Em cada ronda, conferir se animais conseguem levantar, caminhar, comer, beber e descansar sem disputa ou dor aparente.",
 ];
 
 export const WEEKLY_CHECKLIST = [
@@ -693,4 +732,5 @@ export const BATCH_CHECKLIST = [
   "Executar limpeza, desinfecção, secagem e vazio sanitário definido pelo protocolo.",
   "Registrar quantidade, peso, lote, origem, destino, perdas e consumo.",
   "Revisar resultados do lote e definir ações corretivas com a assistência técnica.",
+  "Planejar transporte e embarque com equipe treinada, veículo adequado, documentação e horário compatível com clima e destino.",
 ];
