@@ -83,7 +83,7 @@ create table public.batch_feed_products (
 
 create table public.batch_feed_movements (
   id uuid primary key default gen_random_uuid(),
-  product_id uuid not null references public.feed_products(id) on delete restrict,
+  product_id uuid not null references public.batch_feed_products(id) on delete restrict,
   movement_type text not null check (movement_type in ('entrada','saida')),
   quantity numeric(12,2) not null check (quantity > 0),
   unit_cost numeric(12,2),
@@ -101,7 +101,7 @@ declare
   delta numeric(12,2);
 begin
   delta := case when new.movement_type = 'entrada' then new.quantity else -new.quantity end;
-  update public.feed_products
+  update public.batch_feed_products
      set current_stock = current_stock + delta,
          cost_per_unit = case when new.movement_type = 'entrada' and new.unit_cost is not null then new.unit_cost else cost_per_unit end
    where id = new.product_id and current_stock + delta >= 0;
@@ -111,8 +111,8 @@ begin
   return new;
 end $$;
 
-create trigger on_feed_movement after insert on public.feed_movements
-for each row execute function public.apply_feed_movement();
+create trigger on_batch_feed_movement after insert on public.batch_feed_movements
+for each row execute function public.apply_batch_feed_movement();
 
 do $$ declare t text; begin
   foreach t in array array['production_batches','health_records','batch_feed_products','batch_feed_movements','batch_events'] loop
@@ -127,13 +127,13 @@ do $$ declare t text; begin
   end loop;
 end $$;
 
-revoke update on public.feed_products from authenticated;
+revoke update on public.batch_feed_products from authenticated;
 revoke update on public.production_batches from authenticated;
 revoke delete on public.production_batches from authenticated;
 grant update (name, phase, entry_date, origin, pen, status, notes) on public.production_batches to authenticated;
-grant update (name, feed_stage, unit, minimum_stock, cost_per_unit, supplier, notes) on public.feed_products to authenticated;
+grant update (name, feed_stage, unit, minimum_stock, cost_per_unit, supplier, notes) on public.batch_feed_products to authenticated;
 
 create index batch_events_batch_date_idx on public.batch_events(batch_id, event_date desc);
 create index production_batches_phase_status_idx on public.production_batches(phase, status);
 create index health_records_date_idx on public.health_records(record_date desc);
-create index batch_feed_movements_product_date_idx on public.feed_movements(product_id, movement_date desc);
+create index batch_batch_feed_movements_product_date_idx on public.batch_feed_movements(product_id, movement_date desc);
