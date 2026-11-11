@@ -47,6 +47,14 @@ Deno.serve(async (req) => {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) return new Response(JSON.stringify({ error: "Sessão inválida" }), { status: 401, headers: { ...cors, "Content-Type": "application/json" } });
     const body = await req.json();
+    if (body.image_url) {
+      let imageUrl: URL;
+      try { imageUrl = new URL(String(body.image_url)); } catch { return new Response(JSON.stringify({ error: "Endereço da imagem inválido." }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } }); }
+      const storageBase = new URL(supabaseUrl);
+      if (imageUrl.origin !== storageBase.origin || !imageUrl.pathname.startsWith("/storage/v1/object/sign/veterinary-evidence/")) {
+        return new Response(JSON.stringify({ error: "A imagem precisa estar no armazenamento privado de evidências da fazenda." }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
+      }
+    }
     const description = String(body.description ?? "").trim();
     if (description.length < 8 || description.length > 8000) return new Response(JSON.stringify({ error: "Descreva o caso com pelo menos 8 caracteres (máximo 8.000)." }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
     const [medsResult, lotsResult, eventsResult] = await Promise.all([
