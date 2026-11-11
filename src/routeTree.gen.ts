@@ -123,7 +123,7 @@ export interface FileRouteTypes {
   fullPaths:
     '/' | '/auth' | '/maternidade' | '/matrizes' | '/painel' | '/tarefas' | '/lotes' | '/sanidade' | '/estoque' | '/desempenho' | '/desmame' | '/baias' | '/farmacia-ai' | '/biblioteca-suinos'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/maternidade' | '/matrizes' | '/painel' | '/tarefas' | '/lotes' | '/sanidade' | '/estoque' | '/desempenho' | '/desmame' | '/baias' | '/farmacia-ai'
+  to: '/' | '/auth' | '/maternidade' | '/matrizes' | '/painel' | '/tarefas' | '/lotes' | '/sanidade' | '/estoque' | '/desempenho' | '/desmame' | '/baias' | '/farmacia-ai' | '/biblioteca-suinos'
   id:
     | '__root__'
     | '/'
