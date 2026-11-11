@@ -111,7 +111,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/maternidade' | '/matrizes' | '/painel' | '/tarefas' | '/lotes' | '/sanidade' | '/estoque' | '/desempenho' | '/desmame' | '/baias' | '/desmame'
+    '/' | '/auth' | '/maternidade' | '/matrizes' | '/painel' | '/tarefas' | '/lotes' | '/sanidade' | '/estoque' | '/desempenho' | '/desmame' | '/baias'
   fileRoutesByTo: FileRoutesByTo
   to: '/' | '/auth' | '/maternidade' | '/matrizes' | '/painel' | '/tarefas' | '/lotes' | '/sanidade' | '/estoque' | '/desempenho'
   id:
