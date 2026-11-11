@@ -70,3 +70,21 @@ for each row execute function public.prevent_closing_batch_with_animals();
 alter table public.health_events
  add constraint health_event_affected_not_above_total
  check (animal_count=0 or affected_count<=animal_count);
+
+-- Validate pen occupancy at database level, even when records are created outside the UI.
+create or replace function public.validate_pen_record_capacity()
+returns trigger language plpgsql set search_path=public as $$
+declare pen_capacity integer; pen_status text;
+begin
+ select capacity,status into pen_capacity,pen_status
+ from public.farm_pens where id=new.pen_id for update;
+ if not found then raise exception 'Baia não encontrada.'; end if;
+ if pen_status<>'ativa' then raise exception 'Não é possível registrar manejo em baia inativa ou em manutenção.'; end if;
+ if new.animal_count is not null and new.animal_count>pen_capacity then
+  raise exception 'Quantidade de animais ultrapassa a capacidade cadastrada da baia (%).',pen_capacity;
+ end if;
+ return new;
+end $$;
+create trigger pen_record_capacity_guard
+before insert or update of pen_id,animal_count on public.pen_records
+for each row execute function public.validate_pen_record_capacity();
