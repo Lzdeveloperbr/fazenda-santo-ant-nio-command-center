@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Check, Trash2, ClipboardCheck, Droplets, Wheat, HeartPulse, SprayCan, Thermometer } from "lucide-react";
+import { Plus, Check, Trash2, ClipboardCheck, Droplets, Wheat, HeartPulse, ClipboardList, Thermometer } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { tasksQuery, profilesQuery, sowsQuery, PRIORITY, fmtDate, todayISO, type Task } from "@/lib/farm";
 import { SectionTitle, Empty } from "@/components/farm/Kpi";
@@ -102,11 +102,11 @@ function QuickRoutine({onDone}:{onDone:()=>void}) {
   const [open,setOpen]=useState(false);
   const [busy,setBusy]=useState(false);
   const routines=[
-    {title:"Conferir água e funcionamento dos bebedouros",sector:"Maternidade",icon:Droplets},
+    {title:"Conferir água e funcionamento dos bebedouros",sector:"Geral",icon:Droplets},
     {title:"Conferir ração e funcionamento dos comedouros",sector:"Ração",icon:Wheat},
     {title:"Observar comportamento e apetite dos animais",sector:"Sanidade",icon:HeartPulse},
     {title:"Verificar temperatura e ventilação dos setores",sector:"Geral",icon:Thermometer},
-    {title:"Conferir limpeza e condições das baias",sector:"Geral",icon:SprayCan},
+    {title:"Conferir limpeza e condições das baias",sector:"Geral",icon:ClipboardList},
   ];
   async function add(title:string,sector:string){
     setBusy(true);
