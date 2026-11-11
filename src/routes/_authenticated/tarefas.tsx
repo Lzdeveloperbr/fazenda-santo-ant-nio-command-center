@@ -22,6 +22,7 @@ function Tarefas() {
   const tasks = useQuery(tasksQuery);
   const profiles = useQuery(profilesQuery);
   const [view, setView] = useState<"abertas" | "concluidas">("abertas");
+  const [sectorFilter,setSectorFilter] = useState("todos");
   const [who, setWho] = useState("todos");
   const today = todayISO();
   const refresh = () => qc.invalidateQueries({ queryKey: ["tasks"] });
@@ -29,7 +30,16 @@ function Tarefas() {
 
   const list = (tasks.data ?? [])
     .filter((t) => (view === "abertas" ? t.status !== "concluida" : t.status === "concluida"))
-    .filter((t) => who === "todos" || t.assignee_id === who);
+    .filter((t) => who === "todos" || t.assignee_id === who)
+    .filter((t) => sectorFilter === "todos" || t.sector === sectorFilter)
+    .sort((a,b) => {
+      if (view === "concluidas") return (b.completed_at ?? "").localeCompare(a.completed_at ?? "");
+      const aLate = Boolean(a.due_date && a.due_date < today), bLate = Boolean(b.due_date && b.due_date < today);
+      if (aLate !== bLate) return aLate ? -1 : 1;
+      if (!a.due_date) return 1;
+      if (!b.due_date) return -1;
+      return a.due_date.localeCompare(b.due_date);
+    });
 
   async function complete(t: Task) {
     const { error } = await supabase.from("tasks").update({ status: "concluida", completed_at: new Date().toISOString() }).eq("id", t.id);
@@ -60,6 +70,7 @@ function Tarefas() {
             </button>
           ))}
         </div>
+        <select aria-label="Filtrar por setor" value={sectorFilter} onChange={(e)=>setSectorFilter(e.target.value)} className={`${selectCls} w-auto`}><option value="todos">Todos os setores</option>{SECTORS.map((s)=><option key={s} value={s}>{s}</option>)}</select>
         <select value={who} onChange={(e) => setWho(e.target.value)} className={`${selectCls} w-auto`}>
           <option value="todos">Todos os responsáveis</option>
           {(profiles.data ?? []).map((p) => <option key={p.id} value={p.id}>{p.display_name}</option>)}
