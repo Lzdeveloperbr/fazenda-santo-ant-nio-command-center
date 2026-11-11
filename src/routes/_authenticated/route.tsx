@@ -1,7 +1,7 @@
 import { createFileRoute, redirect, Outlet, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, PiggyBank, Baby, ListChecks, LogOut, Activity, ChevronRight, Menu, X, Layers3, HeartPulse, Wheat, TrendingUp, CalendarDays, Fence, Ear, BrainCircuit } from "lucide-react";
+import { LayoutDashboard, PiggyBank, Baby, ListChecks, LogOut, Activity, ChevronRight, Menu, X, Layers3, HeartPulse, Wheat, TrendingUp, CalendarDays, Fence, Ear, BrainCircuit, BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Wordmark, LogoMark } from "@/components/farm/Logo";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ const NAV=[
  {to:"/baias",label:"Baias e caderno",icon:Fence,group:"Manejo"},
  {to:"/sanidade",label:"Saúde e prevenção",icon:HeartPulse,group:"Manejo"},
  {to:"/farmacia-ai",label:"Santo Antônio AI e Farmácia",icon:BrainCircuit,group:"Manejo"},
+ {to:"/biblioteca-suinos",label:"Biblioteca técnica de suínos",icon:BookOpen,group:"Manejo"},
  {to:"/estoque",label:"Estoque de ração",icon:Wheat,group:"Manejo"},
  {to:"/desempenho" as any,label:"Desempenho",icon:TrendingUp,group:"Manejo"},
 ] as const;
