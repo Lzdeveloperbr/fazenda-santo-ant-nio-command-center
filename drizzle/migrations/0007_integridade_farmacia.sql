@@ -45,3 +45,10 @@ for each row execute function public.validate_veterinary_treatment_lot();
 
 -- O livro de movimentações é append-only para preservar a trilha de auditoria.
 revoke update, delete on public.farm_medication_movements from authenticated;
+
+-- Uma revisão marcada exige nome do profissional e data do registro.
+alter table public.ai_health_analyses
+ add constraint ai_health_review_fields check (
+  not veterinarian_reviewed or
+  (nullif(trim(coalesce(veterinarian_name,'')),'') is not null and veterinarian_review_date is not null)
+ );
