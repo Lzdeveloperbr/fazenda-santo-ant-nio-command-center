@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Users, Archive, Search } from "lucide-react";
+import { Plus, Users, Archive, Search, Activity, Filter } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SectionTitle, Empty } from "@/components/farm/Kpi";
 import { todayISO } from "@/lib/farm";
@@ -29,8 +29,10 @@ function Lotes() {
   const qc = useQueryClient();
   const q = useQuery(batchesQuery); const events = useQuery(eventsQuery);
   const [search, setSearch] = useState("");
+  const [phaseFilter, setPhaseFilter] = useState("todas");
+  const [statusFilter, setStatusFilter] = useState("todos");
   const refresh = () => { qc.invalidateQueries({ queryKey: ["production_batches"] }); qc.invalidateQueries({ queryKey: ["batch_events"] }); };
-  const rows = (q.data ?? []).filter((b: any) => [b.name,b.pen,b.origin].join(" ").toLowerCase().includes(search.toLowerCase()));
+  const rows = (q.data ?? []).filter((b: any) => [b.name,b.pen,b.origin].join(" ").toLowerCase().includes(search.toLowerCase()) && (phaseFilter==="todas"||b.phase===phaseFilter) && (statusFilter==="todos"||b.status===statusFilter));
   const active = rows.filter((b: any) => b.status === "ativo");
   const heads = active.reduce((n: number,b: any) => n + b.current_headcount,0);
 
@@ -41,7 +43,7 @@ function Lotes() {
       <div className="farm-surface p-4"><p className="label-tech">Animais alojados</p><p className="mt-2 font-mono text-3xl">{heads}</p></div>
       <div className="farm-surface col-span-2 p-4 md:col-span-1"><p className="label-tech">Fases acompanhadas</p><p className="mt-2 text-sm font-semibold">Creche · Crescimento · Terminação</p></div>
     </div>
-    <div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"/><Input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar lote, baia ou origem" className="h-11 pl-9"/></div>
+    <div className="grid gap-2 sm:grid-cols-[1fr_190px_150px]"><div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"/><Input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar lote, baia ou origem" className="h-11 pl-9"/></div><select aria-label="Filtrar por fase" value={phaseFilter} onChange={e=>setPhaseFilter(e.target.value)} className={selectCls}><option value="todas">Todas as fases</option>{Object.entries(PHASES).map(([k,v])=><option key={k} value={k}>{v}</option>)}</select><select aria-label="Filtrar por situação" value={statusFilter} onChange={e=>setStatusFilter(e.target.value)} className={selectCls}><option value="todos">Todos os status</option><option value="ativo">Ativos</option><option value="encerrado">Encerrados</option></select></div>
     {q.isLoading ? <p className="label-tech">Carregando lotes…</p> : rows.length === 0 ? <Empty>Nenhum lote cadastrado. Crie o primeiro lote para começar o acompanhamento por fase.</Empty> :
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{rows.map((b: any)=><article key={b.id} className="farm-surface p-4">
         <div className="flex items-start justify-between gap-2"><div><p className="label-tech">{PHASES[b.phase] ?? b.phase}</p><h3 className="mt-1 text-lg font-semibold">{b.name}</h3></div><span className={`rounded-full px-2.5 py-1 text-xs ${b.status === "ativo" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>{b.status === "ativo" ? "Ativo" : "Encerrado"}</span></div>
@@ -49,8 +51,9 @@ function Lotes() {
         <p className="mt-3 text-xs text-muted-foreground">{b.pen ? "Baia: "+b.pen : "Baia não informada"}{b.origin ? " · Origem: "+b.origin : ""}</p>
         {b.notes && <p className="mt-2 text-xs text-muted-foreground">{b.notes}</p>}
         {events.data?.filter((e:any)=>e.batch_id===b.id).slice(0,3).map((e:any)=><p key={e.id} className="mt-1 text-[0.68rem] text-muted-foreground">{e.event_type==="morte"?"Mortalidade":e.event_type==="entrada"?"Entrada":"Saída"}: {e.quantity} · {new Date(e.event_date+"T12:00:00").toLocaleDateString("pt-BR")}</p>)}
-        {b.status === "ativo" && <div className="mt-4 flex flex-wrap gap-2"><AdjustHeads batch={b} onDone={refresh}/><Button size="sm" variant="outline" onClick={async()=>{if(!confirm("Encerrar este lote?"))return;const {error}=await db.from("production_batches").update({status:"encerrado"}).eq("id",b.id);if(error)toast.error(error.message);else{toast.success("Lote encerrado");refresh();}}}><Archive className="mr-1 h-3.5 w-3.5"/>Encerrar</Button></div>}
+        {b.status === "ativo" && <div className="mt-4 flex flex-wrap gap-2"><AdjustHeads batch={b} onDone={refresh}/><Button size="sm" variant="outline" onClick={async()=>{if(b.current_headcount>0){toast.error("Este lote ainda tem "+b.current_headcount+" animais. Registre a saída ou transferência antes de encerrá-lo.");return;}if(!confirm("Encerrar este lote sem animais restantes?"))return;const {error}=await db.from("production_batches").update({status:"encerrado"}).eq("id",b.id);if(error)toast.error(error.message);else{toast.success("Lote encerrado");refresh();}}}><Archive className="mr-1 h-3.5 w-3.5"/>Encerrar</Button></div>}
       </article>)}</div>}
+    <section className="space-y-3"><div className="flex items-center gap-2"><Activity className="h-4 w-4 text-primary"/><h2 className="font-semibold">Movimentações recentes dos lotes</h2></div>{events.data?.length?<div className="farm-surface divide-y divide-border/70">{events.data.slice(0,20).map((e:any)=><div key={e.id} className="flex items-center justify-between gap-3 p-3"><div className="min-w-0"><p className="text-sm font-medium">{batchesQuery.queryKey&&((q.data??[]).find((b:any)=>b.id===e.batch_id)?.name)||"Lote"}</p><p className="text-xs text-muted-foreground">{e.event_type==="morte"?"Mortalidade":e.event_type==="entrada"?"Entrada":"Saída / transferência"} · {new Date(e.event_date+"T12:00:00").toLocaleDateString("pt-BR")}</p>{e.notes&&<p className="truncate text-xs text-muted-foreground">{e.notes}</p>}</div><b className="shrink-0 font-mono text-sm">{e.event_type==="entrada"?"+":"−"}{e.quantity}</b></div>)}</div>:<Empty>Nenhuma movimentação registrada.</Empty>}</section>
   </div>;
 }
 
