@@ -133,6 +133,12 @@ export const KNOWLEDGE_SOURCES: Record<string, KnowledgeSource> = {
     url: "https://www.gov.br/agricultura/pt-br/assuntos/producao-animal/boas-praticas-de-producao-animal/transporte-de-animais-vivos",
     note: "Página oficial atualizada em 24/09/2026; reúne materiais sobre transporte legal de suínos e bem-estar no trajeto.",
   },
+  mapaCursos: {
+    title: "Cursos oficiais de boas práticas e bem-estar animal",
+    institution: "Ministério da Agricultura e Pecuária",
+    url: "https://www.gov.br/agricultura/pt-br/assuntos/producao-animal/boas-praticas-de-producao-animal/cursos/cursos",
+    note: "Lista cursos de bem-estar e transporte legal de suínos, atualizada em fevereiro de 2026.",
+  },
   woahBemEstar: {
     title: "Código Terrestre: bem-estar e sistemas de produção de suínos",
     institution: "Organização Mundial de Saúde Animal (OMSA/WOAH)",
@@ -681,6 +687,30 @@ export const SWINE_KNOWLEDGE: KnowledgeTopic[] = [
     sourceIds: ["embrapaPerguntas", "embrapaCarcacas", "mapaBoasPraticas"],
   },
   {
+    id: "mortalidade-carcacas",
+    category: "Sanidade e biosseguridade",
+    phase: "Todas as fases",
+    title: "Mortalidade, investigação e destinação de carcaças",
+    summary: "Mortalidade é um indicador sanitário e de bem-estar. A investigação rápida, o registro correto e a destinação segura das carcaças protegem o restante do rebanho, trabalhadores, ambiente e saúde pública.",
+    practices: [
+      "Registre cada morte com data, hora aproximada, setor, baia, fase, identificação quando disponível e sinais observados antes da morte.",
+      "Compare o número de mortes com o padrão do lote e comunique imediatamente aumentos repentinos, mortes agrupadas ou sinais incomuns ao médico-veterinário.",
+      "Evite contato de animais, roedores, aves, cães e pessoas não autorizadas com a carcaça. Use fluxo e equipamentos de proteção previstos no protocolo.",
+      "Não abra carcaças nem faça necropsia sem treinamento, equipamento, local e orientação veterinária.",
+      "Defina com assistência técnica e órgãos ambientais o sistema de destinação apropriado à propriedade: alternativas estudadas pela Embrapa incluem compostagem, biodigestão, desidratação, incineração e reciclagem industrial.",
+      "Não descarte carcaças em rios, nascentes, matas, estradas, fossas improvisadas ou locais acessíveis a animais. Não adote compostagem ou enterramento sem verificar a permissão e as condições técnicas e ambientais locais.",
+      "Higienize equipamentos e área de acordo com o protocolo sanitário após a remoção.",
+    ],
+    watch: [
+      "Duas ou mais mortes em curto intervalo, aumento inesperado da taxa de mortalidade, sangue, manchas arroxeadas, sinais neurológicos, febre alta ou doença se espalhando entre baias.",
+    ],
+    records: [
+      "Data, identificação, setor, fase, número de mortes, sinais, causa confirmada quando houver, responsável, destino da carcaça e medidas corretivas.",
+    ],
+    urgency: "Mortalidade súbita, mortes em grupo ou suspeita de doença de notificação exigem contato imediato com o veterinário e, conforme o caso, com o Serviço Veterinário Oficial. Não movimente animais ou carcaças de forma que possa disseminar a doença.",
+    sourceIds: ["embrapaCarcacas", "embrapaBiosseguridade", "mapaNotificacao", "mapaSanidade"],
+  },
+  {
     id: "indicadores",
     category: "Gestão e indicadores",
     phase: "Todas as fases",
@@ -708,6 +738,7 @@ export const DAILY_CHECKLIST = [
   "Água disponível em todos os setores; verificar bebedouros, vazamentos e vazão anormal.",
   "Ração correta para a fase; conferir consumo, sobras, comedouros e estoque.",
   "Observar todos os lotes: apetite, comportamento, respiração, fezes, locomoção e pele.",
+  "Inspecionar com maior frequência matrizes perto do parto, recém-nascidos, recém-desmamados, grupos recém-misturados e animais doentes ou feridos.",
   "Conferir leitões recém-nascidos, mamadas, aquecimento e condição da matriz.",
   "Medir temperatura e umidade em pontos representativos; conferir ventilação e alarmes.",
   "Retirar resíduos e cama molhada quando necessário; manter corredores e baias seguros.",
