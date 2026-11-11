@@ -43,6 +43,13 @@
       "when": 1794427200000,
       "tag": "0005_marcacao_australiana_desmame",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794432304929,
+      "tag": "0006_ia_veterinaria_farmacia",
+      "breakpoints": true
     }
   ]
 }
