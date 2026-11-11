@@ -68,7 +68,7 @@ create table public.health_records (
   )
 );
 
-create table public.feed_products (
+create table public.batch_feed_products (
   id uuid primary key default gen_random_uuid(),
   name text not null,
   feed_stage text not null check (feed_stage in ('pre_inicial','inicial','crescimento','terminacao','gestacao','lactacao','reprodutor','outro')),
@@ -81,7 +81,7 @@ create table public.feed_products (
   created_at timestamptz not null default now()
 );
 
-create table public.feed_movements (
+create table public.batch_feed_movements (
   id uuid primary key default gen_random_uuid(),
   product_id uuid not null references public.feed_products(id) on delete restrict,
   movement_type text not null check (movement_type in ('entrada','saida')),
@@ -94,7 +94,7 @@ create table public.feed_movements (
   created_at timestamptz not null default now()
 );
 
-create or replace function public.apply_feed_movement()
+create or replace function public.apply_batch_feed_movement()
 returns trigger language plpgsql security definer set search_path = public
 as $$
 declare
@@ -115,7 +115,7 @@ create trigger on_feed_movement after insert on public.feed_movements
 for each row execute function public.apply_feed_movement();
 
 do $$ declare t text; begin
-  foreach t in array array['production_batches','health_records','feed_products','feed_movements','batch_events'] loop
+  foreach t in array array['production_batches','health_records','batch_feed_products','batch_feed_movements','batch_events'] loop
     if t = 'feed_movements' or t = 'batch_events' or t = 'health_records' then
       execute format('grant select, insert on public.%I to authenticated', t);
     else
@@ -136,4 +136,4 @@ grant update (name, feed_stage, unit, minimum_stock, cost_per_unit, supplier, no
 create index batch_events_batch_date_idx on public.batch_events(batch_id, event_date desc);
 create index production_batches_phase_status_idx on public.production_batches(phase, status);
 create index health_records_date_idx on public.health_records(record_date desc);
-create index feed_movements_product_date_idx on public.feed_movements(product_id, movement_date desc);
+create index batch_feed_movements_product_date_idx on public.feed_movements(product_id, movement_date desc);
