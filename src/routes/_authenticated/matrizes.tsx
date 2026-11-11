@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Plus, Search, ArrowUpDown, Download } from "lucide-react";
+import { Plus, Search, ArrowUpDown, Download, Archive, RotateCcw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { sowsQuery, breedingsQuery, littersQuery, SOW_STATUS, fmtDate, todayISO, type Sow } from "@/lib/farm";
 import { SectionTitle, Empty } from "@/components/farm/Kpi";
@@ -144,7 +144,31 @@ function SowActions({ s, lastB, onDone }: { s: Sow; lastB?: Row["lastB"]; onDone
       <NewBreeding sow={s} onDone={onDone} />
       {lastB && lastB.pregnancy_check === "pendente" && <PregCheck sow={s} breedingId={lastB.id} onDone={onDone} />}
       <NewLitter sow={s} onDone={onDone} />
+      <SowStatusAction s={s} onDone={onDone} />
     </div>
+  );
+}
+
+function SowStatusAction({ s, onDone }: { s: Sow; onDone: () => void }) {
+  const [busy, setBusy] = useState(false);
+  const archived = s.status === "descartada";
+  async function changeStatus() {
+    const next = archived ? "vazia" : "descartada";
+    const message = archived
+      ? `Reativar a matriz ${s.ear_tag}? Ela voltará a aparecer como matriz vazia.`
+      : `Retirar a matriz ${s.ear_tag} do plantel? O cadastro e todo o histórico de coberturas e partos serão preservados.`;
+    if (!confirm(message)) return;
+    setBusy(true);
+    const { error } = await supabase.from("sows").update({ status: next }).eq("id", s.id);
+    setBusy(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success(archived ? "Matriz reativada" : "Matriz retirada do plantel");
+    onDone();
+  }
+  return (
+    <Button size="sm" variant="outline" disabled={busy} onClick={changeStatus}>
+      {archived ? <><RotateCcw className="mr-1 h-3.5 w-3.5" />Reativar</> : <><Archive className="mr-1 h-3.5 w-3.5" />Retirar matriz</>}
+    </Button>
   );
 }
 
