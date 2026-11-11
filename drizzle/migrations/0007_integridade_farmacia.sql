@@ -1,16 +1,19 @@
 -- Hardening do livro de estoque e integridade das prescrições.
 create or replace function public.apply_medication_movement()
 returns trigger language plpgsql security definer set search_path=public as $$
-declare lot_unit text;
+declare lot_unit text; lot_expiry date;
 begin
  if new.lot_id is null then raise exception 'Selecione o lote do medicamento para movimentar o estoque.'; end if;
- select unit into lot_unit from public.farm_medication_lots
+ select unit, expiry_date into lot_unit, lot_expiry from public.farm_medication_lots
   where id=new.lot_id and medication_id=new.medication_id for update;
  if not found then raise exception 'O lote selecionado não pertence a este medicamento.'; end if;
  if lot_unit <> new.unit then raise exception 'A unidade da movimentação deve ser igual à unidade cadastrada no lote (%).',lot_unit; end if;
  if new.movement_type='entrada' then
   update public.farm_medication_lots set quantity=quantity+new.quantity where id=new.lot_id;
  elsif new.movement_type='saida' then
+  if lot_expiry is not null and lot_expiry < current_date and lower(coalesce(new.reason,'')) not like '%descarte%' then
+   raise exception 'Lote vencido: não utilizar nos animais. Registre saída somente para descarte identificado.';
+  end if;
   update public.farm_medication_lots set quantity=quantity-new.quantity where id=new.lot_id and quantity>=new.quantity;
   if not found then raise exception 'Estoque insuficiente para esta saída.'; end if;
  else
@@ -49,3 +52,39 @@ alter table public.ai_health_analyses
   not veterinarian_reviewed or
   (nullif(trim(coalesce(veterinarian_name,'')),'') is not null and veterinarian_review_date is not null)
  );
+
+-- Prevent closing an active production batch while animals remain assigned to it.
+create or replace function public.prevent_closing_batch_with_animals()
+returns trigger language plpgsql set search_path=public as $$
+begin
+ if new.status='encerrado' and old.status<>'encerrado' and new.current_headcount>0 then
+  raise exception 'Não é possível encerrar lote com animais restantes. Registre saída ou transferência primeiro.';
+ end if;
+ return new;
+end $$;
+create trigger production_batch_close_guard
+before update of status on public.production_batches
+for each row execute function public.prevent_closing_batch_with_animals();
+
+-- Keep occurrence counts coherent when the total is known.
+alter table public.health_events
+ add constraint health_event_affected_not_above_total
+ check (animal_count=0 or affected_count<=animal_count);
+
+-- Validate pen occupancy at database level, even when records are created outside the UI.
+create or replace function public.validate_pen_record_capacity()
+returns trigger language plpgsql set search_path=public as $$
+declare pen_capacity integer; pen_status text;
+begin
+ select capacity,status into pen_capacity,pen_status
+ from public.farm_pens where id=new.pen_id for update;
+ if not found then raise exception 'Baia não encontrada.'; end if;
+ if pen_status<>'ativa' then raise exception 'Não é possível registrar manejo em baia inativa ou em manutenção.'; end if;
+ if new.animal_count is not null and new.animal_count>pen_capacity then
+  raise exception 'Quantidade de animais ultrapassa a capacidade cadastrada da baia (%).',pen_capacity;
+ end if;
+ return new;
+end $$;
+create trigger pen_record_capacity_guard
+before insert or update of pen_id,animal_count on public.pen_records
+for each row execute function public.validate_pen_record_capacity();

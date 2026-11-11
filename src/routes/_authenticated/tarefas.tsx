@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Check, Trash2 } from "lucide-react";
+import { Plus, Check, Trash2, ClipboardCheck, Droplets, Wheat, HeartPulse, ClipboardList, Thermometer } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { tasksQuery, profilesQuery, sowsQuery, PRIORITY, fmtDate, todayISO, type Task } from "@/lib/farm";
 import { SectionTitle, Empty } from "@/components/farm/Kpi";
@@ -22,6 +22,7 @@ function Tarefas() {
   const tasks = useQuery(tasksQuery);
   const profiles = useQuery(profilesQuery);
   const [view, setView] = useState<"abertas" | "concluidas">("abertas");
+  const [sectorFilter,setSectorFilter] = useState("todos");
   const [who, setWho] = useState("todos");
   const today = todayISO();
   const refresh = () => qc.invalidateQueries({ queryKey: ["tasks"] });
@@ -29,7 +30,16 @@ function Tarefas() {
 
   const list = (tasks.data ?? [])
     .filter((t) => (view === "abertas" ? t.status !== "concluida" : t.status === "concluida"))
-    .filter((t) => who === "todos" || t.assignee_id === who);
+    .filter((t) => who === "todos" || t.assignee_id === who)
+    .filter((t) => sectorFilter === "todos" || t.sector === sectorFilter)
+    .sort((a,b) => {
+      if (view === "concluidas") return (b.completed_at ?? "").localeCompare(a.completed_at ?? "");
+      const aLate = Boolean(a.due_date && a.due_date < today), bLate = Boolean(b.due_date && b.due_date < today);
+      if (aLate !== bLate) return aLate ? -1 : 1;
+      if (!a.due_date) return 1;
+      if (!b.due_date) return -1;
+      return a.due_date.localeCompare(b.due_date);
+    });
 
   async function complete(t: Task) {
     const { error } = await supabase.from("tasks").update({ status: "concluida", completed_at: new Date().toISOString() }).eq("id", t.id);
@@ -45,7 +55,13 @@ function Tarefas() {
 
   return (
     <div className="space-y-5">
-      <SectionTitle kicker="Operations center" title="Tarefas" action={<NewTask profiles={profiles.data ?? []} onDone={refresh} />} />
+      <SectionTitle kicker="Rotina da granja" title="Tarefas" action={<div className="flex gap-2"><QuickRoutine onDone={refresh}/><NewTask profiles={profiles.data ?? []} onDone={refresh} /></div>} />
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="panel p-3"><p className="text-xs text-muted-foreground">Abertas</p><p className="mt-1 text-2xl font-bold tabular-nums">{(tasks.data??[]).filter(t=>t.status!=="concluida").length}</p></div>
+        <div className="panel p-3"><p className="text-xs text-muted-foreground">Para hoje</p><p className="mt-1 text-2xl font-bold tabular-nums">{(tasks.data??[]).filter(t=>t.status!=="concluida"&&t.due_date===today).length}</p></div>
+        <div className="panel p-3"><p className="text-xs text-muted-foreground">Atrasadas</p><p className="mt-1 text-2xl font-bold tabular-nums text-destructive">{(tasks.data??[]).filter(t=>t.status!=="concluida"&&t.due_date&&t.due_date<today).length}</p></div>
+        <div className="panel p-3"><p className="text-xs text-muted-foreground">Concluídas</p><p className="mt-1 text-2xl font-bold tabular-nums">{(tasks.data??[]).filter(t=>t.status==="concluida").length}</p></div>
+      </div>
       <div className="flex flex-wrap gap-2">
         <div className="inline-flex rounded-md border p-1">
           {(["abertas", "concluidas"] as const).map((v) => (
@@ -54,6 +70,7 @@ function Tarefas() {
             </button>
           ))}
         </div>
+        <select aria-label="Filtrar por setor" value={sectorFilter} onChange={(e)=>setSectorFilter(e.target.value)} className={`${selectCls} w-auto`}><option value="todos">Todos os setores</option>{SECTORS.map((s)=><option key={s} value={s}>{s}</option>)}</select>
         <select value={who} onChange={(e) => setWho(e.target.value)} className={`${selectCls} w-auto`}>
           <option value="todos">Todos os responsáveis</option>
           {(profiles.data ?? []).map((p) => <option key={p.id} value={p.id}>{p.display_name}</option>)}
@@ -90,6 +107,37 @@ function Tarefas() {
       )}
     </div>
   );
+}
+
+function QuickRoutine({onDone}:{onDone:()=>void}) {
+  const [open,setOpen]=useState(false);
+  const [busy,setBusy]=useState(false);
+  const routines=[
+    {title:"Conferir água e funcionamento dos bebedouros",sector:"Geral",icon:Droplets},
+    {title:"Conferir ração e funcionamento dos comedouros",sector:"Ração",icon:Wheat},
+    {title:"Observar comportamento e apetite dos animais",sector:"Sanidade",icon:HeartPulse},
+    {title:"Verificar temperatura e ventilação dos setores",sector:"Geral",icon:Thermometer},
+    {title:"Conferir limpeza e condições das baias",sector:"Geral",icon:ClipboardList},
+  ];
+  async function add(title:string,sector:string){
+    setBusy(true);
+    const date=todayISO();
+    const {data:existing,error:lookupError}=await supabase.from("tasks").select("id").eq("title",title).eq("sector",sector).eq("due_date",date).neq("status","concluida").limit(1);
+    if(lookupError){setBusy(false);toast.error(lookupError.message);return;}
+    if(existing?.length){setBusy(false);toast.info("Essa rotina já está aberta para hoje.");setOpen(false);return;}
+    const{error}=await supabase.from("tasks").insert({title,priority:"media",sector,due_date:date});
+    setBusy(false);
+    if(error){toast.error(error.message);return;}
+    toast.success("Rotina adicionada às tarefas de hoje");
+    setOpen(false);onDone();
+  }
+  return <div className="relative">
+    <Button variant="outline" className="h-10" onClick={()=>setOpen(v=>!v)}><ClipboardCheck className="mr-1 h-4 w-4"/>Rotina rápida</Button>
+    {open&&<div className="absolute right-0 top-12 z-30 w-[min(88vw,340px)] rounded-xl border bg-card p-2 shadow-xl">
+      <p className="px-3 py-2 text-xs font-semibold text-muted-foreground">Adicionar tarefa de rotina para hoje</p>
+      {routines.map(item=><button key={item.title} disabled={busy} onClick={()=>add(item.title,item.sector)} className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm hover:bg-muted disabled:opacity-50"><item.icon className="h-4 w-4 shrink-0 text-primary"/><span>{item.title}</span></button>)}
+    </div>}
+  </div>;
 }
 
 function NewTask({ profiles, onDone }: { profiles: { id: string; display_name: string }[]; onDone: () => void }) {

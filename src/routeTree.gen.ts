@@ -12,15 +12,18 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AuthenticatedBaiasRouteImport } from './routes/_authenticated/baias'
-import { Route as AuthenticatedDesempenhoRouteImport } from './routes/_authenticated/desempenho'
-import { Route as AuthenticatedDesmameRouteImport } from './routes/_authenticated/desmame'
-import { Route as AuthenticatedFarmaciaAiRouteImport } from './routes/_authenticated/farmacia-ai'
 import { Route as AuthenticatedMaternidadeRouteImport } from './routes/_authenticated/maternidade'
 import { Route as AuthenticatedMatrizesRouteImport } from './routes/_authenticated/matrizes'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
-import { Route as AuthenticatedSanidadeRouteImport } from './routes/_authenticated/sanidade'
 import { Route as AuthenticatedTarefasRouteImport } from './routes/_authenticated/tarefas'
+import { Route as AuthenticatedLotesRouteImport } from './routes/_authenticated/lotes'
+import { Route as AuthenticatedSanidadeRouteImport } from './routes/_authenticated/sanidade'
+import { Route as AuthenticatedEstoqueRouteImport } from './routes/_authenticated/estoque'
+import { Route as AuthenticatedDesempenhoRouteImport } from './routes/_authenticated/desempenho'
+import { Route as AuthenticatedBaiasRouteImport } from './routes/_authenticated/baias'
+import { Route as AuthenticatedDesmameRouteImport } from './routes/_authenticated/desmame'
+import { Route as AuthenticatedFarmaciaAiRouteImport } from './routes/_authenticated/farmacia-ai'
+import { Route as AuthenticatedBibliotecaSuinosRouteImport } from './routes/_authenticated/biblioteca-suinos'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -35,26 +38,6 @@ const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
   getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedBaiasRoute = AuthenticatedBaiasRouteImport.update({
-  id: '/baias',
-  path: '/baias',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedDesempenhoRoute = AuthenticatedDesempenhoRouteImport.update({
-  id: '/desempenho',
-  path: '/desempenho',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedDesmameRoute = AuthenticatedDesmameRouteImport.update({
-  id: '/desmame',
-  path: '/desmame',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedFarmaciaAiRoute = AuthenticatedFarmaciaAiRouteImport.update({
-  id: '/farmacia-ai',
-  path: '/farmacia-ai',
-  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedMaternidadeRoute =
   AuthenticatedMaternidadeRouteImport.update({
@@ -72,99 +55,92 @@ const AuthenticatedPainelRoute = AuthenticatedPainelRouteImport.update({
   path: '/painel',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedSanidadeRoute = AuthenticatedSanidadeRouteImport.update({
-  id: '/sanidade',
-  path: '/sanidade',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedTarefasRoute = AuthenticatedTarefasRouteImport.update({
   id: '/tarefas',
   path: '/tarefas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedLotesRoute = AuthenticatedLotesRouteImport.update({ id: '/lotes', path: '/lotes', getParentRoute: () => AuthenticatedRouteRoute } as any)
+const AuthenticatedSanidadeRoute = AuthenticatedSanidadeRouteImport.update({ id: '/sanidade', path: '/sanidade', getParentRoute: () => AuthenticatedRouteRoute } as any)
+const AuthenticatedEstoqueRoute = AuthenticatedEstoqueRouteImport.update({ id: '/estoque', path: '/estoque', getParentRoute: () => AuthenticatedRouteRoute } as any)
+const AuthenticatedDesempenhoRoute = AuthenticatedDesempenhoRouteImport.update({ id: '/desempenho', path: '/desempenho', getParentRoute: () => AuthenticatedRouteRoute } as any)
+const AuthenticatedBaiasRoute = AuthenticatedBaiasRouteImport.update({ id: '/baias', path: '/baias', getParentRoute: () => AuthenticatedRouteRoute } as any)
+const AuthenticatedDesmameRoute = AuthenticatedDesmameRouteImport.update({ id: '/desmame', path: '/desmame', getParentRoute: () => AuthenticatedRouteRoute } as any)
+const AuthenticatedFarmaciaAiRoute = AuthenticatedFarmaciaAiRouteImport.update({ id: '/farmacia-ai', path: '/farmacia-ai', getParentRoute: () => AuthenticatedRouteRoute } as any)
+const AuthenticatedBibliotecaSuinosRoute = AuthenticatedBibliotecaSuinosRouteImport.update({ id: '/biblioteca-suinos', path: '/biblioteca-suinos', getParentRoute: () => AuthenticatedRouteRoute } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/baias': typeof AuthenticatedBaiasRoute
-  '/desempenho': typeof AuthenticatedDesempenhoRoute
-  '/desmame': typeof AuthenticatedDesmameRoute
-  '/farmacia-ai': typeof AuthenticatedFarmaciaAiRoute
   '/maternidade': typeof AuthenticatedMaternidadeRoute
   '/matrizes': typeof AuthenticatedMatrizesRoute
   '/painel': typeof AuthenticatedPainelRoute
-  '/sanidade': typeof AuthenticatedSanidadeRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
+  '/lotes': typeof AuthenticatedLotesRoute
+  '/sanidade': typeof AuthenticatedSanidadeRoute
+  '/estoque': typeof AuthenticatedEstoqueRoute
+  '/desempenho': typeof AuthenticatedDesempenhoRoute
+  '/baias': typeof AuthenticatedBaiasRoute
+  '/desmame': typeof AuthenticatedDesmameRoute
+  '/farmacia-ai': typeof AuthenticatedFarmaciaAiRoute
+  '/biblioteca-suinos': typeof AuthenticatedBibliotecaSuinosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/baias': typeof AuthenticatedBaiasRoute
-  '/desempenho': typeof AuthenticatedDesempenhoRoute
-  '/desmame': typeof AuthenticatedDesmameRoute
-  '/farmacia-ai': typeof AuthenticatedFarmaciaAiRoute
   '/maternidade': typeof AuthenticatedMaternidadeRoute
   '/matrizes': typeof AuthenticatedMatrizesRoute
   '/painel': typeof AuthenticatedPainelRoute
-  '/sanidade': typeof AuthenticatedSanidadeRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
+  '/lotes': typeof AuthenticatedLotesRoute
+  '/sanidade': typeof AuthenticatedSanidadeRoute
+  '/estoque': typeof AuthenticatedEstoqueRoute
+  '/baias': typeof AuthenticatedBaiasRoute
+  '/desmame': typeof AuthenticatedDesmameRoute
+  '/farmacia-ai': typeof AuthenticatedFarmaciaAiRoute
+  '/biblioteca-suinos': typeof AuthenticatedBibliotecaSuinosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
-  '/_authenticated/baias': typeof AuthenticatedBaiasRoute
-  '/_authenticated/desempenho': typeof AuthenticatedDesempenhoRoute
-  '/_authenticated/desmame': typeof AuthenticatedDesmameRoute
-  '/_authenticated/farmacia-ai': typeof AuthenticatedFarmaciaAiRoute
   '/_authenticated/maternidade': typeof AuthenticatedMaternidadeRoute
   '/_authenticated/matrizes': typeof AuthenticatedMatrizesRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
-  '/_authenticated/sanidade': typeof AuthenticatedSanidadeRoute
   '/_authenticated/tarefas': typeof AuthenticatedTarefasRoute
+  '/_authenticated/lotes': typeof AuthenticatedLotesRoute
+  '/_authenticated/sanidade': typeof AuthenticatedSanidadeRoute
+  '/_authenticated/estoque': typeof AuthenticatedEstoqueRoute
+  '/_authenticated/desempenho': typeof AuthenticatedDesempenhoRoute
+  '/_authenticated/baias': typeof AuthenticatedBaiasRoute
+  '/_authenticated/desmame': typeof AuthenticatedDesmameRoute
+  '/_authenticated/farmacia-ai': typeof AuthenticatedFarmaciaAiRoute
+  '/_authenticated/biblioteca-suinos': typeof AuthenticatedBibliotecaSuinosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
-    | '/auth'
-    | '/baias'
-    | '/desempenho'
-    | '/desmame'
-    | '/farmacia-ai'
-    | '/maternidade'
-    | '/matrizes'
-    | '/painel'
-    | '/sanidade'
-    | '/tarefas'
+    '/' | '/auth' | '/maternidade' | '/matrizes' | '/painel' | '/tarefas' | '/lotes' | '/sanidade' | '/estoque' | '/desempenho' | '/desmame' | '/baias' | '/farmacia-ai' | '/biblioteca-suinos'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/auth'
-    | '/baias'
-    | '/desempenho'
-    | '/desmame'
-    | '/farmacia-ai'
-    | '/maternidade'
-    | '/matrizes'
-    | '/painel'
-    | '/sanidade'
-    | '/tarefas'
+  to: '/' | '/auth' | '/maternidade' | '/matrizes' | '/painel' | '/tarefas' | '/lotes' | '/sanidade' | '/estoque' | '/desempenho' | '/desmame' | '/baias' | '/farmacia-ai' | '/biblioteca-suinos'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
-    | '/_authenticated/baias'
-    | '/_authenticated/desempenho'
-    | '/_authenticated/desmame'
-    | '/_authenticated/farmacia-ai'
     | '/_authenticated/maternidade'
     | '/_authenticated/matrizes'
     | '/_authenticated/painel'
-    | '/_authenticated/sanidade'
     | '/_authenticated/tarefas'
+    | '/_authenticated/lotes'
+    | '/_authenticated/sanidade'
+    | '/_authenticated/estoque'
+    | '/_authenticated/desempenho'
+    | '/_authenticated/baias'
+    | '/_authenticated/desmame'
+    | '/_authenticated/farmacia-ai'
+    | '/_authenticated/biblioteca-suinos'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -196,34 +172,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/baias': {
-      id: '/_authenticated/baias'
-      path: '/baias'
-      fullPath: '/baias'
-      preLoaderRoute: typeof AuthenticatedBaiasRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/desempenho': {
-      id: '/_authenticated/desempenho'
-      path: '/desempenho'
-      fullPath: '/desempenho'
-      preLoaderRoute: typeof AuthenticatedDesempenhoRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/desmame': {
-      id: '/_authenticated/desmame'
-      path: '/desmame'
-      fullPath: '/desmame'
-      preLoaderRoute: typeof AuthenticatedDesmameRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/farmacia-ai': {
-      id: '/_authenticated/farmacia-ai'
-      path: '/farmacia-ai'
-      fullPath: '/farmacia-ai'
-      preLoaderRoute: typeof AuthenticatedFarmaciaAiRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/maternidade': {
       id: '/_authenticated/maternidade'
       path: '/maternidade'
@@ -245,13 +193,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPainelRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/sanidade': {
-      id: '/_authenticated/sanidade'
-      path: '/sanidade'
-      fullPath: '/sanidade'
-      preLoaderRoute: typeof AuthenticatedSanidadeRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/tarefas': {
       id: '/_authenticated/tarefas'
       path: '/tarefas'
@@ -259,31 +200,45 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTarefasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/lotes': { id: '/_authenticated/lotes'; path: '/lotes'; fullPath: '/lotes'; preLoaderRoute: typeof AuthenticatedLotesRouteImport; parentRoute: typeof AuthenticatedRouteRoute }
+    '/_authenticated/sanidade': { id: '/_authenticated/sanidade'; path: '/sanidade'; fullPath: '/sanidade'; preLoaderRoute: typeof AuthenticatedSanidadeRouteImport; parentRoute: typeof AuthenticatedRouteRoute }
+    '/_authenticated/estoque': { id: '/_authenticated/estoque'; path: '/estoque'; fullPath: '/estoque'; preLoaderRoute: typeof AuthenticatedEstoqueRouteImport; parentRoute: typeof AuthenticatedRouteRoute }
+    '/_authenticated/desempenho': { id: '/_authenticated/desempenho'; path: '/desempenho'; fullPath: '/desempenho'; preLoaderRoute: typeof AuthenticatedDesempenhoRouteImport; parentRoute: typeof AuthenticatedRouteRoute }
+    '/_authenticated/baias': { id: '/_authenticated/baias'; path: '/baias'; fullPath: '/baias'; preLoaderRoute: typeof AuthenticatedBaiasRouteImport; parentRoute: typeof AuthenticatedRouteRoute }
+    '/_authenticated/desmame': { id: '/_authenticated/desmame'; path: '/desmame'; fullPath: '/desmame'; preLoaderRoute: typeof AuthenticatedDesmameRouteImport; parentRoute: typeof AuthenticatedRouteRoute }
+    '/_authenticated/farmacia-ai': { id: '/_authenticated/farmacia-ai'; path: '/farmacia-ai'; fullPath: '/farmacia-ai'; preLoaderRoute: typeof AuthenticatedFarmaciaAiRouteImport; parentRoute: typeof AuthenticatedRouteRoute }
+    '/_authenticated/biblioteca-suinos': { id: '/_authenticated/biblioteca-suinos'; path: '/biblioteca-suinos'; fullPath: '/biblioteca-suinos'; preLoaderRoute: typeof AuthenticatedBibliotecaSuinosRouteImport; parentRoute: typeof AuthenticatedRouteRoute }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedBaiasRoute: typeof AuthenticatedBaiasRoute
-  AuthenticatedDesempenhoRoute: typeof AuthenticatedDesempenhoRoute
-  AuthenticatedDesmameRoute: typeof AuthenticatedDesmameRoute
-  AuthenticatedFarmaciaAiRoute: typeof AuthenticatedFarmaciaAiRoute
   AuthenticatedMaternidadeRoute: typeof AuthenticatedMaternidadeRoute
   AuthenticatedMatrizesRoute: typeof AuthenticatedMatrizesRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
-  AuthenticatedSanidadeRoute: typeof AuthenticatedSanidadeRoute
   AuthenticatedTarefasRoute: typeof AuthenticatedTarefasRoute
+  AuthenticatedLotesRoute: typeof AuthenticatedLotesRoute
+  AuthenticatedSanidadeRoute: typeof AuthenticatedSanidadeRoute
+  AuthenticatedEstoqueRoute: typeof AuthenticatedEstoqueRoute
+  AuthenticatedDesempenhoRoute: typeof AuthenticatedDesempenhoRoute
+  AuthenticatedBaiasRoute: typeof AuthenticatedBaiasRoute
+  AuthenticatedDesmameRoute: typeof AuthenticatedDesmameRoute
+  AuthenticatedFarmaciaAiRoute: typeof AuthenticatedFarmaciaAiRoute
+  AuthenticatedBibliotecaSuinosRoute: typeof AuthenticatedBibliotecaSuinosRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedBaiasRoute: AuthenticatedBaiasRoute,
-  AuthenticatedDesempenhoRoute: AuthenticatedDesempenhoRoute,
-  AuthenticatedDesmameRoute: AuthenticatedDesmameRoute,
-  AuthenticatedFarmaciaAiRoute: AuthenticatedFarmaciaAiRoute,
   AuthenticatedMaternidadeRoute: AuthenticatedMaternidadeRoute,
   AuthenticatedMatrizesRoute: AuthenticatedMatrizesRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
-  AuthenticatedSanidadeRoute: AuthenticatedSanidadeRoute,
   AuthenticatedTarefasRoute: AuthenticatedTarefasRoute,
+  AuthenticatedLotesRoute: AuthenticatedLotesRoute,
+  AuthenticatedSanidadeRoute: AuthenticatedSanidadeRoute,
+  AuthenticatedEstoqueRoute: AuthenticatedEstoqueRoute,
+  AuthenticatedDesempenhoRoute: AuthenticatedDesempenhoRoute,
+  AuthenticatedBaiasRoute: AuthenticatedBaiasRoute,
+  AuthenticatedDesmameRoute: AuthenticatedDesmameRoute,
+  AuthenticatedFarmaciaAiRoute: AuthenticatedFarmaciaAiRoute,
+  AuthenticatedBibliotecaSuinosRoute: AuthenticatedBibliotecaSuinosRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

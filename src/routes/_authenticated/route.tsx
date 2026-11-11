@@ -1,7 +1,7 @@
 import { createFileRoute, redirect, Outlet, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, PiggyBank, Baby, ListChecks, LogOut, Activity, ChevronRight, Menu, X, Layers3, HeartPulse, Wheat, TrendingUp, CalendarDays, Fence, Ear } from "lucide-react";
+import { LayoutDashboard, PiggyBank, Baby, ListChecks, LogOut, Activity, ChevronRight, Menu, X, Layers3, HeartPulse, Wheat, TrendingUp, CalendarDays, Fence, Ear, BrainCircuit, BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Wordmark, LogoMark } from "@/components/farm/Logo";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,8 @@ const NAV=[
  {to:"/lotes",label:"Lotes por fase",icon:Layers3,group:"Manejo"},
  {to:"/baias",label:"Baias e caderno",icon:Fence,group:"Manejo"},
  {to:"/sanidade",label:"Saúde e prevenção",icon:HeartPulse,group:"Manejo"},
+ {to:"/farmacia-ai",label:"Santo Antônio AI e Farmácia",icon:BrainCircuit,group:"Manejo"},
+ {to:"/biblioteca-suinos",label:"Biblioteca técnica de suínos",icon:BookOpen,group:"Manejo"},
  {to:"/estoque",label:"Estoque de ração",icon:Wheat,group:"Manejo"},
  {to:"/desempenho" as any,label:"Desempenho",icon:TrendingUp,group:"Manejo"},
 ] as const;
@@ -56,8 +58,8 @@ function Shell(){
   <main className="mx-auto min-h-[calc(100vh-72px)] max-w-[1600px] px-4 py-6 pb-28 md:px-8 md:py-8">
    {access.isLoading?<div className="panel p-8 text-center text-sm text-muted-foreground">Preparando o ambiente da fazenda…</div>:access.data&&!access.data.member?<div className="panel mx-auto mt-10 max-w-md p-6 text-center"><p className="label-tech">Acesso restrito</p><p className="mt-3 text-sm text-muted-foreground">Sua conta foi criada, mas apenas os responsáveis autorizados podem acessar os dados da fazenda.</p></div>:<Outlet/>}
   </main>
-  <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t border-border bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_25px_-20px_rgba(0,0,0,.3)] backdrop-blur-xl md:hidden">
-   {NAV.filter(n=>["/painel","/matrizes","/maternidade","/tarefas"].includes(n.to)).map(n=><Link key={n.to} to={n.to} className={`flex flex-col items-center gap-1.5 px-1 py-3 text-center text-[.62rem] ${path.startsWith(n.to)?"font-bold text-primary":"text-muted-foreground"}`}><n.icon className="h-5 w-5"/>{n.label==="Matrizes e reprodução"?"Matrizes":n.label==="Rotinas e manejo"?"Manejo":n.label}</Link>)}
+  <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-t border-border bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_25px_-20px_rgba(0,0,0,.3)] backdrop-blur-xl md:hidden">
+   {NAV.filter(n=>["/painel","/matrizes","/maternidade","/tarefas","/baias","/farmacia-ai"].includes(n.to)).map(n=><Link key={n.to} to={n.to} className={`flex flex-col items-center gap-1.5 px-1 py-3 text-center text-[.62rem] ${path.startsWith(n.to)?"font-bold text-primary":"text-muted-foreground"}`}><n.icon className="h-5 w-5"/>{n.label==="Matrizes e reprodução"?"Matrizes":n.label==="Rotinas e manejo"?"Manejo":n.to==="/farmacia-ai"?"IA":n.to==="/baias"?"Baias":n.label}</Link>)}
   </nav>
  </div>;
 }
