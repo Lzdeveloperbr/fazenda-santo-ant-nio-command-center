@@ -57,6 +57,13 @@
       "when": 1794435600000,
       "tag": "0007_integridade_farmacia",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794516600000,
+      "tag": "0008_farm_employee_access_code",
+      "breakpoints": true
     }
   ]
 }
