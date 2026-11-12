@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 import { toast } from "sonner";
-import { Fence, Plus, ClipboardList, Wheat, Boxes, AlertTriangle, Search, CalendarDays, Users, Droplets, Thermometer, ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
+import { Fence, Plus, ClipboardList, Wheat, Boxes, AlertTriangle, Search, CalendarDays, Users, Droplets, Thermometer, ArrowDownToLine, ArrowUpFromLine, Copy, KeyRound, BookOpen, Baby, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SectionTitle, Empty } from "@/components/farm/Kpi";
 import { FormDialog, SubmitRow, Field, selectCls } from "@/components/farm/FormDialog";
@@ -20,14 +20,16 @@ const PREFIX:Record<string,string> = {"Gestação":"GES","Maternidade":"MAT","Cr
 const PHASES = ["Pré-inicial","Inicial","Crescimento","Terminação","Gestação","Lactação","Reprodutor","Outra"];
 
 export const Route = createFileRoute("/_authenticated/baias")({
-  head: () => ({ meta: [{ title: "Baias e ração | Fazenda Santo Antônio" }, { name: "description", content: "Numeração de baias, caderno de manejo e controle de ração." }] }),
+  head: () => ({ meta: [{ title: "Baias e ração | Fazenda Santo Antônio" }, { name: "description", content: "Numeração de baias, levantamento inicial do plantel, equipe, caderno de manejo e controle de ração." }] }),
   component: Baias,
 });
 
 function Baias() {
   const qc=useQueryClient();
   const pens=useQuery(pensQuery), products=useQuery(productsQuery), records=useQuery(recordsQuery), movements=useQuery(movementsQuery);
-  const [tab,setTab]=useState<"baias"|"caderno"|"racao">("baias");
+  const [tab,setTab]=useState<"baias"|"caderno"|"racao"|"levantamento"|"equipe">("baias");
+  const [inviteCode,setInviteCode]=useState("");
+  const [inviteBusy,setInviteBusy]=useState(false);
   const [sector,setSector]=useState("todos");
   const [search,setSearch]=useState("");
   const [selectedPen,setSelectedPen]=useState("todos");
@@ -51,9 +53,9 @@ function Baias() {
     </div>
     {lowStock.length>0&&<div className="flex items-start gap-3 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-amber-950"><AlertTriangle className="mt-0.5 h-5 w-5 shrink-0"/><div><p className="text-sm font-bold">Atenção ao estoque de ração</p><p className="mt-1 text-xs leading-5">{lowStock.map((p:any)=>p.name+" ("+Number(p.stock_kg).toLocaleString("pt-BR")+" kg)").join(" · ")} — abaixo do mínimo ou no limite.</p></div></div>}
     <div className="flex flex-wrap gap-2 rounded-xl bg-muted/60 p-1">
-      {([["baias","Baias",Fence],["caderno","Caderno de manejo",ClipboardList],["racao","Ração e movimentações",Wheat]] as const).map(([id,label,Icon])=><button key={id} onClick={()=>setTab(id)} className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold transition ${tab===id?"bg-white text-primary shadow-sm":"text-muted-foreground hover:text-foreground"}`}><Icon className="h-4 w-4"/>{label}</button>)}
+      {([["baias","Baias",Fence],["caderno","Caderno",ClipboardList],["racao","Ração",Wheat],["levantamento","Plantel inicial",Baby],["equipe","Equipe / acesso",KeyRound]] as const).map(([id,label,Icon])=><button key={id} onClick={()=>setTab(id)} className={`flex min-w-[115px] flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold transition ${tab===id?"bg-white text-primary shadow-sm":"text-muted-foreground hover:text-foreground"}`}><Icon className="h-4 w-4"/>{label}</button>)}
     </div>
-    {loading?<div className="panel p-8 text-center text-sm text-muted-foreground">Carregando baias e estoque…</div>:<>
+        {loading?<div className="panel p-8 text-center text-sm text-muted-foreground">Carregando baias e estoque…</div>:<>
     {tab==="baias"&&<section className="space-y-4">
       <div className="flex flex-wrap gap-2"><div className="relative min-w-[180px] flex-1"><Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground"/><Input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar número ou setor" className="h-10 pl-9"/></div><select value={sector} onChange={e=>setSector(e.target.value)} className={selectCls+" w-auto min-w-[170px]"}><option value="todos">Todos os setores</option>{SECTORS.map(s=><option key={s}>{s}</option>)}</select></div>
       {filtered.length===0?<Empty>Nenhuma baia cadastrada neste filtro. Use “Numerar baias” para começar.</Empty>:<div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{filtered.map((p:any)=>{const last=latestByPen.get(p.id);return <article key={p.id} className="panel space-y-3 p-4"><div className="flex items-start justify-between gap-3"><div><p className="text-[.65rem] font-bold uppercase tracking-wider text-primary">{p.sector}</p><h3 className="mt-1 text-2xl font-bold tracking-tight">{p.code}</h3></div><span className={`rounded-full px-2.5 py-1 text-[.68rem] font-bold ${p.status==="ativa"?"bg-emerald-50 text-emerald-800":"bg-muted text-muted-foreground"}`}>{p.status==="ativa"?"Ativa":p.status==="manutencao"?"Manutenção":"Inativa"}</span></div><div className="grid grid-cols-2 gap-2 text-sm"><div className="rounded-xl bg-muted/50 p-3"><p className="text-xs text-muted-foreground">Capacidade</p><p className="mt-1 font-bold">{p.capacity} animais</p></div><div className="rounded-xl bg-muted/50 p-3"><p className="text-xs text-muted-foreground">Último registro</p><p className="mt-1 font-bold">{last?fmtDate(last.event_date):"Sem registro"}</p></div></div>{p.notes&&<p className="text-xs text-muted-foreground">{p.notes}</p>}<NewRecord pens={[p]} products={productRows} onDone={refresh} label="Registrar nesta baia"/></article>})}</div>}
@@ -69,7 +71,92 @@ function Baias() {
       <div className="panel p-4"><h4 className="font-bold">Últimas movimentações</h4>{(movements.data??[]).length===0?<p className="mt-3 text-sm text-muted-foreground">Nenhuma movimentação registrada.</p>:<div className="mt-3 divide-y">{(movements.data??[]).slice(0,20).map((m:any)=><div key={m.id} className="flex items-center gap-3 py-3 text-sm"><span className={`rounded-lg p-2 ${m.movement_type==="entrada"?"bg-emerald-50 text-emerald-700":"bg-amber-50 text-amber-800"}`}>{m.movement_type==="entrada"?<ArrowDownToLine className="h-4 w-4"/>:<ArrowUpFromLine className="h-4 w-4"/>}</span><div className="min-w-0 flex-1"><p className="font-semibold">{m.feed_products?.name??"Ração"} · {m.movement_type==="entrada"?"Entrada":"Consumo"}</p><p className="text-xs text-muted-foreground">{fmtDate(m.movement_date)}{m.farm_pens?.code?" · "+m.farm_pens.code:""}{m.notes?" · "+m.notes:""}</p></div><strong className="font-mono">{Number(m.quantity_kg).toLocaleString("pt-BR")} kg</strong></div>)}</div>}</div>
     </section>}
     </>}
+    {tab==="levantamento"&&<FieldCensus/>}
+    {tab==="equipe"&&<section className="mx-auto max-w-2xl space-y-4">
+      <div className="panel p-5 sm:p-6">
+        <div className="flex items-center gap-3"><div className="rounded-xl bg-primary/10 p-3 text-primary"><ShieldCheck className="h-6 w-6"/></div><div><p className="label-tech">Acesso compartilhado</p><h3 className="text-lg font-bold">Equipe da Fazenda Santo Antônio</h3></div></div>
+        <p className="mt-3 text-sm leading-6 text-muted-foreground">Gere um código para os funcionários criarem suas próprias contas e acessarem os mesmos registros da fazenda. Cada pessoa usa seu próprio e-mail e senha; não compartilhe sua senha pessoal.</p>
+        <Button className="mt-4 h-11 w-full sm:w-auto" disabled={inviteBusy} onClick={async()=>{
+          setInviteBusy(true);
+          const alphabet="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";const bytes=new Uint8Array(10);crypto.getRandomValues(bytes);const raw=Array.from(bytes,x=>alphabet[x%alphabet.length]).join("");const code="SA-"+raw.slice(0,5)+"-"+raw.slice(5);
+          const {error}=await supabase.rpc("create_farm_access_code",{p_code:code});
+          setInviteBusy(false);if(error){toast.error("Não foi possível gerar o código. Verifique se a migração 0008 foi aplicada.");return;}
+          setInviteCode(code);toast.success("Novo código de acesso gerado. O anterior foi desativado.");
+        }}>{inviteBusy?"Gerando código…":"Gerar código para funcionários"}</Button>
+        {inviteCode&&<div className="mt-4 rounded-2xl border border-primary/20 bg-primary/5 p-4">
+          <p className="text-xs font-semibold text-muted-foreground">CÓDIGO ATIVO · COPIE E ENVIE À EQUIPE</p>
+          <p className="my-3 break-all font-mono text-2xl font-bold tracking-[.12em] text-primary">{inviteCode}</p>
+          <Button variant="outline" className="w-full sm:w-auto" onClick={async()=>{try{await navigator.clipboard.writeText(inviteCode);toast.success("Código copiado.");}catch{toast.error("Não foi possível copiar automaticamente.");}}}><Copy className="mr-2 h-4 w-4"/>Copiar código</Button>
+        </div>}
+        <div className="mt-4 rounded-xl bg-muted/60 p-3 text-xs leading-5 text-muted-foreground">Gerar um novo código desativa o anterior. Funcionários já cadastrados continuam com acesso. Compartilhe somente com pessoas autorizadas.</div>
+      </div>
+      <div className="panel p-5"><h4 className="font-bold">Como o funcionário entra?</h4><ol className="mt-3 list-decimal space-y-2 pl-5 text-sm leading-6 text-muted-foreground"><li>Abrir o site da Fazenda Santo Antônio.</li><li>Selecionar “Primeiro acesso? Criar conta”.</li><li>Informar nome, e-mail, senha e o código recebido.</li><li>Confirmar o e-mail, se solicitado, e entrar com sua própria conta.</li></ol></div>
+    </section>}
   </div>;
+}
+
+type CensusRow={pen:number;tag:string;piglets:number|null;note:string};
+const CENSUS:CensusRow[]=[
+ {pen:1,tag:"—",piglets:null,note:"Quebrada (anotação manuscrita)"},
+ {pen:2,tag:"S/berno?",piglets:13,note:"Identificação manuscrita pouco legível"},
+ {pen:3,tag:"Moura",piglets:11,note:"—"},
+ {pen:4,tag:"—",piglets:null,note:"Quebrada (anotação manuscrita)"},
+ {pen:5,tag:"—",piglets:null,note:"Mesmo sinal da linha anterior; confirmar"},
+ {pen:6,tag:"Corpina",piglets:null,note:"Vai parir"},
+ {pen:7,tag:"1200",piglets:13,note:"Mossa? (confirmar anotação)"},
+ {pen:8,tag:"100",piglets:11,note:"Mossa? (confirmar anotação)"},
+ {pen:9,tag:"636/9",piglets:null,note:"Prenha? (confirmar anotação)"},
+ {pen:10,tag:"331",piglets:null,note:"Massa parir? (confirmar anotação)"},
+ {pen:11,tag:"100",piglets:11,note:"Remontar? (confirmar anotação)"},
+ {pen:12,tag:"12668",piglets:null,note:"Parir"},
+ {pen:13,tag:"Vazia",piglets:null,note:"Restaurar? (confirmar anotação)"},
+ {pen:14,tag:"300",piglets:null,note:"Mossa parir? (confirmar anotação)"},
+ {pen:15,tag:"311",piglets:16,note:"Mossa? (confirmar anotação)"},
+ {pen:16,tag:"12482",piglets:9,note:"—"},
+ {pen:17,tag:"A0078",piglets:null,note:"Parir"},
+ {pen:18,tag:"A0060",piglets:null,note:"Parir"},
+ {pen:19,tag:"Sem B/mossa",piglets:14,note:"Identificação manuscrita; confirmar"},
+ {pen:20,tag:"Sem B/mossa",piglets:12,note:"Identificação manuscrita; confirmar"},
+ {pen:21,tag:"A2350",piglets:13,note:"—"},
+ {pen:22,tag:"A2252",piglets:13,note:"—"},
+ {pen:23,tag:"Sem B/mossa",piglets:12,note:"Identificação manuscrita; confirmar"},
+ {pen:24,tag:"311",piglets:null,note:"Anotação lateral pouco legível"},
+ {pen:25,tag:"0517",piglets:8,note:"—"},
+ {pen:26,tag:"311",piglets:13,note:"Mossa? (confirmar anotação)"},
+ {pen:27,tag:"1505",piglets:13,note:"Mossa? (confirmar anotação)"},
+ {pen:28,tag:"333",piglets:6,note:"Mossa? (confirmar anotação)"},
+ {pen:29,tag:"01534",piglets:14,note:"—"},
+ {pen:30,tag:"100",piglets:12,note:"Branco? (confirmar anotação)"},
+ {pen:31,tag:"311",piglets:5,note:"—"},
+ {pen:32,tag:"100",piglets:8,note:"Mossa? (confirmar anotação)"},
+ {pen:33,tag:"311",piglets:8,note:"—"},
+ {pen:34,tag:"22/145",piglets:null,note:"Parir"},
+ {pen:35,tag:"A0058",piglets:null,note:"Parir"},
+ {pen:36,tag:"A0035",piglets:null,note:"Parir"},
+];
+function FieldCensus(){
+ const [q,setQ]=useState("");
+ const rows=CENSUS.filter(r=>!q||String(r.pen).includes(q)||r.tag.toLowerCase().includes(q.toLowerCase())||r.note.toLowerCase().includes(q.toLowerCase()));
+ const recorded=CENSUS.reduce((n,r)=>n+(r.piglets??0),0);
+ return <section className="space-y-4">
+  <div className="rounded-2xl border border-amber-300/70 bg-amber-50 p-4 text-sm leading-6 text-amber-950"><strong>Importação do caderno · 11/11/2026.</strong> Os campos foram transcritos das fotos. Onde a escrita não está clara, mantive “?” e um aviso para conferência. Não use as observações como diagnóstico ou protocolo de tratamento.</div>
+  <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+   <Metric label="Porcas paridas (anotado)" value="21" icon={<Baby className="h-4 w-4"/>}/>
+   <Metric label="Porcas a parir (anotado)" value="11" icon={<CalendarDays className="h-4 w-4"/>}/>
+   <Metric label="Leitões (resumo do caderno)" value="235" icon={<Baby className="h-4 w-4"/>}/>
+   <Metric label="Soma das linhas legíveis" value={recorded} icon={<ClipboardList className="h-4 w-4"/>}/>
+  </div>
+  <div className="panel overflow-hidden">
+   <div className="flex flex-wrap items-center justify-between gap-3 border-b p-4"><div><h3 className="font-bold">Levantamento por identificação</h3><p className="text-xs text-muted-foreground">36 posições conforme o caderno original</p></div><div className="relative min-w-[180px] flex-1 sm:max-w-xs"><Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground"/><Input value={q} onChange={e=>setQ(e.target.value)} placeholder="Buscar baia, brinco ou observação" className="h-10 pl-9"/></div></div>
+   <div className="overflow-x-auto"><table className="w-full min-w-[560px] text-sm"><thead className="bg-muted/40 text-left text-xs text-muted-foreground"><tr><th className="px-4 py-3">Posição</th><th className="px-3 py-3">Identificação manuscrita</th><th className="px-3 py-3">Leitões</th><th className="px-3 py-3">Observação transcrita</th></tr></thead><tbody className="divide-y">{rows.map(r=><tr key={r.pen}><td className="px-4 py-3 font-mono font-semibold">{String(r.pen).padStart(2,"0")}</td><td className="px-3 py-3 font-mono">{r.tag}</td><td className="px-3 py-3 font-mono">{r.piglets??"—"}</td><td className="px-3 py-3 text-muted-foreground">{r.note}</td></tr>)}</tbody></table></div>
+   <p className="border-t px-4 py-3 text-xs leading-5 text-muted-foreground">Conferência necessária: o resumo manuscrito informa 235 leitões, mas a soma das quantidades legíveis linha a linha resulta em {recorded}. Confira as linhas e corrija o caderno antes de usar esse levantamento como saldo operacional.</p>
+  </div>
+  <div className="panel p-4 sm:p-5"><div className="flex items-center gap-2"><BookOpen className="h-5 w-5 text-primary"/><h3 className="font-bold">Anotações de medicamentos · maternidade</h3></div><p className="mt-1 text-xs text-muted-foreground">Transcrição de referência do caderno, não é prescrição veterinária.</p><div className="mt-4 grid gap-3 sm:grid-cols-2">
+   <div className="rounded-xl bg-muted/50 p-3"><p className="font-semibold">Metrite</p><p className="mt-1 text-sm text-muted-foreground">Infecção do útero (descrição anotada).</p></div>
+   <div className="rounded-xl bg-muted/50 p-3"><p className="font-semibold">Mamite</p><p className="mt-1 text-sm text-muted-foreground">Anotação refere-se às mamas.</p></div>
+   <div className="rounded-xl bg-muted/50 p-3"><p className="font-semibold">Agalaxia</p><p className="mt-1 text-sm text-muted-foreground">Febre e falta de leite (descrição anotada).</p></div>
+  </div><div className="mt-3 rounded-xl border p-3"><p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Produtos citados no caderno</p><ul className="mt-2 space-y-1.5 text-sm"><li>Antibiótico: “Kinetomax” (grafia a confirmar)</li><li>Antitérmico: diclofenaco / “D500”</li><li>Ocitocina: carbetocina (anotação a confirmar)</li></ul></div><p className="mt-3 rounded-xl border border-amber-300/70 bg-amber-50 p-3 text-xs leading-5 text-amber-950">Atenção: a anotação não informa dose, via, intervalo, período de carência nem critérios de uso. Não administre medicamentos com base apenas nesta lista. Confirme produto, princípio ativo e conduta com o médico-veterinário responsável.</p></div>
+ </section>;
 }
 
 function GuideStep({number,title,detail}:{number:string;title:string;detail:string}){return <div className="flex gap-3 rounded-2xl border border-border/70 bg-white p-4"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EAF0E8] text-sm font-bold text-[#315E40]">{number}</span><div><p className="text-sm font-bold">{title}</p><p className="mt-1 text-xs leading-5 text-muted-foreground">{detail}</p></div></div>;}
