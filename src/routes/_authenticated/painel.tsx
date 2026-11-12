@@ -12,9 +12,31 @@ function Painel(){
  if(loading)return <div className="panel p-8 text-center text-sm text-muted-foreground animate-pulse-soft">Preparando os indicadores da fazenda…</div>;
  const attention=[...s.overdue.map(t=>({k:"t"+t.id,tone:"text-destructive",text:`Tarefa atrasada: ${t.title}`,sub:`Prevista ${fmtDate(t.due_date)}`,to:"/tarefas" as const})),...s.overduePredictions.map(b=>({k:"bp"+b.id,tone:"text-destructive",text:`Revisar previsão de parto · matriz ${s.sowName(b.sow_id)}`,sub:`Data prevista passou: ${fmtDate(b.expected_farrowing)}`,to:"/matrizes" as const})),...s.due7.map(b=>({k:"b"+b.id,tone:"text-warn",text:`Parto previsto · matriz ${s.sowName(b.sow_id)}`,sub:fmtDate(b.expected_farrowing),to:"/matrizes" as const}))];
  return <div className="space-y-7">
-  <section className="relative isolate overflow-hidden rounded-[1.6rem] bg-[#173F2B] px-5 py-6 text-white shadow-lg shadow-[#173F2B]/10 sm:px-7 sm:py-8">
-   <div className="absolute -right-12 -top-24 -z-10 h-64 w-64 rounded-full border border-white/10"/><div className="absolute -right-1 -top-12 -z-10 h-44 w-44 rounded-full border border-white/10"/>
-   <div className="flex flex-wrap items-end justify-between gap-4"><div><p className="text-[.65rem] font-bold uppercase tracking-[.18em] text-[#D7B66C]">Centro de gestão · Fazenda Santo Antônio</p><h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">Bom trabalho. Vamos cuidar da produção.</h1><p className="mt-2 max-w-xl text-sm leading-6 text-white/65">Acompanhe os principais números e prioridades da sua granja em um só lugar.</p></div><div className="flex items-center gap-2 rounded-xl border border-white/15 bg-white/[.07] px-3 py-2 text-xs font-semibold text-white/80"><CalendarDays className="h-4 w-4 text-[#D7B66C]"/>{new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"2-digit",month:"long"})}</div></div>
+  <section className="hero-premium relative rounded-[1.6rem] px-5 py-6 text-white sm:px-7 sm:py-8 lg:px-9 lg:py-9">
+   <div className="hero-orbit pointer-events-none hidden sm:block"/>
+   <div className="relative z-10 grid items-center gap-8 lg:grid-cols-[1.25fr_.75fr]">
+    <div className="max-w-2xl">
+     <div className="inline-flex items-center gap-2 rounded-full border border-[#D7B66C]/30 bg-[#D7B66C]/10 px-3 py-1.5 text-[.63rem] font-bold uppercase tracking-[.17em] text-[#E8D49F]"><span className="status-dot !h-1.5 !w-1.5 !bg-[#9CD2A4] !shadow-none"/> Centro de comando · Fazenda Santo Antônio</div>
+     <h1 className="mt-4 text-2xl font-bold leading-tight tracking-tight sm:text-3xl lg:text-[2.55rem]">Gestão inteligente.<br/><span className="text-[#DCC58A]">Produção sob controle.</span></h1>
+     <p className="mt-3 max-w-xl text-sm leading-6 text-white/70">Acompanhe o desempenho, antecipe manejos e tome decisões com mais clareza em cada etapa da suinocultura.</p>
+     <div className="mt-5 flex flex-wrap items-center gap-3">
+      <div className="flex items-center gap-2 rounded-xl border border-white/15 bg-white/[.08] px-3 py-2 text-xs font-semibold text-white/85"><CalendarDays className="h-4 w-4 text-[#D7B66C]"/>{new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"2-digit",month:"long"})}</div>
+      <span className="text-[.68rem] text-white/45">Painel operacional em tempo real dos registros</span>
+     </div>
+    </div>
+    <div className="hero-visual relative mx-auto hidden w-full max-w-[310px] lg:block" aria-hidden="true">
+     <div className="hero-glass-card relative rounded-[1.5rem] p-5">
+      <div className="flex items-center justify-between"><span className="text-[.62rem] font-bold uppercase tracking-[.16em] text-white/60">Visão da operação</span><span className="rounded-full bg-emerald-300/15 px-2 py-1 text-[.58rem] font-semibold text-emerald-200">AO VIVO</span></div>
+      <div className="mt-6 flex items-end justify-between"><div><p className="text-[.65rem] text-white/55">Matrizes no plantel</p><p className="mt-1 font-mono text-4xl font-semibold tracking-tight">{s.active.toLocaleString("pt-BR")}</p></div><div className="grid h-12 w-12 place-items-center rounded-2xl border border-[#DCC58A]/25 bg-[#DCC58A]/10 text-2xl">🐖</div></div>
+      <div className="mt-5 grid grid-cols-2 gap-2">
+       <div className="rounded-xl border border-white/10 bg-black/10 p-3"><p className="text-[.58rem] text-white/50">Gestantes</p><p className="mt-1 font-mono text-xl">{s.gestantes}</p></div>
+       <div className="rounded-xl border border-white/10 bg-black/10 p-3"><p className="text-[.58rem] text-white/50">Leitões vivos</p><p className="mt-1 font-mono text-xl">{s.liveMat.toLocaleString("pt-BR")}</p></div>
+      </div>
+      <div className="mt-4 flex items-center gap-2"><div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10"><div className="h-full w-[72%] rounded-full bg-gradient-to-r from-[#9BC69B] to-[#E0C783]"/></div><span className="text-[.58rem] text-white/45">Controle integrado</span></div>
+     </div>
+     <div className="absolute -bottom-4 -left-5 rounded-xl border border-white/15 bg-[#214D35]/90 px-3 py-2 shadow-xl backdrop-blur"><p className="text-[.56rem] uppercase tracking-wider text-white/50">Precisão no manejo</p><p className="mt-0.5 text-xs font-semibold text-[#E8D49F]">Santo Antônio · AgroTech</p></div>
+    </div>
+   </div>
   </section>
   <div className="flex items-center justify-between gap-3"><div><p className="label-tech">Resumo da operação</p><h2 className="mt-1 text-lg font-bold tracking-tight">Indicadores da granja</h2></div><span className="hidden rounded-full bg-[#EAF0E8] px-3 py-1.5 text-[.68rem] font-bold text-[#315E40] sm:inline-flex">Dados registrados no sistema</span></div>
   <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
