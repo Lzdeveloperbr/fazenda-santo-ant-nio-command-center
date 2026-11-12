@@ -20,7 +20,7 @@ const PREFIX:Record<string,string> = {"Gestação":"GES","Maternidade":"MAT","Cr
 const PHASES = ["Pré-inicial","Inicial","Crescimento","Terminação","Gestação","Lactação","Reprodutor","Outra"];
 
 export const Route = createFileRoute("/_authenticated/baias")({
-  head: () => ({ meta: [{ title: "Baias e ração | Fazenda Santo Antônio" }, { name: "description", content: "Numeração de baias, levantamento do plantel, equipe, caderno de manejo e controle de ração." }] }),
+  head: () => ({ meta: [{ title: "Baias e ração | Fazenda Santo Antônio" }, { name: "description", content: "Numeração de baias, levantamento inicial do plantel, equipe, caderno de manejo e controle de ração." }] }),
   component: Baias,
 });
 
