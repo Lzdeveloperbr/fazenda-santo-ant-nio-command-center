@@ -27,7 +27,9 @@ export const Route = createFileRoute("/_authenticated/baias")({
 function Baias() {
   const qc=useQueryClient();
   const pens=useQuery(pensQuery), products=useQuery(productsQuery), records=useQuery(recordsQuery), movements=useQuery(movementsQuery);
-  const [tab,setTab]=useState<"baias"|"caderno"|"racao"|"levantamento"|"equipe">("baias");\n  const [inviteCode,setInviteCode]=useState("");\n  const [inviteBusy,setInviteBusy]=useState(false);
+  const [tab,setTab]=useState<"baias"|"caderno"|"racao"|"levantamento"|"equipe">("baias");
+  const [inviteCode,setInviteCode]=useState("");
+  const [inviteBusy,setInviteBusy]=useState(false);
   const [sector,setSector]=useState("todos");
   const [search,setSearch]=useState("");
   const [selectedPen,setSelectedPen]=useState("todos");
