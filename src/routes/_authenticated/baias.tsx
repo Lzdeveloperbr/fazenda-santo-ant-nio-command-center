@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 import { toast } from "sonner";
-import { Fence, Plus, ClipboardList, Wheat, Boxes, AlertTriangle, Search, CalendarDays, Users, Droplets, Thermometer, ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
+import { Fence, Plus, ClipboardList, Wheat, Boxes, AlertTriangle, Search, CalendarDays, Users, Droplets, Thermometer, ArrowDownToLine, ArrowUpFromLine, Copy, KeyRound, BookOpen, Baby, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SectionTitle, Empty } from "@/components/farm/Kpi";
 import { FormDialog, SubmitRow, Field, selectCls } from "@/components/farm/FormDialog";
@@ -27,7 +27,7 @@ export const Route = createFileRoute("/_authenticated/baias")({
 function Baias() {
   const qc=useQueryClient();
   const pens=useQuery(pensQuery), products=useQuery(productsQuery), records=useQuery(recordsQuery), movements=useQuery(movementsQuery);
-  const [tab,setTab]=useState<"baias"|"caderno"|"racao">("baias");
+  const [tab,setTab]=useState<"baias"|"caderno"|"racao"|"levantamento"|"equipe">("baias");\n  const [inviteCode,setInviteCode]=useState("");\n  const [inviteBusy,setInviteBusy]=useState(false);
   const [sector,setSector]=useState("todos");
   const [search,setSearch]=useState("");
   const [selectedPen,setSelectedPen]=useState("todos");
@@ -72,7 +72,70 @@ function Baias() {
   </div>;
 }
 
-function GuideStep({number,title,detail}:{number:string;title:string;detail:string}){return <div className="flex gap-3 rounded-2xl border border-border/70 bg-white p-4"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EAF0E8] text-sm font-bold text-[#315E40]">{number}</span><div><p className="text-sm font-bold">{title}</p><p className="mt-1 text-xs leading-5 text-muted-foreground">{detail}</p></div></div>;}
+type CensusRow={pen:number;tag:string;piglets:number|null;note:string};
+const CENSUS:CensusRow[]=[
+ {pen:1,tag:"—",piglets:null,note:"Quebrada (anotação manuscrita)"},
+ {pen:2,tag:"S/berno?",piglets:13,note:"Identificação manuscrita pouco legível"},
+ {pen:3,tag:"Moura",piglets:11,note:"—"},
+ {pen:4,tag:"—",piglets:null,note:"Quebrada (anotação manuscrita)"},
+ {pen:5,tag:"—",piglets:null,note:"Mesmo sinal da linha anterior; confirmar"},
+ {pen:6,tag:"Corpina",piglets:null,note:"Vai parir"},
+ {pen:7,tag:"1200",piglets:13,note:"Mossa? (confirmar anotação)"},
+ {pen:8,tag:"100",piglets:11,note:"Mossa? (confirmar anotação)"},
+ {pen:9,tag:"636/9",piglets:null,note:"Prenha? (confirmar anotação)"},
+ {pen:10,tag:"331",piglets:null,note:"Massa parir? (confirmar anotação)"},
+ {pen:11,tag:"100",piglets:11,note:"Remontar? (confirmar anotação)"},
+ {pen:12,tag:"12668",piglets:null,note:"Parir"},
+ {pen:13,tag:"Vazia",piglets:null,note:"Restaurar? (confirmar anotação)"},
+ {pen:14,tag:"300",piglets:null,note:"Mossa parir? (confirmar anotação)"},
+ {pen:15,tag:"311",piglets:16,note:"Mossa? (confirmar anotação)"},
+ {pen:16,tag:"12482",piglets:9,note:"—"},
+ {pen:17,tag:"A0078",piglets:null,note:"Parir"},
+ {pen:18,tag:"A0060",piglets:null,note:"Parir"},
+ {pen:19,tag:"Sem B/mossa",piglets:14,note:"Identificação manuscrita; confirmar"},
+ {pen:20,tag:"Sem B/mossa",piglets:12,note:"Identificação manuscrita; confirmar"},
+ {pen:21,tag:"A2350",piglets:13,note:"—"},
+ {pen:22,tag:"A2252",piglets:13,note:"—"},
+ {pen:23,tag:"Sem B/mossa",piglets:12,note:"Identificação manuscrita; confirmar"},
+ {pen:24,tag:"311",piglets:null,note:"Anotação lateral pouco legível"},
+ {pen:25,tag:"0517",piglets:8,note:"—"},
+ {pen:26,tag:"311",piglets:13,note:"Mossa? (confirmar anotação)"},
+ {pen:27,tag:"1505",piglets:13,note:"Mossa? (confirmar anotação)"},
+ {pen:28,tag:"333",piglets:6,note:"Mossa? (confirmar anotação)"},
+ {pen:29,tag:"01534",piglets:14,note:"—"},
+ {pen:30,tag:"100",piglets:12,note:"Branco? (confirmar anotação)"},
+ {pen:31,tag:"311",piglets:5,note:"—"},
+ {pen:32,tag:"100",piglets:8,note:"Mossa? (confirmar anotação)"},
+ {pen:33,tag:"311",piglets:8,note:"—"},
+ {pen:34,tag:"22/145",piglets:null,note:"Parir"},
+ {pen:35,tag:"A0058",piglets:null,note:"Parir"},
+ {pen:36,tag:"A0035",piglets:null,note:"Parir"},
+];
+function FieldCensus(){
+ const [q,setQ]=useState("");
+ const rows=CENSUS.filter(r=>!q||String(r.pen).includes(q)||r.tag.toLowerCase().includes(q.toLowerCase())||r.note.toLowerCase().includes(q.toLowerCase()));
+ const recorded=CENSUS.reduce((n,r)=>n+(r.piglets??0),0);
+ return <section className="space-y-4">
+  <div className="rounded-2xl border border-amber-300/70 bg-amber-50 p-4 text-sm leading-6 text-amber-950"><strong>Importação do caderno · 11/11/2026.</strong> Os campos foram transcritos das fotos. Onde a escrita não está clara, mantive “?” e um aviso para conferência. Não use as observações como diagnóstico ou protocolo de tratamento.</div>
+  <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+   <Metric label="Porcas paridas (anotado)" value="21" icon={<Baby className="h-4 w-4"/>}/>
+   <Metric label="Porcas a parir (anotado)" value="11" icon={<CalendarDays className="h-4 w-4"/>}/>
+   <Metric label="Leitões (resumo do caderno)" value="235" icon={<Baby className="h-4 w-4"/>}/>
+   <Metric label="Soma das linhas legíveis" value={recorded} icon={<ClipboardList className="h-4 w-4"/>}/>
+  </div>
+  <div className="panel overflow-hidden">
+   <div className="flex flex-wrap items-center justify-between gap-3 border-b p-4"><div><h3 className="font-bold">Levantamento por identificação</h3><p className="text-xs text-muted-foreground">36 posições conforme o caderno original</p></div><div className="relative min-w-[180px] flex-1 sm:max-w-xs"><Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground"/><Input value={q} onChange={e=>setQ(e.target.value)} placeholder="Buscar baia, brinco ou observação" className="h-10 pl-9"/></div></div>
+   <div className="overflow-x-auto"><table className="w-full min-w-[560px] text-sm"><thead className="bg-muted/40 text-left text-xs text-muted-foreground"><tr><th className="px-4 py-3">Posição</th><th className="px-3 py-3">Identificação manuscrita</th><th className="px-3 py-3">Leitões</th><th className="px-3 py-3">Observação transcrita</th></tr></thead><tbody className="divide-y">{rows.map(r=><tr key={r.pen}><td className="px-4 py-3 font-mono font-semibold">{String(r.pen).padStart(2,"0")}</td><td className="px-3 py-3 font-mono">{r.tag}</td><td className="px-3 py-3 font-mono">{r.piglets??"—"}</td><td className="px-3 py-3 text-muted-foreground">{r.note}</td></tr>)}</tbody></table></div>
+   <p className="border-t px-4 py-3 text-xs leading-5 text-muted-foreground">Conferência necessária: o resumo manuscrito informa 235 leitões, mas a soma das quantidades legíveis linha a linha resulta em {recorded}. Confira as linhas e corrija o caderno antes de usar esse levantamento como saldo operacional.</p>
+  </div>
+  <div className="panel p-4 sm:p-5"><div className="flex items-center gap-2"><BookOpen className="h-5 w-5 text-primary"/><h3 className="font-bold">Anotações de medicamentos · maternidade</h3></div><p className="mt-1 text-xs text-muted-foreground">Transcrição de referência do caderno, não é prescrição veterinária.</p><div className="mt-4 grid gap-3 sm:grid-cols-2">
+   <div className="rounded-xl bg-muted/50 p-3"><p className="font-semibold">Metrite</p><p className="mt-1 text-sm text-muted-foreground">Infecção do útero (descrição anotada).</p></div>
+   <div className="rounded-xl bg-muted/50 p-3"><p className="font-semibold">Mamite</p><p className="mt-1 text-sm text-muted-foreground">Anotação refere-se às mamas.</p></div>
+   <div className="rounded-xl bg-muted/50 p-3"><p className="font-semibold">Agalaxia</p><p className="mt-1 text-sm text-muted-foreground">Febre e falta de leite (descrição anotada).</p></div>
+  </div><div className="mt-3 rounded-xl border p-3"><p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Produtos citados no caderno</p><ul className="mt-2 space-y-1.5 text-sm"><li>Antibiótico: “Kinetomax” (grafia a confirmar)</li><li>Antitérmico: diclofenaco / “D500”</li><li>Ocitocina: carbetocina (anotação a confirmar)</li></ul></div><p className="mt-3 rounded-xl border border-amber-300/70 bg-amber-50 p-3 text-xs leading-5 text-amber-950">Atenção: a anotação não informa dose, via, intervalo, período de carência nem critérios de uso. Não administre medicamentos com base apenas nesta lista. Confirme produto, princípio ativo e conduta com o médico-veterinário responsável.</p></div>
+ </section>;
+}
+\nfunction GuideStep({number,title,detail}:{number:string;title:string;detail:string}){return <div className="flex gap-3 rounded-2xl border border-border/70 bg-white p-4"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EAF0E8] text-sm font-bold text-[#315E40]">{number}</span><div><p className="text-sm font-bold">{title}</p><p className="mt-1 text-xs leading-5 text-muted-foreground">{detail}</p></div></div>;}
 
 function Metric({label,value,icon}:{label:string;value:string|number;icon:ReactNode}){return <div className="panel p-4"><div className="flex items-center justify-between text-muted-foreground"><p className="label-tech">{label}</p>{icon}</div><p className="mt-2 text-2xl font-bold tabular-nums">{value}</p></div>;}
 
