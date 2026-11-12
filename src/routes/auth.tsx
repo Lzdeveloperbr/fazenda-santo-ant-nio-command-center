@@ -28,6 +28,7 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [farmCode, setFarmCode] = useState("");
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -50,7 +51,7 @@ function AuthPage() {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: { emailRedirectTo: window.location.origin, data: { display_name: name } },
+        options: { emailRedirectTo: window.location.origin, data: { display_name: name, farm_code: farmCode.trim().toUpperCase() } },
       });
       if (error) toast.error(error.message);
       else if (!data.session) toast.success("Conta criada. Confirme pelo link enviado ao seu e-mail.");
@@ -75,6 +76,13 @@ function AuthPage() {
               <Input id="name" required value={name} onChange={(e) => setName(e.target.value)} className="h-11" />
             </div>
           )}
+          {mode === "up" && (
+            <div className="space-y-1.5">
+              <Label htmlFor="farm-code">Código da Fazenda Santo Antônio</Label>
+              <Input id="farm-code" autoCapitalize="characters" value={farmCode} onChange={(e) => setFarmCode(e.target.value.toUpperCase())} className="h-11 font-mono tracking-wider" placeholder="SA-XXXXXXXX" />
+              <p className="text-xs leading-5 text-muted-foreground">Peça o código ao responsável pela fazenda. Sem o código, a conta será criada sem acesso aos dados compartilhados.</p>
+            </div>
+          )}
           <div className="space-y-1.5">
             <Label htmlFor="email">E-mail</Label>
             <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="h-11" />
@@ -91,7 +99,7 @@ function AuthPage() {
         <button onClick={() => setMode(mode === "in" ? "up" : "in")} className="mt-5 w-full text-sm text-muted-foreground hover:text-foreground">
           {mode === "in" ? "Primeiro acesso? Criar conta" : "Já tenho conta"}
         </button>
-        <p className="mt-4 text-center text-xs text-muted-foreground">As duas primeiras contas criadas têm acesso aos dados da fazenda.</p>
+        <p className="mt-4 text-center text-xs text-muted-foreground">Funcionários podem entrar com o código compartilhado pela administração da fazenda.</p>
       </div>
     </main>
   );
