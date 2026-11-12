@@ -51,9 +51,9 @@ function Baias() {
     </div>
     {lowStock.length>0&&<div className="flex items-start gap-3 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-amber-950"><AlertTriangle className="mt-0.5 h-5 w-5 shrink-0"/><div><p className="text-sm font-bold">Atenção ao estoque de ração</p><p className="mt-1 text-xs leading-5">{lowStock.map((p:any)=>p.name+" ("+Number(p.stock_kg).toLocaleString("pt-BR")+" kg)").join(" · ")} — abaixo do mínimo ou no limite.</p></div></div>}
     <div className="flex flex-wrap gap-2 rounded-xl bg-muted/60 p-1">
-      {([["baias","Baias",Fence],["caderno","Caderno de manejo",ClipboardList],["racao","Ração e movimentações",Wheat]] as const).map(([id,label,Icon])=><button key={id} onClick={()=>setTab(id)} className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold transition ${tab===id?"bg-white text-primary shadow-sm":"text-muted-foreground hover:text-foreground"}`}><Icon className="h-4 w-4"/>{label}</button>)}
+      {([["baias","Baias",Fence],["caderno","Caderno",ClipboardList],["racao","Ração",Wheat],["levantamento","Plantel inicial",Baby],["equipe","Equipe / acesso",KeyRound]] as const).map(([id,label,Icon])=><button key={id} onClick={()=>setTab(id)} className={`flex min-w-[115px] flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold transition ${tab===id?"bg-white text-primary shadow-sm":"text-muted-foreground hover:text-foreground"}`}><Icon className="h-4 w-4"/>{label}</button>)}
     </div>
-    {loading?<div className="panel p-8 text-center text-sm text-muted-foreground">Carregando baias e estoque…</div>:<>
+        {loading?<div className="panel p-8 text-center text-sm text-muted-foreground">Carregando baias e estoque…</div>:<>
     {tab==="baias"&&<section className="space-y-4">
       <div className="flex flex-wrap gap-2"><div className="relative min-w-[180px] flex-1"><Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground"/><Input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar número ou setor" className="h-10 pl-9"/></div><select value={sector} onChange={e=>setSector(e.target.value)} className={selectCls+" w-auto min-w-[170px]"}><option value="todos">Todos os setores</option>{SECTORS.map(s=><option key={s}>{s}</option>)}</select></div>
       {filtered.length===0?<Empty>Nenhuma baia cadastrada neste filtro. Use “Numerar baias” para começar.</Empty>:<div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{filtered.map((p:any)=>{const last=latestByPen.get(p.id);return <article key={p.id} className="panel space-y-3 p-4"><div className="flex items-start justify-between gap-3"><div><p className="text-[.65rem] font-bold uppercase tracking-wider text-primary">{p.sector}</p><h3 className="mt-1 text-2xl font-bold tracking-tight">{p.code}</h3></div><span className={`rounded-full px-2.5 py-1 text-[.68rem] font-bold ${p.status==="ativa"?"bg-emerald-50 text-emerald-800":"bg-muted text-muted-foreground"}`}>{p.status==="ativa"?"Ativa":p.status==="manutencao"?"Manutenção":"Inativa"}</span></div><div className="grid grid-cols-2 gap-2 text-sm"><div className="rounded-xl bg-muted/50 p-3"><p className="text-xs text-muted-foreground">Capacidade</p><p className="mt-1 font-bold">{p.capacity} animais</p></div><div className="rounded-xl bg-muted/50 p-3"><p className="text-xs text-muted-foreground">Último registro</p><p className="mt-1 font-bold">{last?fmtDate(last.event_date):"Sem registro"}</p></div></div>{p.notes&&<p className="text-xs text-muted-foreground">{p.notes}</p>}<NewRecord pens={[p]} products={productRows} onDone={refresh} label="Registrar nesta baia"/></article>})}</div>}
@@ -69,6 +69,27 @@ function Baias() {
       <div className="panel p-4"><h4 className="font-bold">Últimas movimentações</h4>{(movements.data??[]).length===0?<p className="mt-3 text-sm text-muted-foreground">Nenhuma movimentação registrada.</p>:<div className="mt-3 divide-y">{(movements.data??[]).slice(0,20).map((m:any)=><div key={m.id} className="flex items-center gap-3 py-3 text-sm"><span className={`rounded-lg p-2 ${m.movement_type==="entrada"?"bg-emerald-50 text-emerald-700":"bg-amber-50 text-amber-800"}`}>{m.movement_type==="entrada"?<ArrowDownToLine className="h-4 w-4"/>:<ArrowUpFromLine className="h-4 w-4"/>}</span><div className="min-w-0 flex-1"><p className="font-semibold">{m.feed_products?.name??"Ração"} · {m.movement_type==="entrada"?"Entrada":"Consumo"}</p><p className="text-xs text-muted-foreground">{fmtDate(m.movement_date)}{m.farm_pens?.code?" · "+m.farm_pens.code:""}{m.notes?" · "+m.notes:""}</p></div><strong className="font-mono">{Number(m.quantity_kg).toLocaleString("pt-BR")} kg</strong></div>)}</div>}</div>
     </section>}
     </>}
+    {tab==="levantamento"&&<FieldCensus/>}
+    {tab==="equipe"&&<section className="mx-auto max-w-2xl space-y-4">
+      <div className="panel p-5 sm:p-6">
+        <div className="flex items-center gap-3"><div className="rounded-xl bg-primary/10 p-3 text-primary"><ShieldCheck className="h-6 w-6"/></div><div><p className="label-tech">Acesso compartilhado</p><h3 className="text-lg font-bold">Equipe da Fazenda Santo Antônio</h3></div></div>
+        <p className="mt-3 text-sm leading-6 text-muted-foreground">Gere um código para os funcionários criarem suas próprias contas e acessarem os mesmos registros da fazenda. Cada pessoa usa seu próprio e-mail e senha; não compartilhe sua senha pessoal.</p>
+        <Button className="mt-4 h-11 w-full sm:w-auto" disabled={inviteBusy} onClick={async()=>{
+          setInviteBusy(true);
+          const alphabet="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";const bytes=new Uint8Array(10);crypto.getRandomValues(bytes);const raw=Array.from(bytes,x=>alphabet[x%alphabet.length]).join("");const code="SA-"+raw.slice(0,5)+"-"+raw.slice(5);
+          const {error}=await supabase.rpc("create_farm_access_code",{p_code:code});
+          setInviteBusy(false);if(error){toast.error("Não foi possível gerar o código. Verifique se a migração 0008 foi aplicada.");return;}
+          setInviteCode(code);toast.success("Novo código de acesso gerado. O anterior foi desativado.");
+        }}>{inviteBusy?"Gerando código…":"Gerar código para funcionários"}</Button>
+        {inviteCode&&<div className="mt-4 rounded-2xl border border-primary/20 bg-primary/5 p-4">
+          <p className="text-xs font-semibold text-muted-foreground">CÓDIGO ATIVO · COPIE E ENVIE À EQUIPE</p>
+          <p className="my-3 break-all font-mono text-2xl font-bold tracking-[.12em] text-primary">{inviteCode}</p>
+          <Button variant="outline" className="w-full sm:w-auto" onClick={async()=>{try{await navigator.clipboard.writeText(inviteCode);toast.success("Código copiado.");}catch{toast.error("Não foi possível copiar automaticamente.");}}}><Copy className="mr-2 h-4 w-4"/>Copiar código</Button>
+        </div>}
+        <div className="mt-4 rounded-xl bg-muted/60 p-3 text-xs leading-5 text-muted-foreground">Gerar um novo código desativa o anterior. Funcionários já cadastrados continuam com acesso. Compartilhe somente com pessoas autorizadas.</div>
+      </div>
+      <div className="panel p-5"><h4 className="font-bold">Como o funcionário entra?</h4><ol className="mt-3 list-decimal space-y-2 pl-5 text-sm leading-6 text-muted-foreground"><li>Abrir o site da Fazenda Santo Antônio.</li><li>Selecionar “Primeiro acesso? Criar conta”.</li><li>Informar nome, e-mail, senha e o código recebido.</li><li>Confirmar o e-mail, se solicitado, e entrar com sua própria conta.</li></ol></div>
+    </section>}
   </div>;
 }
 
