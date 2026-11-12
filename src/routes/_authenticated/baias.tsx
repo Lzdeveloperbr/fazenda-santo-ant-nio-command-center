@@ -158,7 +158,8 @@ function FieldCensus(){
   </div><div className="mt-3 rounded-xl border p-3"><p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Produtos citados no caderno</p><ul className="mt-2 space-y-1.5 text-sm"><li>Antibiótico: “Kinetomax” (grafia a confirmar)</li><li>Antitérmico: diclofenaco / “D500”</li><li>Ocitocina: carbetocina (anotação a confirmar)</li></ul></div><p className="mt-3 rounded-xl border border-amber-300/70 bg-amber-50 p-3 text-xs leading-5 text-amber-950">Atenção: a anotação não informa dose, via, intervalo, período de carência nem critérios de uso. Não administre medicamentos com base apenas nesta lista. Confirme produto, princípio ativo e conduta com o médico-veterinário responsável.</p></div>
  </section>;
 }
-\nfunction GuideStep({number,title,detail}:{number:string;title:string;detail:string}){return <div className="flex gap-3 rounded-2xl border border-border/70 bg-white p-4"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EAF0E8] text-sm font-bold text-[#315E40]">{number}</span><div><p className="text-sm font-bold">{title}</p><p className="mt-1 text-xs leading-5 text-muted-foreground">{detail}</p></div></div>;}
+
+function GuideStep({number,title,detail}:{number:string;title:string;detail:string}){return <div className="flex gap-3 rounded-2xl border border-border/70 bg-white p-4"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EAF0E8] text-sm font-bold text-[#315E40]">{number}</span><div><p className="text-sm font-bold">{title}</p><p className="mt-1 text-xs leading-5 text-muted-foreground">{detail}</p></div></div>;}
 
 function Metric({label,value,icon}:{label:string;value:string|number;icon:ReactNode}){return <div className="panel p-4"><div className="flex items-center justify-between text-muted-foreground"><p className="label-tech">{label}</p>{icon}</div><p className="mt-2 text-2xl font-bold tabular-nums">{value}</p></div>;}
 
