@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 import { toast } from "sonner";
-import { Fence, Plus, ClipboardList, Wheat, Boxes, AlertTriangle, Search, CalendarDays, Users, Droplets, Thermometer, ArrowDownToLine, ArrowUpFromLine, Copy, KeyRound, BookOpen, Baby, ShieldCheck } from "lucide-react";
+import { Fence, Plus, ClipboardList, Wheat, Boxes, AlertTriangle, Search, CalendarDays, Users, Droplets, Thermometer, ArrowDownToLine, ArrowUpFromLine, Copy, KeyRound, BookOpen, Baby, ShieldCheck, History } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SectionTitle, Empty } from "@/components/farm/Kpi";
 import { FormDialog, SubmitRow, Field, selectCls } from "@/components/farm/FormDialog";
@@ -15,6 +15,8 @@ const pensQuery = { queryKey: ["farm_pens"], queryFn: async () => { const {data,
 const productsQuery = { queryKey: ["feed_products"], queryFn: async () => { const {data,error}=await db.from("feed_products").select("*").order("name"); if(error)throw error; return data??[]; } };
 const recordsQuery = { queryKey: ["pen_records"], queryFn: async () => { const {data,error}=await db.from("pen_records").select("*,farm_pens(code,sector),feed_products(name)").order("event_date",{ascending:false}).order("created_at",{ascending:false}).limit(150); if(error)throw error; return data??[]; } };
 const movementsQuery = { queryKey: ["feed_movements"], queryFn: async () => { const {data,error}=await db.from("feed_movements").select("*,feed_products(name),farm_pens(code)").order("movement_date",{ascending:false}).limit(100); if(error)throw error; return data??[]; } };
+const activityQuery = { queryKey: ["farm_activity_log"], queryFn: async () => { const {data,error}=await db.from("farm_activity_log").select("*").order("changed_at",{ascending:false}).limit(150); if(error)throw error; return data??[]; } };
+const profilesQuery = { queryKey: ["farm_activity_profiles"], queryFn: async () => { const {data,error}=await db.from("profiles").select("id,display_name"); if(error)throw error; return data??[]; } };
 const SECTORS = ["Gestação","Maternidade","Creche","Crescimento","Terminação","Reprodutores","Quarentena","Enfermaria"];
 const PREFIX:Record<string,string> = {"Gestação":"GES","Maternidade":"MAT","Creche":"CRE","Crescimento":"CRES","Terminação":"TERM","Reprodutores":"REP","Quarentena":"QUA","Enfermaria":"ENF"};
 const PHASES = ["Pré-inicial","Inicial","Crescimento","Terminação","Gestação","Lactação","Reprodutor","Outra"];
@@ -26,8 +28,8 @@ export const Route = createFileRoute("/_authenticated/baias")({
 
 function Baias() {
   const qc=useQueryClient();
-  const pens=useQuery(pensQuery), products=useQuery(productsQuery), records=useQuery(recordsQuery), movements=useQuery(movementsQuery);
-  const [tab,setTab]=useState<"baias"|"caderno"|"racao"|"levantamento"|"equipe">("baias");
+  const pens=useQuery(pensQuery), products=useQuery(productsQuery), records=useQuery(recordsQuery), movements=useQuery(movementsQuery), activity=useQuery(activityQuery), profiles=useQuery(profilesQuery);
+  const [tab,setTab]=useState<"baias"|"caderno"|"racao"|"levantamento"|"equipe"|"historico">("baias");
   const [inviteCode,setInviteCode]=useState("");
   const [inviteBusy,setInviteBusy]=useState(false);
   const [sector,setSector]=useState("todos");
@@ -53,7 +55,7 @@ function Baias() {
     </div>
     {lowStock.length>0&&<div className="flex items-start gap-3 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-amber-950"><AlertTriangle className="mt-0.5 h-5 w-5 shrink-0"/><div><p className="text-sm font-bold">Atenção ao estoque de ração</p><p className="mt-1 text-xs leading-5">{lowStock.map((p:any)=>p.name+" ("+Number(p.stock_kg).toLocaleString("pt-BR")+" kg)").join(" · ")} — abaixo do mínimo ou no limite.</p></div></div>}
     <div className="flex flex-wrap gap-2 rounded-xl bg-muted/60 p-1">
-      {([["baias","Baias",Fence],["caderno","Caderno",ClipboardList],["racao","Ração",Wheat],["levantamento","Plantel inicial",Baby],["equipe","Equipe / acesso",KeyRound]] as const).map(([id,label,Icon])=><button key={id} onClick={()=>setTab(id)} className={`flex min-w-[115px] flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold transition ${tab===id?"bg-white text-primary shadow-sm":"text-muted-foreground hover:text-foreground"}`}><Icon className="h-4 w-4"/>{label}</button>)}
+      {([["baias","Baias",Fence],["caderno","Caderno",ClipboardList],["racao","Ração",Wheat],["levantamento","Plantel inicial",Baby],["equipe","Equipe / acesso",KeyRound],["historico","Histórico",History]] as const).map(([id,label,Icon])=><button key={id} onClick={()=>setTab(id)} className={`flex min-w-[115px] flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold transition ${tab===id?"bg-white text-primary shadow-sm":"text-muted-foreground hover:text-foreground"}`}><Icon className="h-4 w-4"/>{label}</button>)}
     </div>
         {loading?<div className="panel p-8 text-center text-sm text-muted-foreground">Carregando baias e estoque…</div>:<>
     {tab==="baias"&&<section className="space-y-4">
@@ -72,6 +74,12 @@ function Baias() {
     </section>}
     </>}
     {tab==="levantamento"&&<FieldCensus/>}
+    {tab==="historico"&&<section className="space-y-4">
+      <div className="panel p-4 sm:p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3"><div><p className="label-tech">Rastreabilidade</p><h3 className="text-lg font-bold">Histórico de alterações</h3><p className="mt-1 text-xs text-muted-foreground">Últimas 150 alterações registradas automaticamente no sistema.</p></div><Button variant="outline" size="sm" onClick={()=>{qc.invalidateQueries({queryKey:["farm_activity_log"]});qc.invalidateQueries({queryKey:["farm_activity_profiles"]});}}>Atualizar</Button></div>
+        {activity.isLoading?<p className="mt-4 text-sm text-muted-foreground">Carregando histórico…</p>:activity.isError?<p className="mt-4 rounded-xl bg-amber-50 p-3 text-sm text-amber-900">Não foi possível carregar o histórico. Confirme se a migration 0009 foi aplicada no banco.</p>:(activity.data??[]).length===0?<Empty>Nenhuma alteração registrada ainda. As próximas inclusões, edições e exclusões aparecerão aqui.</Empty>:<div className="mt-4 space-y-2">{(activity.data??[]).map((entry:any)=>{const person=(profiles.data??[]).find((p:any)=>p.id===entry.changed_by);const label=({sows:"Matrizes",breedings:"Coberturas",litters:"Leitegadas",litter_events:"Eventos da maternidade",tasks:"Tarefas",production_batches:"Lotes",batch_events:"Movimentações de lote",health_records:"Sanidade",farm_pens:"Baias",feed_products:"Rações",pen_records:"Caderno de manejo",feed_movements:"Movimentações de ração"} as Record<string,string>)[entry.table_name]??entry.table_name;const verb=entry.action==="INSERT"?"cadastrou":entry.action==="UPDATE"?"editou":"excluiu";const data=entry.action==="DELETE"?entry.old_data:entry.new_data;const identity=data?.ear_tag??data?.code??data?.name??data?.title??data?.id?.slice(0,8)??"registro";return <details key={entry.id} className="rounded-xl border border-border/70 bg-card p-3"><summary className="flex cursor-pointer list-none flex-wrap items-center gap-2"><span className={`rounded-full px-2 py-1 text-[.65rem] font-bold ${entry.action==="DELETE"?"bg-red-50 text-red-700":entry.action==="INSERT"?"bg-emerald-50 text-emerald-800":"bg-sky-50 text-sky-800"}`}>{entry.action==="INSERT"?"NOVO":entry.action==="UPDATE"?"EDIÇÃO":"EXCLUSÃO"}</span><span className="min-w-0 flex-1 text-sm font-semibold">{label}: {identity}</span><span className="text-[.68rem] text-muted-foreground">{new Date(entry.changed_at).toLocaleString("pt-BR")}</span></summary><div className="mt-3 border-t pt-3 text-xs text-muted-foreground"><p>Responsável: <strong className="text-foreground">{person?.display_name||"Usuário não identificado"}</strong> · {verb} este registro</p>{entry.action==="UPDATE"&&<div className="mt-2 grid gap-2 sm:grid-cols-2"><div className="rounded-lg bg-muted/60 p-2"><p className="mb-1 font-bold">Antes</p><pre className="max-h-40 overflow-auto whitespace-pre-wrap break-words">{JSON.stringify(entry.old_data,null,2)}</pre></div><div className="rounded-lg bg-muted/60 p-2"><p className="mb-1 font-bold">Depois</p><pre className="max-h-40 overflow-auto whitespace-pre-wrap break-words">{JSON.stringify(entry.new_data,null,2)}</pre></div></div>}{entry.action!=="UPDATE"&&<pre className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-muted/60 p-2">{JSON.stringify(data,null,2)}</pre>}</div></details>})}</div>}
+      </div>
+    </section>}
     {tab==="equipe"&&<section className="mx-auto max-w-2xl space-y-4">
       <div className="panel p-5 sm:p-6">
         <div className="flex items-center gap-3"><div className="rounded-xl bg-primary/10 p-3 text-primary"><ShieldCheck className="h-6 w-6"/></div><div><p className="label-tech">Acesso compartilhado</p><h3 className="text-lg font-bold">Equipe da Fazenda Santo Antônio</h3></div></div>
