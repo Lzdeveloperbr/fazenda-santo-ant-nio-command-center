@@ -2,14 +2,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState, type ReactNode } from "react";
 import { toast } from "sonner";
-import { Activity, Plus, Scale, TrendingUp, Wheat, Table2, Download } from "lucide-react";
+import { Activity, Plus, Scale, TrendingUp, Wheat, Table2, Download, Baby, Skull, HeartPulse } from "lucide-react";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { SectionTitle, Empty } from "@/components/farm/Kpi";
 import { FormDialog, SubmitRow, Field } from "@/components/farm/FormDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { todayISO, fmtDate } from "@/lib/farm";
+import { todayISO, fmtDate, littersQuery } from "@/lib/farm";
 
 const db = supabase as any;
 const batchesQuery = { queryKey: ["production_batches"], queryFn: async () => { const {data,error}=await db.from("production_batches").select("*").order("entry_date",{ascending:false}); if(error)throw error; return data??[]; } };
@@ -20,9 +20,10 @@ const PHASES:Record<string,string>={creche:"Creche",crescimento:"Crescimento",te
 export const Route=createFileRoute("/_authenticated/desempenho")({head:()=>({meta:[{title:"Desempenho | Fazenda Santo Antônio"},{name:"description",content:"Pesagem, ganho de peso e consumo de ração por lote."}]}),component:Desempenho});
 
 function Desempenho(){
- const qc=useQueryClient(); const batches=useQuery(batchesQuery); const weights=useQuery(weightsQuery); const feed=useQuery(feedQuery);
+ const qc=useQueryClient(); const batches=useQuery(batchesQuery); const weights=useQuery(weightsQuery); const feed=useQuery(feedQuery); const litters=useQuery(littersQuery);
  const refresh=()=>{qc.invalidateQueries({queryKey:["batch_weights"]});qc.invalidateQueries({queryKey:["production_batches"]});};
- const active=(batches.data??[]).filter((b:any)=>b.status==="ativo"); const rows=weights.data??[];
+ const active=(batches.data??[]).filter((b:any)=>b.status==="ativo"); const rows=weights.data??[]; const litterRows=litters.data??[];
+ const reproductive=useMemo(()=>{const alive=litterRows.reduce((n:number,l:any)=>n+Number(l.born_alive||0),0);const still=litterRows.reduce((n:number,l:any)=>n+Number(l.stillborn||0),0);const deaths=litterRows.reduce((n:number,l:any)=>n+Number(l.deaths||0),0);const weaned=litterRows.reduce((n:number,l:any)=>n+Number(l.weaned||0),0);return {count:litterRows.length,alive,still,deaths,weaned,mortality:alive>0?deaths/alive*100:0,average:litterRows.length?alive/litterRows.length:0,weaning:alive>0?weaned/alive*100:0};},[litterRows]);
  const weighed=new Set(rows.map((w:any)=>w.batch_id)).size;
  const summary=useMemo(()=>active.map((b:any)=>{const history=rows.filter((w:any)=>w.batch_id===b.id).sort((a:any,c:any)=>a.weigh_date.localeCompare(c.weigh_date));const last=history.at(-1),prev=history.at(-2);const days=last&&prev?Math.round((new Date(last.weigh_date+"T12:00:00").getTime()-new Date(prev.weigh_date+"T12:00:00").getTime())/86400000):0;const gmd=last&&prev&&days>0?(Number(last.average_weight_kg)-Number(prev.average_weight_kg))/days*1000:null;return {id:b.id,name:b.name,phase:PHASES[b.phase]??b.phase,headcount:b.current_headcount,last:last?Number(last.average_weight_kg):null,date:last?.weigh_date??null,sample:last?.sample_size??null,gmd};}),[active,rows]);
  const exportCsv=()=>{const header=["Lote","Fase","Animais","Peso medio kg","GMD g dia","Data ultima pesagem","Tamanho amostra"];const data=summary.map((r:any)=>[r.name,r.phase,r.headcount,r.last??"",r.gmd===null?"":Math.round(r.gmd),r.date??"",r.sample??""]);const csv=[header,...data].map(row=>row.map(value=>{const v=String(value);const safe=["=","+","-","@"].some(prefix=>v.startsWith(prefix))||v.charCodeAt(0)===9||v.charCodeAt(0)===13?"'"+v:v;return '"'+safe.replace(/"/g,'""')+'"';}).join(";")).join("\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\\uFEFF"+csv],{type:"text/csv;charset=utf-8"}));a.download="desempenho-lotes.csv";a.click();URL.revokeObjectURL(a.href);};
@@ -33,6 +34,22 @@ function Desempenho(){
    <Stat label="Lotes com pesagem" value={weighed} icon={<Scale className="h-4 w-4"/>}/>
    <Stat label="Pesagens registradas" value={rows.length} icon={<TrendingUp className="h-4 w-4"/>}/>
   </div>
+  <section className="farm-surface space-y-4 p-4 sm:p-5">
+   <div><p className="label-tech">Maternidade · acumulado registrado</p><h2 className="mt-1 text-base font-semibold">Indicadores das leitegadas</h2><p className="mt-1 text-xs text-muted-foreground">Consolidação de todas as leitegadas cadastradas. Os índices dependem da qualidade e atualização dos lançamentos.</p></div>
+   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
+    <Stat label="Leitegadas" value={reproductive.count} icon={<Baby className="h-4 w-4"/>}/>
+    <Stat label="Nascidos vivos" value={reproductive.alive} icon={<Baby className="h-4 w-4"/>}/>
+    <Stat label="Natimortos" value={reproductive.still} icon={<Skull className="h-4 w-4"/>}/>
+    <Stat label="Mortes registradas" value={reproductive.deaths} icon={<HeartPulse className="h-4 w-4"/>}/>
+    <Stat label="Desmamados" value={reproductive.weaned} icon={<TrendingUp className="h-4 w-4"/>}/>
+    <div className="farm-surface border border-border/70 p-4"><p className="label-tech">Mortalidade</p><p className="mt-2 font-mono text-3xl">{reproductive.mortality.toFixed(1)}%</p><p className="mt-1 text-[.65rem] text-muted-foreground">Mortes ÷ nascidos vivos</p></div>
+   </div>
+   <div className="grid gap-3 sm:grid-cols-2">
+    <div className="rounded-xl bg-muted/40 p-3"><p className="text-xs text-muted-foreground">Média de nascidos vivos por leitegada</p><p className="mt-1 font-mono text-2xl font-semibold">{reproductive.average.toFixed(1)}</p></div>
+    <div className="rounded-xl bg-muted/40 p-3"><p className="text-xs text-muted-foreground">Desmamados ÷ nascidos vivos</p><p className="mt-1 font-mono text-2xl font-semibold">{reproductive.weaning.toFixed(1)}%</p></div>
+   </div>
+   <p className="text-[.68rem] leading-5 text-muted-foreground">A taxa de mortalidade usa mortes registradas divididas pelos nascidos vivos das leitegadas cadastradas; a taxa de desmame usa desmamados ÷ nascidos vivos. São indicadores acumulados simples, não uma análise por lote ou período.</p>
+  </section>
   {summary.length>0&&<section className="farm-surface overflow-hidden">
    <div className="flex items-center gap-2 border-b border-border px-4 py-3"><Table2 className="h-4 w-4 text-muted-foreground"/><div><h2 className="text-sm font-semibold">Comparativo dos lotes ativos</h2><p className="text-xs text-muted-foreground">Última pesagem disponível por lote</p></div></div>
    <div className="overflow-x-auto"><table className="w-full min-w-[620px] text-sm"><thead className="bg-muted/40 text-left text-xs text-muted-foreground"><tr><th className="px-4 py-3 font-medium">Lote / fase</th><th className="px-3 py-3 font-medium">Animais</th><th className="px-3 py-3 font-medium">Peso médio</th><th className="px-3 py-3 font-medium">GMD</th><th className="px-3 py-3 font-medium">Data</th><th className="px-3 py-3 font-medium">Amostra</th></tr></thead><tbody className="divide-y divide-border">{summary.map((r:any)=><tr key={r.id}><td className="px-4 py-3"><strong>{r.name}</strong><p className="text-xs text-muted-foreground">{r.phase}</p></td><td className="px-3 py-3 font-mono">{r.headcount}</td><td className="px-3 py-3 font-mono">{r.last===null?"—":r.last.toFixed(2)+" kg"}</td><td className="px-3 py-3 font-mono">{r.gmd===null?"—":Math.round(r.gmd)+" g/dia"}</td><td className="px-3 py-3 font-mono text-xs">{fmtDate(r.date)}</td><td className="px-3 py-3 font-mono">{r.sample??"—"}</td></tr>)}</tbody></table></div>
