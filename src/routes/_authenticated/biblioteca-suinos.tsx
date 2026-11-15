@@ -17,6 +17,10 @@ export const Route = createFileRoute("/_authenticated/biblioteca-suinos")({
     meta: [
       { title: "Biblioteca técnica de suínos | Fazenda Santo Antônio" },
       { name: "description", content: "Base técnica de manejo, reprodução, maternidade, nutrição, sanidade, bem-estar e gestão da suinocultura." },
+      { property: "og:title", content: "Biblioteca técnica de suínos | Fazenda Santo Antônio" },
+      { property: "og:description", content: "Guias práticos e fontes técnicas para apoiar o manejo da granja." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: BibliotecaSuinos,

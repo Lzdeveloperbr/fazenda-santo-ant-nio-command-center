@@ -21,7 +21,14 @@ const batchesQuery = { queryKey: ["production_batches"], queryFn: async () => {
 const PHASES: Record<string,string> = { creche:"Creche", crescimento:"Crescimento", terminacao:"Terminação", reprodutores:"Reprodutores", quarentena:"Quarentena" };
 
 export const Route = createFileRoute("/_authenticated/lotes")({
-  head: () => ({ meta: [{ title: "Lotes | Fazenda Santo Antônio" }] }),
+  head: () => ({ meta: [
+    { title: "Lotes por fase | Fazenda Santo Antônio" },
+    { name: "description", content: "Creche, crescimento, terminação, movimentações e saldo de animais por lote." },
+    { property: "og:title", content: "Lotes por fase | Fazenda Santo Antônio" },
+    { property: "og:description", content: "Controle da produção e das movimentações por fase." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: Lotes,
 });
 
@@ -59,7 +66,7 @@ function Lotes() {
 
 function NewBatch({onDone}:{onDone:()=>void}) {
  const [busy,setBusy]=useState(false);
- return <FormDialog title="Cadastrar lote" trigger={<Button className="h-10"><Plus className="mr-1 h-4 w-4"/>Novo lote</Button>}>{close=><form className="space-y-4" onSubmit={async e=>{e.preventDefault();setBusy(true);const f=new FormData(e.currentTarget);const n=Number(f.get("heads"));const {error}=await db.from("production_batches").insert({name:String(f.get("name")),phase:String(f.get("phase")),entry_date:String(f.get("date")),initial_headcount:n,current_headcount:n,pen:String(f.get("pen")||"")||null,origin:String(f.get("origin")||"")||null,notes:String(f.get("notes")||"")||null});setBusy(false);if(error)return toast.error(error.message);toast.success("Lote cadastrado");onDone();close();}}>
+ return <FormDialog title="Cadastrar lote" trigger={<Button className="h-10"><Plus className="mr-1 h-4 w-4"/>Novo lote</Button>}>{close=><form className="space-y-4" onSubmit={async e=>{e.preventDefault();setBusy(true);const f=new FormData(e.currentTarget);const n=Number(f.get("heads"));const {error}=await db.from("production_batches").insert({name:String(f.get("name")),phase:String(f.get("phase")),entry_date:String(f.get("date")),initial_headcount:n,current_headcount:n,pen:String(f.get("pen")||"")||null,origin:String(f.get("origin")||"")||null,notes:String(f.get("notes")||"")||null});setBusy(false);if(error)return void toast.error(error.message);toast.success("Lote cadastrado");onDone();close();}}>
  <Field label="Identificação do lote"><Input name="name" required className="h-11" placeholder="Ex.: Lote 01 - Novembro"/></Field>
  <Field label="Fase"><select name="phase" className={selectCls}><option value="creche">Creche</option><option value="crescimento">Crescimento</option><option value="terminacao">Terminação</option><option value="reprodutores">Reprodutores</option><option value="quarentena">Quarentena</option></select></Field>
  <div className="grid grid-cols-2 gap-3"><Field label="Data de entrada"><Input name="date" type="date" required defaultValue={todayISO()} className="h-11"/></Field><Field label="Quantidade inicial"><Input name="heads" type="number" min="0" required className="h-11"/></Field></div>
@@ -70,7 +77,7 @@ function NewBatch({onDone}:{onDone:()=>void}) {
 
 function AdjustHeads({batch,onDone}:{batch:any;onDone:()=>void}) {
  const [busy,setBusy]=useState(false);
- return <FormDialog title={`Registrar movimentação · ${batch.name}`} trigger={<Button size="sm" variant="outline"><Users className="mr-1 h-3.5 w-3.5"/>Movimentar lote</Button>}>{close=><form className="space-y-4" onSubmit={async e=>{e.preventDefault();setBusy(true);const f=new FormData(e.currentTarget);const type=String(f.get("type"));const quantity=Number(f.get("quantity"));if((type==="morte"||type==="saida")&&quantity>batch.current_headcount){setBusy(false);return toast.error("Quantidade maior que o saldo atual do lote.");}const {error}=await db.from("batch_events").insert({batch_id:batch.id,event_type:type,quantity,event_date:String(f.get("date")),notes:String(f.get("notes")||"")||null});setBusy(false);if(error)return toast.error(error.message);toast.success("Movimentação registrada no histórico");onDone();close();}}>
+ return <FormDialog title={`Registrar movimentação · ${batch.name}`} trigger={<Button size="sm" variant="outline"><Users className="mr-1 h-3.5 w-3.5"/>Movimentar lote</Button>}>{close=><form className="space-y-4" onSubmit={async e=>{e.preventDefault();setBusy(true);const f=new FormData(e.currentTarget);const type=String(f.get("type"));const quantity=Number(f.get("quantity"));if((type==="morte"||type==="saida")&&quantity>batch.current_headcount){setBusy(false);return void toast.error("Quantidade maior que o saldo atual do lote.");}const {error}=await db.from("batch_events").insert({batch_id:batch.id,event_type:type,quantity,event_date:String(f.get("date")),notes:String(f.get("notes")||"")||null});setBusy(false);if(error)return void toast.error(error.message);toast.success("Movimentação registrada no histórico");onDone();close();}}>
  <p className="text-sm text-muted-foreground">Saldo atual: <strong className="text-foreground">{batch.current_headcount} animais</strong></p>
  <Field label="Tipo de movimentação"><select name="type" className={selectCls}><option value="morte">Mortalidade</option><option value="entrada">Entrada de animais</option><option value="saida">Saída / transferência</option></select></Field>
  <Field label="Quantidade"><Input name="quantity" type="number" min="1" required className="h-11"/></Field>

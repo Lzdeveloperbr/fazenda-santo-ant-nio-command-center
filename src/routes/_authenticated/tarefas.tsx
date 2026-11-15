@@ -11,7 +11,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export const Route = createFileRoute("/_authenticated/tarefas")({
-  head: () => ({ meta: [{ title: "Tarefas | AgroTech Command Center" }, { name: "description", content: "Rotinas e alertas do dia." }] }),
+  head: () => ({ meta: [
+    { title: "Rotinas e tarefas | Fazenda Santo Antônio" },
+    { name: "description", content: "Tarefas, responsáveis, prioridades, prazos e rotinas diárias da granja." },
+    { property: "og:title", content: "Rotinas e tarefas | Fazenda Santo Antônio" },
+    { property: "og:description", content: "Organização do trabalho e dos prazos da equipe." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: Tarefas,
 });
 

@@ -1,23 +1,36 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Plus, Search, ArrowUpDown, Download, Archive, RotateCcw } from "lucide-react";
+import { Plus, Search, ArrowUpDown, Download, RotateCcw, FileText, Pencil, ClipboardPlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { sowsQuery, breedingsQuery, littersQuery, SOW_STATUS, fmtDate, todayISO, type Sow } from "@/lib/farm";
+import { sowsQuery, breedingsQuery, littersQuery, SOW_STATUS, SOW_EVENT_LABEL, fmtDate, todayISO, type Sow, type Breeding, type Litter } from "@/lib/farm";
+import { isActiveSowStatus } from "@/lib/farm/reproduction";
 import { SectionTitle, Empty } from "@/components/farm/Kpi";
 import { FormDialog, SubmitRow, Field, selectCls } from "@/components/farm/FormDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 export const Route = createFileRoute("/_authenticated/matrizes")({
-  head: () => ({ meta: [{ title: "Matrizes | AgroTech Command Center" }, { name: "description", content: "Cadastro e reprodução das matrizes." }] }),
+  head: () => ({
+    meta: [
+      { title: "Matrizes e reprodução | Fazenda Santo Antônio" },
+      { name: "description", content: "Cadastro, coberturas, gestação, saídas e histórico individual das matrizes." },
+      { property: "og:title", content: "Matrizes e reprodução | Fazenda Santo Antônio" },
+      { property: "og:description", content: "Controle reprodutivo e histórico individual das matrizes." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: Matrizes,
 });
 
 type SortKey = "ear_tag" | "status" | "parity" | "expected";
+type Row = { s: Sow; lastB: Breeding | undefined; lastL: Litter | undefined; parity: number };
 
 function Matrizes() {
+  const isDetail = useRouterState({ select: (state) => state.location.pathname !== "/matrizes" });
   const qc = useQueryClient();
   const sows = useQuery(sowsQuery);
   const breedings = useQuery(breedingsQuery);
@@ -37,20 +50,27 @@ function Matrizes() {
       .filter((r) => status === "todas" || r.s.status === status)
       .filter((r) => !q || `${r.s.ear_tag} ${r.s.name ?? ""}`.toLowerCase().includes(q.toLowerCase()))
       .sort((a, b) => {
-        const v = (r: typeof a) => sort.k === "ear_tag" ? r.s.ear_tag : sort.k === "status" ? r.s.status : sort.k === "parity" ? r.parity : r.lastB?.expected_farrowing ?? "9";
+        const v = (r: Row) => sort.k === "ear_tag" ? r.s.ear_tag : sort.k === "status" ? r.s.status : sort.k === "parity" ? r.parity : r.lastB?.expected_farrowing ?? "9";
         const x = v(a), y = v(b);
         return (x < y ? -1 : x > y ? 1 : 0) * (sort.asc ? 1 : -1);
       });
   }, [sows.data, breedings.data, litters.data, q, status, sort]);
 
+  if (isDetail) return <Outlet />;
+
   function exportCsv() {
     const head = ["Brinco", "Nome", "Situação", "Última cobertura", "Diagnóstico", "Parto estimado", "Último parto", "Partos"];
     const lines = rows.map((r) => [r.s.ear_tag, r.s.name ?? "", SOW_STATUS[r.s.status]?.label ?? r.s.status, r.lastB?.breeding_date ?? "", r.lastB?.pregnancy_check ?? "", r.lastB?.expected_farrowing ?? "", r.lastL?.farrowing_date ?? "", r.parity]);
-    const csv = [head, ...lines].map((l) => l.map((c) => { const value = String(c); const safe = /^[=+\-@\t\r]/.test(value) ? "'" + value : value; return '"' + safe.replace(/"/g, '""') + '"'; }).join(";")).join("\n");
+    const csv = [head, ...lines].map((l) => l.map((c) => {
+      const value = String(c);
+      const safe = /^[=+\-@\t\r]/.test(value) ? "'" + value : value;
+      return '"' + safe.replace(/"/g, '""') + '"';
+    }).join(";")).join("\n");
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob(["\ufeff" + csv], { type: "text/csv" }));
     a.download = "matrizes.csv";
     a.click();
+    URL.revokeObjectURL(a.href);
   }
 
   const th = (k: SortKey, label: string) => (
@@ -64,13 +84,12 @@ function Matrizes() {
   return (
     <div className="space-y-5">
       <SectionTitle kicker="Rebanho reprodutivo" title="Matrizes" action={<NewSow onDone={refresh} />} />
-
       <div className="flex flex-wrap gap-2">
         <div className="relative min-w-48 flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input placeholder="Buscar brinco ou nome" value={q} onChange={(e) => setQ(e.target.value)} className="h-11 pl-9" />
         </div>
-        <select value={status} onChange={(e) => setStatus(e.target.value)} className={`${selectCls} w-auto`}>
+        <select aria-label="Filtrar por situação" value={status} onChange={(e) => setStatus(e.target.value)} className={`${selectCls} w-auto`}>
           <option value="todas">Todas</option>
           {Object.entries(SOW_STATUS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
         </select>
@@ -81,11 +100,7 @@ function Matrizes() {
         <Empty>{sows.data?.length ? "Nenhuma matriz com esses filtros." : "Nenhuma matriz cadastrada. Toque em “Nova matriz” para começar."}</Empty>
       ) : (
         <>
-          {/* Mobile cards */}
-          <div className="space-y-3 md:hidden">
-            {rows.map((r) => <SowCard key={r.s.id} r={r} onDone={refresh} />)}
-          </div>
-          {/* Desktop table */}
+          <div className="space-y-3 md:hidden">{rows.map((r) => <SowCard key={r.s.id} r={r} onDone={refresh} />)}</div>
           <div className="panel hidden overflow-x-auto md:block">
             <table className="w-full text-sm">
               <thead className="border-b">
@@ -116,86 +131,126 @@ function Matrizes() {
   );
 }
 
-type Row = { s: Sow; lastB?: { id: string; breeding_date: string; pregnancy_check: string; expected_farrowing: string | null } | undefined; lastL?: { farrowing_date: string } | undefined; parity: number };
-
 function SowCard({ r, onDone }: { r: Row; onDone: () => void }) {
   return (
     <div className="panel p-4">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="font-mono text-lg">{r.s.ear_tag}</p>
-          <p className="text-sm text-muted-foreground">{r.s.name ?? "Sem nome"} · {r.parity} parto(s)</p>
-        </div>
-        <span className={`text-sm ${SOW_STATUS[r.s.status]?.tone}`}>{SOW_STATUS[r.s.status]?.label}</span>
+      <div className="flex items-start justify-between gap-3">
+        <div><p className="font-mono text-lg">{r.s.ear_tag}</p><p className="text-sm text-muted-foreground">{r.s.name ?? "Sem nome"} · {r.parity} parto(s)</p></div>
+        <span className={`text-right text-sm ${SOW_STATUS[r.s.status]?.tone}`}>{SOW_STATUS[r.s.status]?.label}</span>
       </div>
-      {r.lastB && (
-        <p className="mt-2 font-mono text-xs text-muted-foreground">
-          Cobertura {fmtDate(r.lastB.breeding_date)} · {r.lastB.pregnancy_check} · parto est. {fmtDate(r.lastB.expected_farrowing)}
-        </p>
-      )}
+      {r.lastB && <p className="mt-2 font-mono text-xs text-muted-foreground">Cobertura {fmtDate(r.lastB.breeding_date)} · {r.lastB.pregnancy_check} · parto est. {fmtDate(r.lastB.expected_farrowing)}</p>}
       <div className="mt-3"><SowActions s={r.s} lastB={r.lastB} onDone={onDone} /></div>
     </div>
   );
 }
 
-function SowActions({ s, lastB, onDone }: { s: Sow; lastB?: Row["lastB"]; onDone: () => void }) {
+function SowActions({ s, lastB, onDone }: { s: Sow; lastB: Breeding | undefined; onDone: () => void }) {
+  const active = isActiveSowStatus(s.status);
   return (
     <div className="flex flex-wrap gap-2">
-      <NewBreeding sow={s} onDone={onDone} />
-      {lastB && lastB.pregnancy_check === "pendente" && <PregCheck sow={s} breedingId={lastB.id} onDone={onDone} />}
-      <NewLitter sow={s} onDone={onDone} />
-      <SowStatusAction s={s} onDone={onDone} />
+      <Link to="/matrizes/$sowId" params={{ sowId: s.id }}><Button size="sm" variant="outline"><FileText className="mr-1 h-3.5 w-3.5" />Ficha</Button></Link>
+      {active && <NewBreeding sow={s} onDone={onDone} />}
+      {active && lastB && lastB.pregnancy_check === "pendente" && <PregCheck sow={s} breedingId={lastB.id} onDone={onDone} />}
+      {active && <NewLitter sow={s} onDone={onDone} />}
+      {active && <SowEventDialog sow={s} onDone={onDone} />}
+      {(s.status === "descartada" || s.status === "transferida") && <ReactivateSow sow={s} onDone={onDone} />}
+      <EditSow sow={s} onDone={onDone} />
     </div>
   );
 }
 
-function SowStatusAction({ s, onDone }: { s: Sow; onDone: () => void }) {
+function EditSow({ sow, onDone }: { sow: Sow; onDone: () => void }) {
   const [busy, setBusy] = useState(false);
-  const archived = s.status === "descartada";
-  async function changeStatus() {
-    const next = archived ? "vazia" : "descartada";
-    const message = archived
-      ? `Reativar a matriz ${s.ear_tag}? Ela voltará a aparecer como matriz vazia.`
-      : `Retirar a matriz ${s.ear_tag} do plantel? O cadastro e todo o histórico de coberturas e partos serão preservados.`;
-    if (!confirm(message)) return;
+  return (
+    <FormDialog title={`Editar cadastro · ${sow.ear_tag}`} trigger={<Button size="sm" variant="ghost"><Pencil className="mr-1 h-3.5 w-3.5" />Editar</Button>}>
+      {(close) => <form className="space-y-4" onSubmit={async (e) => {
+        e.preventDefault();
+        const f = new FormData(e.currentTarget);
+        setBusy(true);
+        const { error } = await supabase.from("sows").update({
+          ear_tag: String(f.get("ear_tag")).trim(), name: String(f.get("name") || "") || null,
+          breed: String(f.get("breed") || "") || null, birth_date: String(f.get("birth_date") || "") || null,
+          notes: String(f.get("notes") || "") || null,
+        }).eq("id", sow.id);
+        setBusy(false);
+        if (error) { toast.error(error.message); return; }
+        toast.success("Cadastro atualizado"); onDone(); close();
+      }}>
+        <Field label="Brinco *"><Input name="ear_tag" defaultValue={sow.ear_tag} required className="h-11" /></Field>
+        <Field label="Nome"><Input name="name" defaultValue={sow.name ?? ""} className="h-11" /></Field>
+        <Field label="Raça / genética"><Input name="breed" defaultValue={sow.breed ?? ""} className="h-11" /></Field>
+        <Field label="Nascimento"><Input name="birth_date" type="date" defaultValue={sow.birth_date ?? ""} className="h-11" /></Field>
+        <Field label="Observações do cadastro"><Textarea name="notes" defaultValue={sow.notes ?? ""} rows={3} /></Field>
+        <SubmitRow busy={busy} />
+      </form>}
+    </FormDialog>
+  );
+}
+
+function SowEventDialog({ sow, onDone }: { sow: Sow; onDone: () => void }) {
+  const [busy, setBusy] = useState(false);
+  const [eventType, setEventType] = useState("retorno_cio");
+  return (
+    <FormDialog title={`Evento da matriz · ${sow.ear_tag}`} trigger={<Button size="sm" variant="outline"><ClipboardPlus className="mr-1 h-3.5 w-3.5" />Evento / saída</Button>}>
+      {(close) => <form className="space-y-4" onSubmit={async (e) => {
+        e.preventDefault();
+        const f = new FormData(e.currentTarget);
+        const notes = String(f.get("notes") || "").trim();
+        if (["descarte", "morte", "transferencia"].includes(eventType) && !confirm(`Confirmar ${SOW_EVENT_LABEL[eventType]?.toLowerCase()} da matriz ${sow.ear_tag}? O evento ficará no histórico e não poderá ser apagado.`)) return;
+        setBusy(true);
+        const { error } = await supabase.from("sow_events").insert({ sow_id: sow.id, event_type: eventType, event_date: String(f.get("date")), notes: notes || null });
+        setBusy(false);
+        if (error) { toast.error(error.message); return; }
+        toast.success("Evento registrado no histórico"); onDone(); close();
+      }}>
+        <Field label="Tipo de evento"><select name="type" className={selectCls} value={eventType} onChange={(e) => setEventType(e.target.value)}>{["retorno_cio", "descarte", "morte", "transferencia", "observacao"].map((type) => <option key={type} value={type}>{SOW_EVENT_LABEL[type]}</option>)}</select></Field>
+        <Field label="Data"><Input name="date" type="date" defaultValue={todayISO()} required className="h-11" /></Field>
+        <Field label={eventType === "transferencia" ? "Destino e detalhes" : eventType === "morte" ? "Causa ou circunstância" : "Motivo / observação"}><Textarea name="notes" rows={3} required={eventType !== "retorno_cio"} /></Field>
+        {eventType === "retorno_cio" && <p className="rounded-lg bg-muted p-3 text-xs leading-5 text-muted-foreground">A matriz ficará vazia e a cobertura mais recente será marcada como diagnóstico negativo.</p>}
+        <SubmitRow busy={busy} label="Registrar no histórico" />
+      </form>}
+    </FormDialog>
+  );
+}
+
+function ReactivateSow({ sow, onDone }: { sow: Sow; onDone: () => void }) {
+  const [busy, setBusy] = useState(false);
+  async function reactivate() {
+    if (!confirm(`Confirmar o retorno da matriz ${sow.ear_tag} ao plantel como vazia?`)) return;
     setBusy(true);
-    const { error } = await supabase.from("sows").update({ status: next }).eq("id", s.id);
+    const { error } = await supabase.from("sow_events").insert({ sow_id: sow.id, event_type: "reativacao", event_date: todayISO(), notes: "Retorno ao plantel registrado na ficha da matriz." });
     setBusy(false);
     if (error) { toast.error(error.message); return; }
-    toast.success(archived ? "Matriz reativada" : "Matriz retirada do plantel");
-    onDone();
+    toast.success("Matriz reintegrada ao plantel"); onDone();
   }
-  return (
-    <Button size="sm" variant="outline" disabled={busy} onClick={changeStatus}>
-      {archived ? <><RotateCcw className="mr-1 h-3.5 w-3.5" />Reativar</> : <><Archive className="mr-1 h-3.5 w-3.5" />Retirar matriz</>}
-    </Button>
-  );
+  return <Button size="sm" variant="outline" disabled={busy} onClick={reactivate}><RotateCcw className="mr-1 h-3.5 w-3.5" />{sow.status === "transferida" ? "Registrar retorno" : "Reativar"}</Button>;
 }
 
 function NewSow({ onDone }: { onDone: () => void }) {
   const [busy, setBusy] = useState(false);
   return (
     <FormDialog title="Nova matriz" trigger={<Button className="h-10"><Plus className="mr-1 h-4 w-4" />Nova matriz</Button>}>
-      {(close) => (
-        <form className="space-y-4" onSubmit={async (e) => {
-          e.preventDefault(); setBusy(true);
-          const f = new FormData(e.currentTarget);
-          const { error } = await supabase.from("sows").insert({
-            ear_tag: String(f.get("ear_tag")), name: String(f.get("name") || "") || null, breed: String(f.get("breed") || "") || null,
-            birth_date: String(f.get("birth_date") || "") || null, status: String(f.get("status")),
-          });
-          setBusy(false);
-          if (error) { toast.error(error.message); return; }
-          toast.success("Matriz cadastrada"); onDone(); close();
-        }}>
-          <Field label="Brinco *"><Input name="ear_tag" required className="h-11" /></Field>
-          <Field label="Nome"><Input name="name" className="h-11" /></Field>
-          <Field label="Raça / genética"><Input name="breed" className="h-11" /></Field>
-          <Field label="Nascimento"><Input name="birth_date" type="date" className="h-11" /></Field>
-          <Field label="Situação"><select name="status" className={selectCls} defaultValue="vazia">{Object.entries(SOW_STATUS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}</select></Field>
-          <SubmitRow busy={busy} />
-        </form>
-      )}
+      {(close) => <form className="space-y-4" onSubmit={async (e) => {
+        e.preventDefault();
+        const f = new FormData(e.currentTarget);
+        setBusy(true);
+        const { error } = await supabase.from("sows").insert({
+          ear_tag: String(f.get("ear_tag")).trim(), name: String(f.get("name") || "") || null,
+          breed: String(f.get("breed") || "") || null, birth_date: String(f.get("birth_date") || "") || null,
+          status: String(f.get("status")), notes: String(f.get("notes") || "") || null,
+        });
+        setBusy(false);
+        if (error) { toast.error(error.message); return; }
+        toast.success("Matriz cadastrada"); onDone(); close();
+      }}>
+        <Field label="Brinco *"><Input name="ear_tag" required className="h-11" /></Field>
+        <Field label="Nome"><Input name="name" className="h-11" /></Field>
+        <Field label="Raça / genética"><Input name="breed" className="h-11" /></Field>
+        <Field label="Nascimento"><Input name="birth_date" type="date" className="h-11" /></Field>
+        <Field label="Situação inicial"><select name="status" className={selectCls} defaultValue="vazia">{["vazia", "coberta", "gestante", "lactante"].map((k) => <option key={k} value={k}>{SOW_STATUS[k]?.label}</option>)}</select></Field>
+        <Field label="Observações"><Textarea name="notes" rows={3} /></Field>
+        <SubmitRow busy={busy} />
+      </form>}
     </FormDialog>
   );
 }
@@ -204,40 +259,40 @@ function NewBreeding({ sow, onDone }: { sow: Sow; onDone: () => void }) {
   const [busy, setBusy] = useState(false);
   return (
     <FormDialog title={`Cobertura · ${sow.ear_tag}`} trigger={<Button size="sm" variant="outline">Cobertura</Button>}>
-      {(close) => (
-        <form className="space-y-4" onSubmit={async (e) => {
-          e.preventDefault(); setBusy(true);
-          const f = new FormData(e.currentTarget);
-          const { error } = await supabase.from("breedings").insert({ sow_id: sow.id, breeding_date: String(f.get("date")), boar: String(f.get("boar") || "") || null });
-          if (!error) await supabase.from("sows").update({ status: "coberta" }).eq("id", sow.id);
-          setBusy(false);
-          if (error) { toast.error(error.message); return; }
-          toast.success("Cobertura registrada · parto estimado em 114 dias"); onDone(); close();
-        }}>
-          <Field label="Data da cobertura"><Input name="date" type="date" required defaultValue={todayISO()} className="h-11" /></Field>
-          <Field label="Reprodutor / sêmen"><Input name="boar" className="h-11" /></Field>
-          <SubmitRow busy={busy} />
-        </form>
-      )}
+      {(close) => <form className="space-y-4" onSubmit={async (e) => {
+        e.preventDefault();
+        const f = new FormData(e.currentTarget);
+        setBusy(true);
+        const { error } = await supabase.from("breedings").insert({ sow_id: sow.id, breeding_date: String(f.get("date")), boar: String(f.get("boar") || "") || null });
+        if (!error) await supabase.from("sows").update({ status: "coberta" }).eq("id", sow.id);
+        setBusy(false);
+        if (error) { toast.error(error.message); return; }
+        toast.success("Cobertura registrada · parto estimado em 114 dias"); onDone(); close();
+      }}>
+        <Field label="Data da cobertura"><Input name="date" type="date" required defaultValue={todayISO()} className="h-11" /></Field>
+        <Field label="Reprodutor / sêmen"><Input name="boar" className="h-11" /></Field>
+        <SubmitRow busy={busy} />
+      </form>}
     </FormDialog>
   );
 }
 
 function PregCheck({ sow, breedingId, onDone }: { sow: Sow; breedingId: string; onDone: () => void }) {
+  const [busy, setBusy] = useState(false);
   async function set(result: "positivo" | "negativo") {
+    setBusy(true);
     const { error } = await supabase.from("breedings").update({ pregnancy_check: result }).eq("id", breedingId);
     if (!error) await supabase.from("sows").update({ status: result === "positivo" ? "gestante" : "vazia" }).eq("id", sow.id);
-    if (error) { toast.error(error.message); return; }
-    toast.success(`Diagnóstico ${result}`); onDone();
+    setBusy(false);
+    if (error) { toast.error(error.message); return false; }
+    toast.success(`Diagnóstico ${result}`); onDone(); return true;
   }
   return (
     <FormDialog title={`Diagnóstico · ${sow.ear_tag}`} trigger={<Button size="sm" variant="outline">Diagnóstico</Button>}>
-      {(close) => (
-        <div className="grid grid-cols-2 gap-3">
-          <Button className="h-12" onClick={async () => { await set("positivo"); close(); }}>Positivo</Button>
-          <Button className="h-12" variant="outline" onClick={async () => { await set("negativo"); close(); }}>Negativo</Button>
-        </div>
-      )}
+      {(close) => <div className="grid grid-cols-2 gap-3">
+        <Button disabled={busy} className="h-12" onClick={async () => { if (await set("positivo")) close(); }}>Positivo</Button>
+        <Button disabled={busy} className="h-12" variant="outline" onClick={async () => { if (await set("negativo")) close(); }}>Negativo</Button>
+      </div>}
     </FormDialog>
   );
 }
@@ -246,29 +301,26 @@ function NewLitter({ sow, onDone }: { sow: Sow; onDone: () => void }) {
   const [busy, setBusy] = useState(false);
   return (
     <FormDialog title={`Registrar parto · ${sow.ear_tag}`} trigger={<Button size="sm">Parto</Button>}>
-      {(close) => (
-        <form className="space-y-4" onSubmit={async (e) => {
-          e.preventDefault();
-          const f = new FormData(e.currentTarget);
-          const alive = Number(f.get("alive")), still = Number(f.get("still"));
-          if (!confirm(`Confirmar parto: ${alive} vivos e ${still} natimortos?`)) return;
-          setBusy(true);
-          const { error } = await supabase.from("litters").insert({
-            sow_id: sow.id, farrowing_date: String(f.get("date")), born_alive: alive, stillborn: still, born_total: alive + still,
-          });
-          if (!error) await supabase.from("sows").update({ status: "lactante" }).eq("id", sow.id);
-          setBusy(false);
-          if (error) { toast.error(error.message); return; }
-          toast.success("Parto registrado"); onDone(); close();
-        }}>
-          <Field label="Data do parto"><Input name="date" type="date" required defaultValue={todayISO()} className="h-11" /></Field>
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Nascidos vivos"><Input name="alive" type="number" min={0} required inputMode="numeric" className="h-11" /></Field>
-            <Field label="Natimortos"><Input name="still" type="number" min={0} defaultValue={0} inputMode="numeric" className="h-11" /></Field>
-          </div>
-          <SubmitRow busy={busy} label="Registrar parto" />
-        </form>
-      )}
+      {(close) => <form className="space-y-4" onSubmit={async (e) => {
+        e.preventDefault();
+        const f = new FormData(e.currentTarget);
+        const alive = Number(f.get("alive")), still = Number(f.get("still"));
+        if (!Number.isInteger(alive) || alive < 0 || !Number.isInteger(still) || still < 0) { toast.error("Informe quantidades inteiras e válidas."); return; }
+        if (!confirm(`Confirmar parto: ${alive} vivos e ${still} natimortos?`)) return;
+        setBusy(true);
+        const { error } = await supabase.from("litters").insert({ sow_id: sow.id, farrowing_date: String(f.get("date")), born_alive: alive, stillborn: still, born_total: alive + still });
+        if (!error) await supabase.from("sows").update({ status: "lactante" }).eq("id", sow.id);
+        setBusy(false);
+        if (error) { toast.error(error.message); return; }
+        toast.success("Parto registrado"); onDone(); close();
+      }}>
+        <Field label="Data do parto"><Input name="date" type="date" required defaultValue={todayISO()} className="h-11" /></Field>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Nascidos vivos"><Input name="alive" type="number" min={0} step={1} required inputMode="numeric" className="h-11" /></Field>
+          <Field label="Natimortos"><Input name="still" type="number" min={0} step={1} defaultValue={0} inputMode="numeric" className="h-11" /></Field>
+        </div>
+        <SubmitRow busy={busy} label="Registrar parto" />
+      </form>}
     </FormDialog>
   );
 }

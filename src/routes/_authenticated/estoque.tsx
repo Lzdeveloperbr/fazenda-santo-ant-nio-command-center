@@ -10,7 +10,14 @@ const productsQuery = { queryKey: ["feed_products"], queryFn: async () => { cons
 const movementsQuery = { queryKey: ["feed_movements"], queryFn: async () => { const { data, error } = await db.from("feed_movements").select("*,feed_products(name)").order("movement_date", { ascending: false }).limit(30); if (error) throw error; return data ?? []; } };
 const PHASES: Record<string,string> = { "Pré-inicial":"Pré-inicial", "Inicial":"Inicial", "Crescimento":"Crescimento", "Terminação":"Terminação", "Gestação":"Gestação", "Lactação":"Lactação", "Reprodutor":"Reprodutor", "Outra":"Outra", pre_inicial:"Pré-inicial", inicial:"Inicial", crescimento:"Crescimento", terminacao:"Terminação", gestacao:"Gestação", lactacao:"Lactação", reprodutor:"Reprodutor", outro:"Outra" };
 
-export const Route = createFileRoute("/_authenticated/estoque")({ head: () => ({ meta: [{ title: "Estoque de ração | Fazenda Santo Antônio" }] }), component: Estoque });
+export const Route = createFileRoute("/_authenticated/estoque")({ head: () => ({ meta: [
+  { title: "Estoque de ração | Fazenda Santo Antônio" },
+  { name: "description", content: "Saldos, entradas, consumo, estoque mínimo e movimentações de ração." },
+  { property: "og:title", content: "Estoque de ração | Fazenda Santo Antônio" },
+  { property: "og:description", content: "Controle de saldos e movimentações da alimentação." },
+  { property: "og:type", content: "website" },
+  { name: "twitter:card", content: "summary" },
+] }), component: Estoque });
 
 function Estoque() {
  const products = useQuery(productsQuery), movements = useQuery(movementsQuery);

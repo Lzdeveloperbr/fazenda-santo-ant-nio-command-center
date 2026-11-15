@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { LogoMark } from "@/components/farm/Logo";
 import { Button } from "@/components/ui/button";
 
-export const Route=createFileRoute("/")({head:()=>({meta:[{title:"Fazenda Santo Antônio | Gestão da Suinocultura"},{name:"description",content:"Uma plataforma completa para acompanhar matrizes, maternidade, lotes, sanidade, alimentação e desempenho da suinocultura."},{property:"og:title",content:"Fazenda Santo Antônio | Gestão da Suinocultura"},{property:"og:description",content:"Manejo organizado. Produção acompanhada. Decisões melhores."}]}),component:Index});
+export const Route=createFileRoute("/")({head:()=>({meta:[{title:"Fazenda Santo Antônio | Gestão da Suinocultura"},{name:"description",content:"Uma plataforma completa para acompanhar matrizes, maternidade, lotes, sanidade, alimentação e desempenho da suinocultura."},{property:"og:title",content:"Fazenda Santo Antônio | Gestão da Suinocultura"},{property:"og:description",content:"Manejo organizado. Produção acompanhada. Decisões melhores."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary"}]}),component:Index});
 function Index(){
  const navigate=useNavigate();useEffect(()=>{supabase.auth.getSession().then(({data})=>{if(data.session)navigate({to:"/painel",replace:true});});},[navigate]);
  return <main className="min-h-screen overflow-hidden bg-[#F5F3EB] text-[#20372A]">

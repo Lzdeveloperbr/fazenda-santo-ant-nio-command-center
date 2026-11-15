@@ -14,4 +14,13 @@ describe("App routing", () => {
 
     expect(matches.at(-1)?.routeId).not.toBe(rootRouteId);
   });
+
+  it("matches the individual sow record with its route parameter", () => {
+    const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
+
+    const matches = router.matchRoutes("/matrizes/matriz-123");
+
+    expect(matches.at(-1)?.routeId).toBe("/_authenticated/matrizes/$sowId");
+    expect(matches.at(-1)?.params).toMatchObject({ sowId: "matriz-123" });
+  });
 });

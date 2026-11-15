@@ -11,7 +11,7 @@ import {FormDialog,Field,SubmitRow} from "@/components/farm/FormDialog";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Textarea} from "@/components/ui/textarea";
-export const Route=createFileRoute("/_authenticated/desmame")({head:()=>({meta:[{title:"Marcação e desmame | Fazenda Santo Antônio"}]}),component:Page});
+export const Route=createFileRoute("/_authenticated/desmame")({head:()=>({meta:[{title:"Marcação e desmame | Fazenda Santo Antônio"},{name:"description",content:"Identificação individual dos leitões, desmame e calendário automático de ração."},{property:"og:title",content:"Marcação e desmame | Fazenda Santo Antônio"},{property:"og:description",content:"Identificação dos leitões e planejamento do desmame."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary"}]}),component:Page});
 const db=supabase as any;
 const q=(table:string,key:string,order:string)=>({queryKey:[key],queryFn:async()=>{const {data,error}=await db.from(table).select("*").order(order,{ascending:false});if(error)throw error;return data??[]}});
 const rq=q("weaning_feed_schedules","weaning_feed_schedules","weaning_date"),mq=q("piglet_identifications","piglet_identifications","australian_number");

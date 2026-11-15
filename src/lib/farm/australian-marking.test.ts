@@ -32,12 +32,12 @@ describe("calendário automático de ração após o desmame", () => {
       "2027-01-29",
       null,
     ]);
-    expect(rows[6].name).toBe("Ração 7 — FINAL");
+    expect(rows[6]!.name).toBe("Ração 7 — FINAL");
   });
 
   it("mantém os intervalos definidos mesmo ao atravessar o ano", () => {
     const rows = buildAutomaticRationTimeline("2026-12-20");
-    expect(rows[1].date).toBe("2027-01-04");
-    expect(rows[5].date).toBe("2027-03-22");
+    expect(rows[1]!.date).toBe("2027-01-04");
+    expect(rows[5]!.date).toBe("2027-03-22");
   });
 });

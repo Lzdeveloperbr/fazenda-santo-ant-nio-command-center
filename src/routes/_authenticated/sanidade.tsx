@@ -19,7 +19,14 @@ const SECTORS = ["Gestação", "Maternidade", "Creche", "Crescimento", "Termina�
 const PHASES = ["Gestação", "Lactação", "Maternidade", "Pré-inicial", "Creche", "Crescimento", "Terminação", "Reprodutores", "Quarentena", "Outra"];
 
 export const Route = createFileRoute("/_authenticated/sanidade")({
-  head: () => ({ meta: [{ title: "Saúde e prevenção | Fazenda Santo Antônio" }, { name: "description", content: "Registros sanitários, monitoramento, amostras, vacinação, medicamentos e biossegurança." }] }),
+  head: () => ({ meta: [
+    { title: "Saúde e prevenção | Fazenda Santo Antônio" },
+    { name: "description", content: "Registros sanitários, monitoramento, amostras, vacinação, medicamentos e biossegurança." },
+    { property: "og:title", content: "Saúde e prevenção | Fazenda Santo Antônio" },
+    { property: "og:description", content: "Acompanhamento sanitário e preventivo do rebanho." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: Sanidade,
 });
 
