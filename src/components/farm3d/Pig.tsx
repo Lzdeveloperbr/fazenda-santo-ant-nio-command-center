@@ -82,3 +82,16 @@ export function Pig({ status, pregnant, scale = 1, selected, idle = true, onClic
     </group>
   );
 }
+
+/** Small static piglet used for litter and pen representations (by quantity, not identity). */
+export function Piglet({ scale = 0.35 }: { scale?: number }) {
+  return (
+    <group scale={scale}>
+      <mesh castShadow position={[0, 0.5, 0]} scale={[1, 0.8, 0.75]}><icosahedronGeometry args={[0.6, 1]} /><meshStandardMaterial color={SKIN} flatShading /></mesh>
+      <mesh castShadow position={[0.6, 0.62, 0]}><icosahedronGeometry args={[0.32, 1]} /><meshStandardMaterial color={SKIN} flatShading /></mesh>
+      <mesh position={[0.9, 0.58, 0]} rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[0.12, 0.14, 0.1, 8]} /><meshStandardMaterial color={SKIN_DARK} flatShading /></mesh>
+      {[-1, 1].map((s) => <mesh key={s} position={[0.56, 0.92, 0.16 * s]} rotation={[0.4 * s, 0, -0.5]}><coneGeometry args={[0.09, 0.2, 4]} /><meshStandardMaterial color={SKIN_DARK} flatShading /></mesh>)}
+      {([[-0.3, -0.22], [-0.3, 0.22], [0.3, -0.22], [0.3, 0.22]] as [number, number][]).map(([x, z], i) => <mesh key={i} position={[x, 0.15, z]}><cylinderGeometry args={[0.08, 0.07, 0.3, 6]} /><meshStandardMaterial color={SKIN_DARK} flatShading /></mesh>)}
+    </group>
+  );
+}

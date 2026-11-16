@@ -100,3 +100,24 @@ export const profilesQuery = queryOptions({
   queryKey: ["profiles"],
   queryFn: () => unwrap<{ id: string; display_name: string }[]>(supabase.from("profiles").select("id, display_name")),
 });
+
+export type FinanceEntry = Database["public"]["Tables"]["finance_entries"]["Row"];
+export type InventoryCheck = Database["public"]["Tables"]["inventory_checks"]["Row"];
+export type Pen = Database["public"]["Tables"]["farm_pens"]["Row"];
+export type PenRecord = Database["public"]["Tables"]["pen_records"]["Row"];
+export const financeQuery = queryOptions({
+  queryKey: ["finance_entries"],
+  queryFn: () => unwrap<FinanceEntry[]>(supabase.from("finance_entries").select("*").order("entry_date", { ascending: false }).order("created_at", { ascending: false })),
+});
+export const inventoryQuery = queryOptions({
+  queryKey: ["inventory_checks"],
+  queryFn: () => unwrap<InventoryCheck[]>(supabase.from("inventory_checks").select("*").order("check_date", { ascending: false }).order("created_at", { ascending: false })),
+});
+export const pensQuery = queryOptions({
+  queryKey: ["farm_pens"],
+  queryFn: () => unwrap<Pen[]>(supabase.from("farm_pens").select("*").order("sector").order("code")),
+});
+export const penRecordsQuery = queryOptions({
+  queryKey: ["pen_records", "plain"],
+  queryFn: () => unwrap<PenRecord[]>(supabase.from("pen_records").select("*").order("event_date", { ascending: false }).order("created_at", { ascending: false })),
+});

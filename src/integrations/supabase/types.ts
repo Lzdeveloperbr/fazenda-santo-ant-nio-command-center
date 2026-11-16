@@ -734,6 +734,59 @@ export type Database = {
         }
         Relationships: []
       }
+      finance_entries: {
+        Row: {
+          amount: number
+          batch_id: string | null
+          category: string
+          counterpart: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          due_date: string | null
+          entry_date: string
+          entry_type: string
+          id: string
+          status: string
+        }
+        Insert: {
+          amount: number
+          batch_id?: string | null
+          category: string
+          counterpart?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          entry_date?: string
+          entry_type: string
+          id?: string
+          status?: string
+        }
+        Update: {
+          amount?: number
+          batch_id?: string | null
+          category?: string
+          counterpart?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          entry_date?: string
+          entry_type?: string
+          id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_entries_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "production_batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       health_events: {
         Row: {
           action_taken: string | null
@@ -957,6 +1010,53 @@ export type Database = {
             columns: ["health_event_id"]
             isOneToOne: false
             referencedRelation: "health_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_checks: {
+        Row: {
+          check_date: string
+          confidence: string
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          observed_status: string
+          pen_code: string | null
+          piglets_counted: number | null
+          sow_id: string | null
+        }
+        Insert: {
+          check_date?: string
+          confidence?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          observed_status?: string
+          pen_code?: string | null
+          piglets_counted?: number | null
+          sow_id?: string | null
+        }
+        Update: {
+          check_date?: string
+          confidence?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          observed_status?: string
+          pen_code?: string | null
+          piglets_counted?: number | null
+          sow_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_checks_sow_id_fkey"
+            columns: ["sow_id"]
+            isOneToOne: false
+            referencedRelation: "sows"
             referencedColumns: ["id"]
           },
         ]
