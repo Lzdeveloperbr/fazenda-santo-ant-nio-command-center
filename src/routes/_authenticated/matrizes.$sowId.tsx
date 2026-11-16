@@ -10,7 +10,7 @@ import { FormDialog, Field, SubmitRow, selectCls } from "@/components/farm/FormD
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import type { Litter, Sow } from "@/lib/farm";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useState } from "react";
 
 const PigViewer = lazy(() => import("@/components/farm3d/PigViewer"));
 
