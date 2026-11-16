@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedBaiasRouteImport } from './routes/_authenticated/baias'
 import { Route as AuthenticatedBibliotecaSuinosRouteImport } from './routes/_authenticated/biblioteca-suinos'
+import { Route as AuthenticatedCalculadorasRouteImport } from './routes/_authenticated/calculadoras'
 import { Route as AuthenticatedDesempenhoRouteImport } from './routes/_authenticated/desempenho'
 import { Route as AuthenticatedDesmameRouteImport } from './routes/_authenticated/desmame'
 import { Route as AuthenticatedEstoqueRouteImport } from './routes/_authenticated/estoque'
@@ -56,6 +57,11 @@ const AuthenticatedBibliotecaSuinosRoute =
     path: '/biblioteca-suinos',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedCalculadorasRoute = AuthenticatedCalculadorasRouteImport.update({
+  id: '/calculadoras',
+  path: '/calculadoras',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDesempenhoRoute = AuthenticatedDesempenhoRouteImport.update({
   id: '/desempenho',
   path: '/desempenho',
@@ -145,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/baias': typeof AuthenticatedBaiasRoute
   '/biblioteca-suinos': typeof AuthenticatedBibliotecaSuinosRoute
+  '/calculadoras': typeof AuthenticatedCalculadorasRoute
   '/desempenho': typeof AuthenticatedDesempenhoRoute
   '/desmame': typeof AuthenticatedDesmameRoute
   '/estoque': typeof AuthenticatedEstoqueRoute
@@ -191,6 +198,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/baias': typeof AuthenticatedBaiasRoute
   '/_authenticated/biblioteca-suinos': typeof AuthenticatedBibliotecaSuinosRoute
+  '/_authenticated/calculadoras': typeof AuthenticatedCalculadorasRoute
   '/_authenticated/desempenho': typeof AuthenticatedDesempenhoRoute
   '/_authenticated/desmame': typeof AuthenticatedDesmameRoute
   '/_authenticated/estoque': typeof AuthenticatedEstoqueRoute
@@ -452,6 +460,7 @@ const AuthenticatedMatrizesRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedBaiasRoute: typeof AuthenticatedBaiasRoute
   AuthenticatedBibliotecaSuinosRoute: typeof AuthenticatedBibliotecaSuinosRoute
+  AuthenticatedCalculadorasRoute: typeof AuthenticatedCalculadorasRoute
   AuthenticatedDesempenhoRoute: typeof AuthenticatedDesempenhoRoute
   AuthenticatedDesmameRoute: typeof AuthenticatedDesmameRoute
   AuthenticatedEstoqueRoute: typeof AuthenticatedEstoqueRoute
@@ -472,6 +481,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBaiasRoute: AuthenticatedBaiasRoute,
   AuthenticatedBibliotecaSuinosRoute: AuthenticatedBibliotecaSuinosRoute,
+  AuthenticatedCalculadorasRoute: AuthenticatedCalculadorasRoute,
   AuthenticatedDesempenhoRoute: AuthenticatedDesempenhoRoute,
   AuthenticatedDesmameRoute: AuthenticatedDesmameRoute,
   AuthenticatedEstoqueRoute: AuthenticatedEstoqueRoute,
