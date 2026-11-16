@@ -26,8 +26,8 @@ export function Wordmark() {
     <div className="flex min-w-0 items-center gap-3">
       <LogoMark className="h-11 w-11 shrink-0 drop-shadow-sm" />
       <div className="min-w-0 leading-tight">
-        <div className="truncate text-[0.9rem] font-bold tracking-tight text-white">Fazenda Santo Antônio</div>
-        <div className="mt-1 text-[0.58rem] font-semibold uppercase tracking-[0.19em] text-[#D7B66C]">Suinocultura · Gestão rural</div>
+        <div className="truncate text-[0.9rem] font-bold tracking-tight text-sidebar-foreground">Fazenda Santo Antônio</div>
+        <div className="mt-1 text-[0.58rem] font-semibold uppercase tracking-[0.19em] text-gold">Gestão inteligente de suinocultura</div>
       </div>
     </div>
   );

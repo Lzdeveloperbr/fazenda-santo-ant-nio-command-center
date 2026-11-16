@@ -45,7 +45,7 @@ function BibliotecaSuinos() {
 
   return (
     <div className="space-y-6">
-      <section className="relative isolate overflow-hidden rounded-[1.6rem] bg-[#173F2B] px-5 py-6 text-white shadow-lg sm:px-7 sm:py-8">
+      <section className="relative isolate overflow-hidden rounded-[1.6rem] hero-premium px-5 py-6 text-white shadow-lg sm:px-7 sm:py-8">
         <div className="absolute -right-12 -top-24 -z-10 h-64 w-64 rounded-full border border-white/10" />
         <div className="absolute -right-1 -top-12 -z-10 h-44 w-44 rounded-full border border-white/10" />
         <div className="flex flex-wrap items-start justify-between gap-4">
@@ -75,12 +75,12 @@ function BibliotecaSuinos() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-950">
+      <section className="rounded-2xl border border-warn/40 bg-warn/10 p-4 text-foreground">
         <div className="flex items-start gap-3">
           <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0" />
           <div>
             <p className="text-sm font-bold">Base de apoio técnico, não substitui o responsável técnico</p>
-            <p className="mt-1 text-xs leading-5 text-amber-900/85">Use os guias para melhorar observação, prevenção e registros. Diagnóstico, prescrição, vacina, medicamento, dose, duração, carência, formulação de ração e decisão de intervenção devem seguir o médico-veterinário, nutricionista, legislação e protocolo da granja.</p>
+            <p className="mt-1 text-xs leading-5 text-foreground/85">Use os guias para melhorar observação, prevenção e registros. Diagnóstico, prescrição, vacina, medicamento, dose, duração, carência, formulação de ração e decisão de intervenção devem seguir o médico-veterinário, nutricionista, legislação e protocolo da granja.</p>
           </div>
         </div>
       </section>
@@ -94,7 +94,7 @@ function BibliotecaSuinos() {
         <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground"><Filter className="h-4 w-4" />Filtrar por assunto</div>
         <div className="flex flex-wrap gap-2">
           {KNOWLEDGE_CATEGORIES.map((item) => (
-            <button key={item} onClick={() => setCategory(item)} className={"rounded-full border px-3 py-2 text-xs font-semibold transition " + (category === item ? "border-[#24543A] bg-[#24543A] text-white" : "border-border bg-white text-muted-foreground hover:border-primary/40 hover:text-foreground")}>{item}</button>
+            <button key={item} onClick={() => setCategory(item)} className={"rounded-full border px-3 py-2 text-xs font-semibold transition " + (category === item ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground")}>{item}</button>
           ))}
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
@@ -123,7 +123,7 @@ function BibliotecaSuinos() {
             {filtered.map((topic) => (
               <details key={topic.id} className="panel group overflow-hidden" open={topic.id === filtered[0]?.id}>
                 <summary className="flex cursor-pointer list-none items-start gap-3 p-4 sm:p-5">
-                  <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#EAF0E8] text-[#24543A]"><BookOpen className="h-5 w-5" /></span>
+                  <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-primary"><BookOpen className="h-5 w-5" /></span>
                   <span className="min-w-0 flex-1">
                     <span className="flex flex-wrap items-center gap-2">
                       <span className="text-[.62rem] font-bold uppercase tracking-[.12em] text-primary">{topic.category}</span>
@@ -141,13 +141,13 @@ function BibliotecaSuinos() {
                       {topic.practices.map((item, index) => <li key={index} className="flex gap-2 text-xs leading-5 text-muted-foreground"><span className="mt-[.4rem] h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />{item}</li>)}
                     </ul>
                   </div>
-                  <div className="rounded-xl border border-amber-200/80 bg-amber-50/70 p-3">
-                    <p className="flex items-center gap-2 text-xs font-bold text-amber-950"><AlertTriangle className="h-4 w-4" />Sinais para observar</p>
+                  <div className="rounded-xl border border-warn/40 bg-warn/10 p-3">
+                    <p className="flex items-center gap-2 text-xs font-bold text-foreground"><AlertTriangle className="h-4 w-4" />Sinais para observar</p>
                     <ul className="mt-2 space-y-1.5">
-                      {topic.watch.map((item, index) => <li key={index} className="text-xs leading-5 text-amber-950/80">• {item}</li>)}
+                      {topic.watch.map((item, index) => <li key={index} className="text-xs leading-5 text-foreground/80">• {item}</li>)}
                     </ul>
                   </div>
-                  {topic.urgency && <div className="rounded-xl border border-red-200 bg-red-50 p-3"><p className="text-xs font-bold text-red-900">Quando agir imediatamente</p><p className="mt-1 text-xs leading-5 text-red-900/85">{topic.urgency}</p></div>}
+                  {topic.urgency && <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3"><p className="text-xs font-bold text-destructive">Quando agir imediatamente</p><p className="mt-1 text-xs leading-5 text-foreground/85">{topic.urgency}</p></div>}
                   <div>
                     <p className="text-xs font-bold uppercase tracking-wider text-foreground">O que registrar no aplicativo</p>
                     <ul className="mt-2 space-y-1.5">
@@ -159,7 +159,7 @@ function BibliotecaSuinos() {
                     <div className="flex flex-wrap gap-2">
                       {topic.sourceIds.map((id) => {
                         const source = KNOWLEDGE_SOURCES[id];
-                        return source ? <a key={id} href={source.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border bg-white px-2.5 py-2 text-[.68rem] font-semibold text-primary hover:bg-muted">{source.institution}<ExternalLink className="h-3 w-3" /></a> : null;
+                        return source ? <a key={id} href={source.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border bg-card px-2.5 py-2 text-[.68rem] font-semibold text-primary hover:bg-muted">{source.institution}<ExternalLink className="h-3 w-3" /></a> : null;
                       })}
                     </div>
                   </div>
@@ -172,7 +172,7 @@ function BibliotecaSuinos() {
 
       <section className="panel p-4 sm:p-5">
         <button onClick={() => setShowTools((value) => !value)} className="flex w-full items-center justify-between gap-3 text-left">
-          <span className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#EAF0E8] text-[#24543A]"><Calculator className="h-5 w-5" /></span><span><span className="block text-[.65rem] font-bold uppercase tracking-wider text-primary">Ferramentas rápidas</span><span className="mt-1 block text-base font-bold">Calculadoras e indicadores</span></span></span>
+          <span className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent text-primary"><Calculator className="h-5 w-5" /></span><span><span className="block text-[.65rem] font-bold uppercase tracking-wider text-primary">Ferramentas rápidas</span><span className="mt-1 block text-base font-bold">Calculadoras e indicadores</span></span></span>
           <ChevronDown className={"h-5 w-5 text-muted-foreground transition-transform " + (showTools ? "rotate-180" : "")} />
         </button>
         {showTools && <div className="mt-5 space-y-5 border-t border-border/70 pt-5">

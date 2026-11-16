@@ -27,7 +27,7 @@ function Painel(){
     </div>
     <div className="hero-visual relative mx-auto hidden w-full max-w-[310px] lg:block" aria-hidden="true">
      <div className="hero-glass-card relative rounded-[1.5rem] p-5">
-      <div className="flex items-center justify-between"><span className="text-[.62rem] font-bold uppercase tracking-[.16em] text-white/60">Visão da operação</span><span className="rounded-full bg-emerald-300/15 px-2 py-1 text-[.58rem] font-semibold text-emerald-200">AO VIVO</span></div>
+      <div className="flex items-center justify-between"><span className="text-[.62rem] font-bold uppercase tracking-[.16em] text-white/60">Visão da operação</span></div>
       <div className="mt-6 flex items-end justify-between"><div><p className="text-[.65rem] text-white/55">Matrizes no plantel</p><p className="mt-1 font-mono text-4xl font-semibold tracking-tight">{s.active.toLocaleString("pt-BR")}</p></div><div className="grid h-12 w-12 place-items-center rounded-2xl border border-[#DCC58A]/25 bg-[#DCC58A]/10 text-2xl">🐖</div></div>
       <div className="mt-5 grid grid-cols-2 gap-2">
        <div className="rounded-xl border border-white/10 bg-black/10 p-3"><p className="text-[.58rem] text-white/50">Gestantes</p><p className="mt-1 font-mono text-xl">{s.gestantes}</p></div>
@@ -39,7 +39,7 @@ function Painel(){
     </div>
    </div>
   </section>
-  <div className="flex items-center justify-between gap-3"><div><p className="label-tech">Resumo da operação</p><h2 className="mt-1 text-lg font-bold tracking-tight">Indicadores da granja</h2></div><span className="hidden rounded-full bg-[#EAF0E8] px-3 py-1.5 text-[.68rem] font-bold text-[#315E40] sm:inline-flex">Dados registrados no sistema</span></div>
+  <div className="flex items-center justify-between gap-3"><div><p className="label-tech">Resumo da operação</p><h2 className="mt-1 text-lg font-bold tracking-tight">Indicadores da granja</h2></div><span className="hidden rounded-full bg-accent px-3 py-1.5 text-[.68rem] font-bold text-primary sm:inline-flex">Dados registrados no sistema</span></div>
   <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
    <Kpi label="Matrizes ativas" value={s.active} icon={PiggyBank} source="Matrizes" to="/matrizes"/>
    <Kpi label="Gestantes" value={s.gestantes} icon={HeartPulse} tone="text-cyan" source="Matrizes" to="/matrizes" delay={35}/>
