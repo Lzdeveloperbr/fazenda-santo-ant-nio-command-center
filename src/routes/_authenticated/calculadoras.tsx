@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Calculator, Search, RotateCcw, Activity, Baby, HeartPulse, Wheat, Wallet, Ruler, CalendarDays, Info } from "lucide-react";
+import { Calculator, Search, RotateCcw, Activity, HeartPulse, Wheat, Wallet, Info } from "lucide-react";
 import { SectionTitle } from "@/components/farm/Kpi";
 import { Input } from "@/components/ui/input";
 
