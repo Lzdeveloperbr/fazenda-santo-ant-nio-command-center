@@ -1,7 +1,7 @@
 import { createFileRoute, redirect, Outlet, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, PiggyBank, Baby, ListChecks, LogOut, Menu, X, Layers3, HeartPulse, Wheat, TrendingUp, Fence, Ear, BrainCircuit, BookOpen, Box, Warehouse, ClipboardCheck, Radar, Wallet, Search, Moon, Sun, PanelLeftClose, PanelLeftOpen, ChevronRight, LayoutGrid } from "lucide-react";
+import { LayoutDashboard, PiggyBank, Baby, ListChecks, LogOut, Menu, X, Layers3, HeartPulse, Wheat, TrendingUp, Fence, Ear, BrainCircuit, BookOpen, Box, Warehouse, ClipboardCheck, Radar, Wallet, Calculator, Search, Moon, Sun, PanelLeftClose, PanelLeftOpen, ChevronRight, LayoutGrid } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Wordmark, LogoMark } from "@/components/farm/Logo";
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -13,12 +13,13 @@ export const Route = createFileRoute("/_authenticated")({
  beforeLoad:async()=>{const {data}=await supabase.auth.getUser();if(!data.user)throw redirect({to:"/auth"});return {user:data.user};},
  component:Shell,
 });
-const GROUPS=["Gestão","Rebanho","Manejo e saúde","Visualização 3D"] as const;
+const GROUPS=["Gestão","Ferramentas","Rebanho","Manejo e saúde","Visualização 3D"] as const;
 const NAV=[
  {to:"/painel",label:"Visão geral",short:"Início",icon:LayoutDashboard,group:"Gestão"},
  {to:"/inteligencia",label:"Pendências e previsões",short:"Pendências",icon:Radar,group:"Gestão"},
  {to:"/financeiro",label:"Financeiro e relatório",short:"Financeiro",icon:Wallet,group:"Gestão"},
  {to:"/desempenho",label:"Desempenho",short:"Desempenho",icon:TrendingUp,group:"Gestão"},
+ {to:"/calculadoras",label:"Calculadoras e ferramentas",short:"Calculadoras",icon:Calculator,group:"Ferramentas"},
  {to:"/matrizes",label:"Matrizes e reprodução",short:"Matrizes",icon:PiggyBank,group:"Rebanho"},
  {to:"/maternidade",label:"Maternidade",short:"Maternidade",icon:Baby,group:"Rebanho"},
  {to:"/desmame",label:"Marcação e desmame",short:"Desmame",icon:Ear,group:"Rebanho"},
