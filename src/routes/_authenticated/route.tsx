@@ -1,7 +1,7 @@
 import { createFileRoute, redirect, Outlet, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, PiggyBank, Baby, ListChecks, LogOut, Activity, ChevronRight, Menu, X, Layers3, HeartPulse, Wheat, TrendingUp, CalendarDays, Fence, Ear, BrainCircuit, BookOpen } from "lucide-react";
+import { LayoutDashboard, PiggyBank, Baby, ListChecks, LogOut, Activity, ChevronRight, Menu, X, Layers3, HeartPulse, Wheat, TrendingUp, CalendarDays, Fence, Ear, BrainCircuit, BookOpen, Box } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Wordmark, LogoMark } from "@/components/farm/Logo";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ export const Route = createFileRoute("/_authenticated")({
 });
 const NAV=[
  {to:"/painel",label:"Visão geral",icon:LayoutDashboard,group:"Principal"},
+ {to:"/plantel",label:"Plantel 3D",icon:Box,group:"Rebanho"},
  {to:"/matrizes",label:"Matrizes e reprodução",icon:PiggyBank,group:"Rebanho"},
  {to:"/maternidade",label:"Maternidade",icon:Baby,group:"Rebanho"},
  {to:"/desmame",label:"Marcação e desmame",icon:Ear,group:"Rebanho"},

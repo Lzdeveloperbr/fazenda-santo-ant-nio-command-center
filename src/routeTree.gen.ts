@@ -22,6 +22,7 @@ import { Route as AuthenticatedLotesRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedMaternidadeRouteImport } from './routes/_authenticated/maternidade'
 import { Route as AuthenticatedMatrizesRouteImport } from './routes/_authenticated/matrizes'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
+import { Route as AuthenticatedPlantelRouteImport } from './routes/_authenticated/plantel'
 import { Route as AuthenticatedSanidadeRouteImport } from './routes/_authenticated/sanidade'
 import { Route as AuthenticatedTarefasRouteImport } from './routes/_authenticated/tarefas'
 import { Route as AuthenticatedMatrizesSowIdRouteImport } from './routes/_authenticated/matrizes.$sowId'
@@ -92,6 +93,11 @@ const AuthenticatedPainelRoute = AuthenticatedPainelRouteImport.update({
   path: '/painel',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPlantelRoute = AuthenticatedPlantelRouteImport.update({
+  id: '/plantel',
+  path: '/plantel',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSanidadeRoute = AuthenticatedSanidadeRouteImport.update({
   id: '/sanidade',
   path: '/sanidade',
@@ -122,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/maternidade': typeof AuthenticatedMaternidadeRoute
   '/matrizes': typeof AuthenticatedMatrizesRouteWithChildren
   '/painel': typeof AuthenticatedPainelRoute
+  '/plantel': typeof AuthenticatedPlantelRoute
   '/sanidade': typeof AuthenticatedSanidadeRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
   '/matrizes/$sowId': typeof AuthenticatedMatrizesSowIdRoute
@@ -139,6 +146,7 @@ export interface FileRoutesByTo {
   '/maternidade': typeof AuthenticatedMaternidadeRoute
   '/matrizes': typeof AuthenticatedMatrizesRouteWithChildren
   '/painel': typeof AuthenticatedPainelRoute
+  '/plantel': typeof AuthenticatedPlantelRoute
   '/sanidade': typeof AuthenticatedSanidadeRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
   '/matrizes/$sowId': typeof AuthenticatedMatrizesSowIdRoute
@@ -158,6 +166,7 @@ export interface FileRoutesById {
   '/_authenticated/maternidade': typeof AuthenticatedMaternidadeRoute
   '/_authenticated/matrizes': typeof AuthenticatedMatrizesRouteWithChildren
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
+  '/_authenticated/plantel': typeof AuthenticatedPlantelRoute
   '/_authenticated/sanidade': typeof AuthenticatedSanidadeRoute
   '/_authenticated/tarefas': typeof AuthenticatedTarefasRoute
   '/_authenticated/matrizes/$sowId': typeof AuthenticatedMatrizesSowIdRoute
@@ -177,6 +186,7 @@ export interface FileRouteTypes {
     | '/maternidade'
     | '/matrizes'
     | '/painel'
+    | '/plantel'
     | '/sanidade'
     | '/tarefas'
     | '/matrizes/$sowId'
@@ -194,6 +204,7 @@ export interface FileRouteTypes {
     | '/maternidade'
     | '/matrizes'
     | '/painel'
+    | '/plantel'
     | '/sanidade'
     | '/tarefas'
     | '/matrizes/$sowId'
@@ -212,6 +223,7 @@ export interface FileRouteTypes {
     | '/_authenticated/maternidade'
     | '/_authenticated/matrizes'
     | '/_authenticated/painel'
+    | '/_authenticated/plantel'
     | '/_authenticated/sanidade'
     | '/_authenticated/tarefas'
     | '/_authenticated/matrizes/$sowId'
@@ -316,6 +328,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPainelRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/plantel': {
+      id: '/_authenticated/plantel'
+      path: '/plantel'
+      fullPath: '/plantel'
+      preLoaderRoute: typeof AuthenticatedPlantelRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/sanidade': {
       id: '/_authenticated/sanidade'
       path: '/sanidade'
@@ -364,6 +383,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMaternidadeRoute: typeof AuthenticatedMaternidadeRoute
   AuthenticatedMatrizesRoute: typeof AuthenticatedMatrizesRouteWithChildren
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
+  AuthenticatedPlantelRoute: typeof AuthenticatedPlantelRoute
   AuthenticatedSanidadeRoute: typeof AuthenticatedSanidadeRoute
   AuthenticatedTarefasRoute: typeof AuthenticatedTarefasRoute
 }
@@ -379,6 +399,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMaternidadeRoute: AuthenticatedMaternidadeRoute,
   AuthenticatedMatrizesRoute: AuthenticatedMatrizesRouteWithChildren,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
+  AuthenticatedPlantelRoute: AuthenticatedPlantelRoute,
   AuthenticatedSanidadeRoute: AuthenticatedSanidadeRoute,
   AuthenticatedTarefasRoute: AuthenticatedTarefasRoute,
 }

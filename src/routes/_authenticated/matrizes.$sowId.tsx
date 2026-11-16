@@ -4,6 +4,9 @@ import { ArrowLeft, Printer, PiggyBank, CalendarDays, Baby, Scale } from "lucide
 import { breedingsQuery, litterEventsQuery, littersQuery, LITTER_EVENT_LABEL, SOW_EVENT_LABEL, SOW_STATUS, sowEventsQuery, sowsQuery, fmtDate, livePiglets } from "@/lib/farm";
 import { Empty, SectionTitle } from "@/components/farm/Kpi";
 import { Button } from "@/components/ui/button";
+import { lazy, Suspense } from "react";
+
+const PigViewer = lazy(() => import("@/components/farm3d/PigViewer"));
 
 export const Route = createFileRoute("/_authenticated/matrizes/$sowId")({
   head: () => ({
@@ -62,6 +65,7 @@ function SowRecord() {
           <div><dt className="text-muted-foreground">Nascimento</dt><dd className="mt-1 font-semibold">{fmtDate(sow.birth_date)}</dd></div>
           <div><dt className="text-muted-foreground">Cadastro</dt><dd className="mt-1 font-semibold">{fmtDate(sow.created_at)}</dd></div>
         </dl>
+        <div className="no-print mt-5"><Suspense fallback={<div className="h-64 rounded-xl bg-muted/60" />}><PigViewer status={sow.status} /></Suspense><p className="mt-2 text-xs text-muted-foreground">Representação ilustrativa da categoria — gire com o dedo e aproxime com pinça. Não é uma imagem do animal real.</p></div>
         {sow.notes && <p className="mt-4 whitespace-pre-wrap rounded-xl bg-muted/50 p-3 text-sm leading-6">{sow.notes}</p>}
       </section>
 
