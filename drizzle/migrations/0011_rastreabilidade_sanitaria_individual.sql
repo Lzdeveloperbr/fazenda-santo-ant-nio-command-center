@@ -4,15 +4,15 @@
 ALTER TABLE public.vaccination_records
   ADD COLUMN animal_scope text NOT NULL DEFAULT 'grupo'
     CHECK (animal_scope IN ('grupo','matriz','leitegada','leitao')),
-  ADD COLUMN sow_id uuid REFERENCES public.sows(id) ON DELETE SET NULL,
-  ADD COLUMN litter_id uuid REFERENCES public.litters(id) ON DELETE SET NULL,
+  ADD COLUMN sow_id uuid REFERENCES public.sows(id) ON DELETE RESTRICT,
+  ADD COLUMN litter_id uuid REFERENCES public.litters(id) ON DELETE RESTRICT,
   ADD COLUMN piglet_identifier text;
 
 ALTER TABLE public.medication_records
   ADD COLUMN animal_scope text NOT NULL DEFAULT 'grupo'
     CHECK (animal_scope IN ('grupo','matriz','leitegada','leitao')),
-  ADD COLUMN sow_id uuid REFERENCES public.sows(id) ON DELETE SET NULL,
-  ADD COLUMN litter_id uuid REFERENCES public.litters(id) ON DELETE SET NULL,
+  ADD COLUMN sow_id uuid REFERENCES public.sows(id) ON DELETE RESTRICT,
+  ADD COLUMN litter_id uuid REFERENCES public.litters(id) ON DELETE RESTRICT,
   ADD COLUMN piglet_identifier text;
 
 CREATE INDEX vaccination_sow_date_idx
