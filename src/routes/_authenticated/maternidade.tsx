@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { ClipboardList, Trash2, History, Stethoscope } from "lucide-react";
+import { ClipboardList, Trash2, History, Stethoscope, AlertTriangle, AlertCircle, Info, CheckCircle2, Box } from "lucide-react";
+import { litterAlerts, daysSince, type LitterAlert } from "@/lib/farm/litter-alerts";
+const LitterDiagnosisScene = lazy(() => import("@/components/farm3d/LitterDiagnosisScene"));
 import { supabase } from "@/integrations/supabase/client";
 import { sowsQuery, littersQuery, litterEventsQuery, livePiglets, fmtDate, todayISO, LITTER_EVENT_LABEL, type Litter, type LitterEvent } from "@/lib/farm";
 import { litterEventError } from "@/lib/farm/reproduction";
@@ -77,6 +79,8 @@ function Maternidade() {
         </section>
       </div>}
 
+      {!litters.isLoading && active.length > 0 && <Diagnosis active={active} tag={tag} />}
+
       {litters.isLoading ? <p className="label-tech animate-pulse-soft">Carregando…</p> : active.length === 0 ? (
         <Empty>Nenhuma leitegada na maternidade. Registre um parto em <Link to="/matrizes" className="text-info underline">Matrizes</Link>.</Empty>
       ) : (
@@ -101,6 +105,7 @@ function LitterCard({ l, tag, events, delay, onDone }: { l: Litter; tag: string;
       <div className="mt-3 flex flex-wrap gap-1.5" aria-label={`${live} leitões`}>{Array.from({ length: live }).map((_, i) => <span key={i} className="h-3 w-3 rounded-full bg-ok/80" />)}{Array.from({ length: l.deaths }).map((_, i) => <span key={"d" + i} className="h-3 w-3 rounded-full border border-destructive/60" />)}</div>
       <dl className="mt-3 grid grid-cols-4 gap-2 border-t pt-3 font-mono text-xs"><div><dt className="text-muted-foreground">Vivos</dt><dd>{l.born_alive}</dd></div><div><dt className="text-muted-foreground">Mortes</dt><dd>{l.deaths}</dd></div><div><dt className="text-muted-foreground">Transf.</dt><dd>{l.transfers_in - l.transfers_out >= 0 ? "+" : ""}{l.transfers_in - l.transfers_out}</dd></div><div><dt className="text-muted-foreground">Peso</dt><dd>{l.avg_weight ? `${l.avg_weight}kg` : "—"}</dd></div></dl>
       <p className="mt-2 font-mono text-[0.7rem] text-muted-foreground">Parto {fmtDate(l.farrowing_date)} · {days} dias</p>
+      <div className="mt-2 flex flex-wrap gap-1.5">{litterAlerts(l, live).map((al) => <span key={al.id} className={`rounded-full border px-2 py-0.5 text-[0.68rem] font-semibold ${LEVEL[al.level].chip}`}>{al.title}</span>)}</div>
       <div className="mt-3 grid grid-cols-2 gap-2">{ACTIONS.map((a) => <EventAction key={a.type} a={a} l={l} tag={tag} live={live} onDone={onDone} />)}<LitterHistory tag={tag} events={events} /><DeleteLitter l={l} tag={tag} onDone={onDone} /></div>
     </div>
   );
@@ -153,3 +158,39 @@ function EventAction({ a, l, tag, live, onDone }: { a: (typeof ACTIONS)[number];
     </FormDialog>
   );
 }
+
+const LEVEL: Record<LitterAlert["level"], { label: string; chip: string; icon: typeof Info; text: string }> = {
+  alerta: { label: "Alerta", chip: "border-destructive/30 bg-destructive/10 text-destructive", icon: AlertTriangle, text: "text-destructive" },
+  atencao: { label: "Atenção", chip: "border-warn/40 bg-warn/10 text-warn", icon: AlertCircle, text: "text-warn" },
+  info: { label: "Informação", chip: "border-info/30 bg-info/10 text-info", icon: Info, text: "text-info" },
+  ok: { label: "Em dia", chip: "border-ok/30 bg-ok/10 text-ok", icon: CheckCircle2, text: "text-ok" },
+};
+
+function Diagnosis({ active, tag }: { active: Litter[]; tag: (id: string) => string }) {
+  const ranked = useMemo(() => active.map((l) => ({ l, live: livePiglets(l), alerts: litterAlerts(l, livePiglets(l)) })).sort((a, b) => b.alerts.filter((x) => x.level === "alerta").length - a.alerts.filter((x) => x.level === "alerta").length || b.alerts.filter((x) => x.level === "atencao").length - a.alerts.filter((x) => x.level === "atencao").length), [active]);
+  const [sel, setSel] = useState(ranked[0]?.l.id);
+  const cur = ranked.find((r) => r.l.id === sel) ?? ranked[0];
+  if (!cur) return null;
+  const { l, live, alerts } = cur;
+  const base = l.born_alive + l.transfers_in;
+  return (
+    <section className="panel overflow-hidden">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-4 sm:px-5">
+        <div className="flex items-center gap-3"><span className="rounded-lg bg-accent p-2 text-primary"><Box className="h-5 w-5" /></span><div><p className="label-tech">Diagnóstico visual 3D</p><h2 className="text-lg font-bold">Porca {tag(l.sow_id)} e leitegada</h2></div></div>
+        <label className="flex items-center gap-2 text-sm"><span className="text-muted-foreground">Leitegada</span><select value={l.id} onChange={(e) => setSel(e.target.value)} className="h-10 rounded-lg border border-input bg-card px-3 font-mono text-sm">{ranked.map((r) => <option key={r.l.id} value={r.l.id}>{tag(r.l.sow_id)} · {r.alerts.filter((x) => x.level === "alerta" || x.level === "atencao").length} ponto(s)</option>)}</select></label>
+      </div>
+      <div className="grid gap-0 lg:grid-cols-[1.4fr_1fr]">
+        <div className="p-3 sm:p-4"><Suspense fallback={<div className="flex h-[380px] items-center justify-center rounded-xl bg-muted/60 text-sm text-muted-foreground sm:h-[440px]">Carregando visualização…</div>}><LitterDiagnosisScene alerts={alerts} live={live} deaths={l.deaths} /></Suspense></div>
+        <div className="border-t border-border p-4 sm:p-5 lg:border-l lg:border-t-0">
+          <dl className="grid grid-cols-4 gap-2 rounded-xl bg-muted/50 p-3 text-center">
+            <Mini k="Dias" v={daysSince(l.farrowing_date)} /><Mini k="Vivos" v={live} /><Mini k="Mortes" v={l.deaths} /><Mini k="Mortal." v={base > 0 ? `${Math.round((l.deaths / base) * 100)}%` : "—"} />
+          </dl>
+          <p className="label-tech mb-2 mt-5">Pontos indicados no desenho</p>
+          <ol className="space-y-2">{alerts.map((al, i) => { const L = LEVEL[al.level]; return <li key={al.id} className={`flex gap-3 rounded-xl border p-3 ${L.chip.split(" ").slice(0, 2).join(" ")}`}><span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-card font-mono text-xs font-bold">{i + 1}</span><div className="min-w-0"><p className={`flex items-center gap-1.5 text-sm font-bold ${L.text}`}><L.icon className="h-4 w-4" />{al.title}</p><p className="mt-0.5 text-xs leading-5 text-foreground/80">{al.detail}</p></div></li>; })}</ol>
+          <p className="mt-4 text-[0.7rem] leading-5 text-muted-foreground">Leitura automática dos números lançados nesta leitegada. Não é um diagnóstico veterinário.</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+function Mini({ k, v }: { k: string; v: number | string }) { return <div><dt className="text-[0.62rem] uppercase tracking-wider text-muted-foreground">{k}</dt><dd className="font-mono text-lg font-bold">{v}</dd></div>; }

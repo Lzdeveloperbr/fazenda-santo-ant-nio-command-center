@@ -63,11 +63,12 @@ const AuthenticatedBibliotecaSuinosRoute =
     path: '/biblioteca-suinos',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedCalculadorasRoute = AuthenticatedCalculadorasRouteImport.update({
-  id: '/calculadoras',
-  path: '/calculadoras',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
+const AuthenticatedCalculadorasRoute =
+  AuthenticatedCalculadorasRouteImport.update({
+    id: '/calculadoras',
+    path: '/calculadoras',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedDesempenhoRoute = AuthenticatedDesempenhoRouteImport.update({
   id: '/desempenho',
   path: '/desempenho',
@@ -182,6 +183,7 @@ export interface FileRoutesByTo {
   '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/baias': typeof AuthenticatedBaiasRoute
   '/biblioteca-suinos': typeof AuthenticatedBibliotecaSuinosRoute
+  '/calculadoras': typeof AuthenticatedCalculadorasRoute
   '/desempenho': typeof AuthenticatedDesempenhoRoute
   '/desmame': typeof AuthenticatedDesmameRoute
   '/estoque': typeof AuthenticatedEstoqueRoute
@@ -233,6 +235,7 @@ export interface FileRouteTypes {
     | '/auditoria'
     | '/baias'
     | '/biblioteca-suinos'
+    | '/calculadoras'
     | '/desempenho'
     | '/desmame'
     | '/estoque'
@@ -256,6 +259,7 @@ export interface FileRouteTypes {
     | '/auditoria'
     | '/baias'
     | '/biblioteca-suinos'
+    | '/calculadoras'
     | '/desempenho'
     | '/desmame'
     | '/estoque'
@@ -280,6 +284,7 @@ export interface FileRouteTypes {
     | '/_authenticated/auditoria'
     | '/_authenticated/baias'
     | '/_authenticated/biblioteca-suinos'
+    | '/_authenticated/calculadoras'
     | '/_authenticated/desempenho'
     | '/_authenticated/desmame'
     | '/_authenticated/estoque'
@@ -346,6 +351,13 @@ declare module '@tanstack/react-router' {
       path: '/biblioteca-suinos'
       fullPath: '/biblioteca-suinos'
       preLoaderRoute: typeof AuthenticatedBibliotecaSuinosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/calculadoras': {
+      id: '/_authenticated/calculadoras'
+      path: '/calculadoras'
+      fullPath: '/calculadoras'
+      preLoaderRoute: typeof AuthenticatedCalculadorasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/desempenho': {
