@@ -1166,10 +1166,6 @@ export type Database = {
       }
       medication_records: {
         Row: {
-          animal_scope: string
-          sow_id: string | null
-          litter_id: string | null
-          piglet_identifier: string | null
           active_ingredient: string | null
           administration_end: string | null
           administration_start: string
@@ -1194,10 +1190,6 @@ export type Database = {
           withdrawal_days: number
         }
         Insert: {
-          animal_scope?: string
-          sow_id?: string | null
-          litter_id?: string | null
-          piglet_identifier?: string | null
           active_ingredient?: string | null
           administration_end?: string | null
           administration_start?: string
@@ -1222,10 +1214,6 @@ export type Database = {
           withdrawal_days?: number
         }
         Update: {
-          animal_scope?: string
-          sow_id?: string | null
-          litter_id?: string | null
-          piglet_identifier?: string | null
           active_ingredient?: string | null
           administration_end?: string | null
           administration_start?: string
@@ -1250,20 +1238,6 @@ export type Database = {
           withdrawal_days?: number
         }
         Relationships: [
-          {
-            foreignKeyName: "medication_records_sow_id_fkey"
-            columns: ["sow_id"]
-            isOneToOne: false
-            referencedRelation: "sows"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "medication_records_litter_id_fkey"
-            columns: ["litter_id"]
-            isOneToOne: false
-            referencedRelation: "litters"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "medication_records_health_event_id_fkey"
             columns: ["health_event_id"]
@@ -1657,10 +1631,6 @@ export type Database = {
       }
       vaccination_records: {
         Row: {
-          animal_scope: string
-          sow_id: string | null
-          litter_id: string | null
-          piglet_identifier: string | null
           animals_planned: number
           animals_vaccinated: number
           batch: string | null
@@ -1681,10 +1651,6 @@ export type Database = {
           veterinarian: string | null
         }
         Insert: {
-          animal_scope?: string
-          sow_id?: string | null
-          litter_id?: string | null
-          piglet_identifier?: string | null
           animals_planned?: number
           animals_vaccinated?: number
           batch?: string | null
@@ -1705,10 +1671,6 @@ export type Database = {
           veterinarian?: string | null
         }
         Update: {
-          animal_scope?: string
-          sow_id?: string | null
-          litter_id?: string | null
-          piglet_identifier?: string | null
           animals_planned?: number
           animals_vaccinated?: number
           batch?: string | null
@@ -1729,20 +1691,6 @@ export type Database = {
           veterinarian?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "vaccination_records_sow_id_fkey"
-            columns: ["sow_id"]
-            isOneToOne: false
-            referencedRelation: "sows"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vaccination_records_litter_id_fkey"
-            columns: ["litter_id"]
-            isOneToOne: false
-            referencedRelation: "litters"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "vaccination_records_pen_id_fkey"
             columns: ["pen_id"]
