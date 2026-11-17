@@ -43,9 +43,11 @@ function Auditoria() {
     const checks = checksQ.data ?? [];
     const activeSows = sows.filter((s) => isActiveSowStatus(s.status));
     const latestCheck = new Map<string, (typeof checks)[number]>();
-    for (const check of checks) if (check.sow_id && !latestCheck.has(check.sow_id)) latestCheck.set(check.sow_id, check);
+    const orderedChecks = [...checks].sort((a, b) => b.check_date.localeCompare(a.check_date) || b.created_at.localeCompare(a.created_at));
+    for (const check of orderedChecks) if (check.sow_id && !latestCheck.has(check.sow_id)) latestCheck.set(check.sow_id, check);
     const latestBreeding = new Map<string, (typeof breedings)[number]>();
     for (const breeding of breedings) if (!latestBreeding.has(breeding.sow_id)) latestBreeding.set(breeding.sow_id, breeding);
+    const latestBreedingIds = new Set(Array.from(latestBreeding.values(), (breeding) => breeding.id));
     const activeLitters = new Map<string, (typeof litters)[number]>();
     for (const litter of litters) if (litter.status === "maternidade" && !activeLitters.has(litter.sow_id)) activeLitters.set(litter.sow_id, litter);
 
@@ -76,6 +78,7 @@ function Auditoria() {
     }
 
     for (const breeding of breedings) {
+      if (!latestBreedingIds.has(breeding.id)) continue;
       const sow = sows.find((item) => item.id === breeding.sow_id);
       const hasFarrowing = litters.some((l) => l.sow_id === breeding.sow_id && l.farrowing_date >= breeding.breeding_date);
       if (breeding.pregnancy_check !== "negativo" && !hasFarrowing && breeding.expected_farrowing && breeding.expected_farrowing < today) {
