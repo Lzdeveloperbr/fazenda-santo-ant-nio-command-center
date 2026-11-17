@@ -179,6 +179,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/baias': typeof AuthenticatedBaiasRoute
   '/biblioteca-suinos': typeof AuthenticatedBibliotecaSuinosRoute
   '/desempenho': typeof AuthenticatedDesempenhoRoute
@@ -252,6 +253,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/auditoria'
     | '/baias'
     | '/biblioteca-suinos'
     | '/desempenho'
