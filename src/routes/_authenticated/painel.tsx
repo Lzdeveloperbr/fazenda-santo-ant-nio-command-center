@@ -33,7 +33,6 @@ function Painel(){
        <div className="rounded-xl border border-white/10 bg-black/10 p-3"><p className="text-[.58rem] text-white/50">Gestantes</p><p className="mt-1 font-mono text-xl">{s.gestantes}</p></div>
        <div className="rounded-xl border border-white/10 bg-black/10 p-3"><p className="text-[.58rem] text-white/50">Leitões vivos</p><p className="mt-1 font-mono text-xl">{s.liveMat.toLocaleString("pt-BR")}</p></div>
       </div>
-      <div className="mt-4 flex items-center gap-2"><div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10"><div className="h-full w-[72%] rounded-full bg-gradient-to-r from-[#9BC69B] to-[#E0C783]"/></div><span className="text-[.58rem] text-white/45">Controle integrado</span></div>
      </div>
      <div className="absolute -bottom-4 -left-5 rounded-xl border border-white/15 bg-[#214D35]/90 px-3 py-2 shadow-xl backdrop-blur"><p className="text-[.56rem] uppercase tracking-wider text-white/50">Precisão no manejo</p><p className="mt-0.5 text-xs font-semibold text-[#E8D49F]">Santo Antônio · AgroTech</p></div>
     </div>

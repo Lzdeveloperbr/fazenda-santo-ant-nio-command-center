@@ -17,6 +17,7 @@ const GROUPS=["Gestão","Ferramentas","Rebanho","Manejo e saúde","Visualizaçã
 const NAV=[
  {to:"/painel",label:"Visão geral",short:"Início",icon:LayoutDashboard,group:"Gestão"},
  {to:"/inteligencia",label:"Pendências e previsões",short:"Pendências",icon:Radar,group:"Gestão"},
+ {to:"/auditoria",label:"Auditoria e qualidade",short:"Auditoria",icon:ClipboardCheck,group:"Gestão"},
  {to:"/financeiro",label:"Financeiro e relatório",short:"Financeiro",icon:Wallet,group:"Gestão"},
  {to:"/desempenho",label:"Desempenho",short:"Desempenho",icon:TrendingUp,group:"Gestão"},
  {to:"/calculadoras",label:"Calculadoras e ferramentas",short:"Calculadoras",icon:Calculator,group:"Ferramentas"},
