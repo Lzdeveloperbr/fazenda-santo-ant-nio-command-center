@@ -94,9 +94,9 @@ Este roteiro deve ser concluído no ambiente real antes de divulgar o sistema co
 
 ## 6. Pendência sanitária individual
 
-A funcionalidade de prontuário sanitário por matriz/leitegada/leitão está proposta no PR #11 e depende de revisão, merge e aplicação da migration correspondente antes de ser considerada disponível em produção:
+A funcionalidade de prontuário sanitário por matriz/leitegada/leitão foi integrada à branch principal pelo PR #11. A migration `0011_rastreabilidade_sanitaria_individual.sql` ainda precisa ser aplicada e verificada no Supabase de produção antes de considerar o recurso disponível.
 
-https://github.com/Lzdeveloperbr/fazenda-santo-ant-nio-command-center/pull/11
+PR integrado: https://github.com/Lzdeveloperbr/fazenda-santo-ant-nio-command-center/pull/11
 
 Não cadastrar dados individuais nessa funcionalidade antes de confirmar que a migration está aplicada no banco.
 
