@@ -78,6 +78,13 @@
       "when": 1794867173158,
       "tag": "0010_mutirao_e_financeiro",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1794871500000,
+      "tag": "0011_rastreabilidade_sanitaria_individual",
+      "breakpoints": true
     }
   ]
 }
