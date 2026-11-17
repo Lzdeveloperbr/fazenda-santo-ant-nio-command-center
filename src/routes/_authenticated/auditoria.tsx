@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { AlertTriangle, CheckCircle2, ClipboardCheck, Download, FileSearch, ShieldAlert } from "lucide-react";
 import { SectionTitle, Empty } from "@/components/farm/Kpi";
 import { Button } from "@/components/ui/button";
-import { sowsQuery, breedingsQuery, littersQuery, tasksQuery, inventoryQuery, todayISO, addDaysISO, fmtDate, SOW_STATUS, type Sow } from "@/lib/farm";
+import { sowsQuery, breedingsQuery, littersQuery, tasksQuery, inventoryQuery, todayISO, addDaysISO, fmtDate,  } from "@/lib/farm";
 import { isActiveSowStatus } from "@/lib/farm/reproduction";
 
 type Severity = "alta" | "media" | "informativa";
