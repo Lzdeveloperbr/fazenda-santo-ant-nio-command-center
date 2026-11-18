@@ -13,8 +13,8 @@ export const Route = createFileRoute("/_authenticated/calculadoras")({
 });
 
 type Values = Record<string, string>;
-type FieldDef = { key: string; label: string; unit?: string; defaultValue?: string; type?: "number" | "date"; min?: number; step?: string };
-type ResultLine = { label: string; value: string; note?: string };
+type FieldDef = { key: string; label: string; unit?: string | undefined; defaultValue?: string | undefined; type?: "number" | "date" | undefined; min?: number | undefined; step?: string | undefined };
+type ResultLine = { label: string; value: string; note?: string | undefined };
 type ToolDef = {
   id: string; category: string; title: string; description: string; fields: FieldDef[];
   calculate: (v: Values) => ResultLine[] | string;

@@ -9,7 +9,7 @@ import { isActiveSowStatus } from "@/lib/farm/reproduction";
 
 type Severity = "alta" | "media" | "informativa";
 type AuditRoute = "/mutirao" | "/matrizes" | "/maternidade" | "/inteligencia" | "/tarefas";
-type AuditItem = { id: string; title: string; detail: string; severity: Severity; href: AuditRoute; animal?: string };
+type AuditItem = { id: string; title: string; detail: string; severity: Severity; href: AuditRoute; animal?: string | undefined };
 
 export const Route = createFileRoute("/_authenticated/auditoria")({
   head: () => ({ meta: [
