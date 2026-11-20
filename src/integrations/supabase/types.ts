@@ -315,35 +315,132 @@ export type Database = {
         }
         Relationships: []
       }
+      boars: {
+        Row: {
+          birth_date: string | null
+          breed: string | null
+          code: string
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string | null
+          notes: string | null
+          origin: string | null
+          status: string
+        }
+        Insert: {
+          birth_date?: string | null
+          breed?: string | null
+          code: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string | null
+          notes?: string | null
+          origin?: string | null
+          status?: string
+        }
+        Update: {
+          birth_date?: string | null
+          breed?: string | null
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string | null
+          notes?: string | null
+          origin?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       breedings: {
         Row: {
           boar: string | null
+          boar_id: string | null
           breeding_date: string
+          breeding_time: string | null
+          breeding_type: string
+          closed_at: string | null
           created_at: string
+          created_by: string | null
+          cycle_status: string
+          dose_number: string | null
           expected_farrowing: string | null
+          heat_check: string
+          heat_check_date: string | null
+          heat_notes: string | null
           id: string
+          notes: string | null
           pregnancy_check: string
+          prep_checklist: Json
+          responsible: string | null
+          semen_code: string | null
+          services_count: number
           sow_id: string
+          updated_at: string
+          updated_by: string | null
         }
         Insert: {
           boar?: string | null
+          boar_id?: string | null
           breeding_date: string
+          breeding_time?: string | null
+          breeding_type?: string
+          closed_at?: string | null
           created_at?: string
+          created_by?: string | null
+          cycle_status?: string
+          dose_number?: string | null
           expected_farrowing?: string | null
+          heat_check?: string
+          heat_check_date?: string | null
+          heat_notes?: string | null
           id?: string
+          notes?: string | null
           pregnancy_check?: string
+          prep_checklist?: Json
+          responsible?: string | null
+          semen_code?: string | null
+          services_count?: number
           sow_id: string
+          updated_at?: string
+          updated_by?: string | null
         }
         Update: {
           boar?: string | null
+          boar_id?: string | null
           breeding_date?: string
+          breeding_time?: string | null
+          breeding_type?: string
+          closed_at?: string | null
           created_at?: string
+          created_by?: string | null
+          cycle_status?: string
+          dose_number?: string | null
           expected_farrowing?: string | null
+          heat_check?: string
+          heat_check_date?: string | null
+          heat_notes?: string | null
           id?: string
+          notes?: string | null
           pregnancy_check?: string
+          prep_checklist?: Json
+          responsible?: string | null
+          semen_code?: string | null
+          services_count?: number
           sow_id?: string
+          updated_at?: string
+          updated_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "breedings_boar_id_fkey"
+            columns: ["boar_id"]
+            isOneToOne: false
+            referencedRelation: "boars"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "breedings_sow_id_fkey"
             columns: ["sow_id"]
@@ -787,6 +884,72 @@ export type Database = {
           },
         ]
       }
+      gestation_events: {
+        Row: {
+          breeding_id: string | null
+          confirmed: boolean
+          created_at: string
+          created_by: string | null
+          event_date: string
+          event_type: string
+          id: string
+          loss_count: number | null
+          notes: string | null
+          possible_cause: string | null
+          responsible: string | null
+          signs: string | null
+          sow_id: string
+          vet_evaluation: string | null
+        }
+        Insert: {
+          breeding_id?: string | null
+          confirmed?: boolean
+          created_at?: string
+          created_by?: string | null
+          event_date: string
+          event_type: string
+          id?: string
+          loss_count?: number | null
+          notes?: string | null
+          possible_cause?: string | null
+          responsible?: string | null
+          signs?: string | null
+          sow_id: string
+          vet_evaluation?: string | null
+        }
+        Update: {
+          breeding_id?: string | null
+          confirmed?: boolean
+          created_at?: string
+          created_by?: string | null
+          event_date?: string
+          event_type?: string
+          id?: string
+          loss_count?: number | null
+          notes?: string | null
+          possible_cause?: string | null
+          responsible?: string | null
+          signs?: string | null
+          sow_id?: string
+          vet_evaluation?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gestation_events_breeding_id_fkey"
+            columns: ["breeding_id"]
+            isOneToOne: false
+            referencedRelation: "breedings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gestation_events_sow_id_fkey"
+            columns: ["sow_id"]
+            isOneToOne: false
+            referencedRelation: "sows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       health_events: {
         Row: {
           action_taken: string | null
@@ -1110,11 +1273,19 @@ export type Database = {
           avg_weight: number | null
           born_alive: number
           born_total: number
+          breeding_id: string | null
+          complications: string[]
           created_at: string
+          created_by: string | null
           deaths: number
+          end_time: string | null
           farrowing_date: string
+          farrowing_notes: string | null
           id: string
+          mummified: number
+          responsible: string | null
           sow_id: string
+          start_time: string | null
           status: string
           stillborn: number
           transfers_in: number
@@ -1126,11 +1297,19 @@ export type Database = {
           avg_weight?: number | null
           born_alive?: number
           born_total?: number
+          breeding_id?: string | null
+          complications?: string[]
           created_at?: string
+          created_by?: string | null
           deaths?: number
+          end_time?: string | null
           farrowing_date: string
+          farrowing_notes?: string | null
           id?: string
+          mummified?: number
+          responsible?: string | null
           sow_id: string
+          start_time?: string | null
           status?: string
           stillborn?: number
           transfers_in?: number
@@ -1142,11 +1321,19 @@ export type Database = {
           avg_weight?: number | null
           born_alive?: number
           born_total?: number
+          breeding_id?: string | null
+          complications?: string[]
           created_at?: string
+          created_by?: string | null
           deaths?: number
+          end_time?: string | null
           farrowing_date?: string
+          farrowing_notes?: string | null
           id?: string
+          mummified?: number
+          responsible?: string | null
           sow_id?: string
+          start_time?: string | null
           status?: string
           stillborn?: number
           transfers_in?: number
@@ -1155,6 +1342,13 @@ export type Database = {
           weaning_date?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "litters_breeding_id_fkey"
+            columns: ["breeding_id"]
+            isOneToOne: false
+            referencedRelation: "breedings"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "litters_sow_id_fkey"
             columns: ["sow_id"]
@@ -1169,6 +1363,7 @@ export type Database = {
           active_ingredient: string | null
           administration_end: string | null
           administration_start: string
+          animal_scope: string
           animals_treated: number
           batch: string | null
           created_at: string
@@ -1179,11 +1374,14 @@ export type Database = {
           health_event_id: string | null
           id: string
           is_antimicrobial: boolean
+          litter_id: string | null
           notes: string | null
+          piglet_identifier: string | null
           prescription_reference: string | null
           product_name: string
           responsible: string | null
           route: string | null
+          sow_id: string | null
           therapeutic_class: string | null
           veterinarian: string | null
           water_amount_liters: number | null
@@ -1193,6 +1391,7 @@ export type Database = {
           active_ingredient?: string | null
           administration_end?: string | null
           administration_start?: string
+          animal_scope?: string
           animals_treated?: number
           batch?: string | null
           created_at?: string
@@ -1203,11 +1402,14 @@ export type Database = {
           health_event_id?: string | null
           id?: string
           is_antimicrobial?: boolean
+          litter_id?: string | null
           notes?: string | null
+          piglet_identifier?: string | null
           prescription_reference?: string | null
           product_name: string
           responsible?: string | null
           route?: string | null
+          sow_id?: string | null
           therapeutic_class?: string | null
           veterinarian?: string | null
           water_amount_liters?: number | null
@@ -1217,6 +1419,7 @@ export type Database = {
           active_ingredient?: string | null
           administration_end?: string | null
           administration_start?: string
+          animal_scope?: string
           animals_treated?: number
           batch?: string | null
           created_at?: string
@@ -1227,11 +1430,14 @@ export type Database = {
           health_event_id?: string | null
           id?: string
           is_antimicrobial?: boolean
+          litter_id?: string | null
           notes?: string | null
+          piglet_identifier?: string | null
           prescription_reference?: string | null
           product_name?: string
           responsible?: string | null
           route?: string | null
+          sow_id?: string | null
           therapeutic_class?: string | null
           veterinarian?: string | null
           water_amount_liters?: number | null
@@ -1243,6 +1449,20 @@ export type Database = {
             columns: ["health_event_id"]
             isOneToOne: false
             referencedRelation: "health_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medication_records_litter_id_fkey"
+            columns: ["litter_id"]
+            isOneToOne: false
+            referencedRelation: "litters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medication_records_sow_id_fkey"
+            columns: ["sow_id"]
+            isOneToOne: false
+            referencedRelation: "sows"
             referencedColumns: ["id"]
           },
         ]
@@ -1412,6 +1632,63 @@ export type Database = {
             columns: ["litter_id"]
             isOneToOne: false
             referencedRelation: "litters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pregnancy_diagnoses: {
+        Row: {
+          breeding_id: string
+          created_at: string
+          created_by: string | null
+          diagnosis_date: string
+          id: string
+          method: string
+          next_check_date: string | null
+          notes: string | null
+          responsible: string | null
+          result: string
+          sow_id: string
+        }
+        Insert: {
+          breeding_id: string
+          created_at?: string
+          created_by?: string | null
+          diagnosis_date: string
+          id?: string
+          method: string
+          next_check_date?: string | null
+          notes?: string | null
+          responsible?: string | null
+          result: string
+          sow_id: string
+        }
+        Update: {
+          breeding_id?: string
+          created_at?: string
+          created_by?: string | null
+          diagnosis_date?: string
+          id?: string
+          method?: string
+          next_check_date?: string | null
+          notes?: string | null
+          responsible?: string | null
+          result?: string
+          sow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pregnancy_diagnoses_breeding_id_fkey"
+            columns: ["breeding_id"]
+            isOneToOne: false
+            referencedRelation: "breedings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pregnancy_diagnoses_sow_id_fkey"
+            columns: ["sow_id"]
+            isOneToOne: false
+            referencedRelation: "sows"
             referencedColumns: ["id"]
           },
         ]
@@ -1631,6 +1908,7 @@ export type Database = {
       }
       vaccination_records: {
         Row: {
+          animal_scope: string
           animals_planned: number
           animals_vaccinated: number
           batch: string | null
@@ -1638,19 +1916,23 @@ export type Database = {
           created_by: string | null
           expiry_date: string | null
           id: string
+          litter_id: string | null
           manufacturer: string | null
           next_due_date: string | null
           notes: string | null
           pen_id: string | null
+          piglet_identifier: string | null
           protocol_reference: string | null
           responsible: string | null
           route: string | null
+          sow_id: string | null
           target_group: string
           vaccination_date: string
           vaccine_name: string
           veterinarian: string | null
         }
         Insert: {
+          animal_scope?: string
           animals_planned?: number
           animals_vaccinated?: number
           batch?: string | null
@@ -1658,19 +1940,23 @@ export type Database = {
           created_by?: string | null
           expiry_date?: string | null
           id?: string
+          litter_id?: string | null
           manufacturer?: string | null
           next_due_date?: string | null
           notes?: string | null
           pen_id?: string | null
+          piglet_identifier?: string | null
           protocol_reference?: string | null
           responsible?: string | null
           route?: string | null
+          sow_id?: string | null
           target_group: string
           vaccination_date?: string
           vaccine_name: string
           veterinarian?: string | null
         }
         Update: {
+          animal_scope?: string
           animals_planned?: number
           animals_vaccinated?: number
           batch?: string | null
@@ -1678,13 +1964,16 @@ export type Database = {
           created_by?: string | null
           expiry_date?: string | null
           id?: string
+          litter_id?: string | null
           manufacturer?: string | null
           next_due_date?: string | null
           notes?: string | null
           pen_id?: string | null
+          piglet_identifier?: string | null
           protocol_reference?: string | null
           responsible?: string | null
           route?: string | null
+          sow_id?: string | null
           target_group?: string
           vaccination_date?: string
           vaccine_name?: string
@@ -1692,10 +1981,24 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "vaccination_records_litter_id_fkey"
+            columns: ["litter_id"]
+            isOneToOne: false
+            referencedRelation: "litters"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "vaccination_records_pen_id_fkey"
             columns: ["pen_id"]
             isOneToOne: false
             referencedRelation: "farm_pens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vaccination_records_sow_id_fkey"
+            columns: ["sow_id"]
+            isOneToOne: false
+            referencedRelation: "sows"
             referencedColumns: ["id"]
           },
         ]

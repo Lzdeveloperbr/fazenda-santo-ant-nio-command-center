@@ -121,3 +121,19 @@ export const penRecordsQuery = queryOptions({
   queryKey: ["pen_records", "plain"],
   queryFn: () => unwrap<PenRecord[]>(supabase.from("pen_records").select("*").order("event_date", { ascending: false }).order("created_at", { ascending: false })),
 });
+
+export type Boar = Database["public"]["Tables"]["boars"]["Row"];
+export type PregnancyDiagnosis = Database["public"]["Tables"]["pregnancy_diagnoses"]["Row"];
+export type GestationEvent = Database["public"]["Tables"]["gestation_events"]["Row"];
+export const boarsQuery = queryOptions({
+  queryKey: ["boars"],
+  queryFn: () => unwrap<Boar[]>(supabase.from("boars").select("*").order("code")),
+});
+export const diagnosesQuery = queryOptions({
+  queryKey: ["pregnancy_diagnoses"],
+  queryFn: () => unwrap<PregnancyDiagnosis[]>(supabase.from("pregnancy_diagnoses").select("*").order("diagnosis_date", { ascending: false }).order("created_at", { ascending: false })),
+});
+export const gestationEventsQuery = queryOptions({
+  queryKey: ["gestation_events"],
+  queryFn: () => unwrap<GestationEvent[]>(supabase.from("gestation_events").select("*").order("event_date", { ascending: false })),
+});
