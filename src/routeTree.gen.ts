@@ -21,6 +21,7 @@ import { Route as AuthenticatedDesmameRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedEstoqueRouteImport } from './routes/_authenticated/estoque'
 import { Route as AuthenticatedFarmaciaAiRouteImport } from './routes/_authenticated/farmacia-ai'
 import { Route as AuthenticatedFinanceiroRouteImport } from './routes/_authenticated/financeiro'
+import { Route as AuthenticatedGestacaoRouteImport } from './routes/_authenticated/gestacao'
 import { Route as AuthenticatedGranja3dRouteImport } from './routes/_authenticated/granja-3d'
 import { Route as AuthenticatedInteligenciaRouteImport } from './routes/_authenticated/inteligencia'
 import { Route as AuthenticatedLotesRouteImport } from './routes/_authenticated/lotes'
@@ -94,6 +95,11 @@ const AuthenticatedFinanceiroRoute = AuthenticatedFinanceiroRouteImport.update({
   path: '/financeiro',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedGestacaoRoute = AuthenticatedGestacaoRouteImport.update({
+  id: '/gestacao',
+  path: '/gestacao',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedGranja3dRoute = AuthenticatedGranja3dRouteImport.update({
   id: '/granja-3d',
   path: '/granja-3d',
@@ -165,6 +171,7 @@ export interface FileRoutesByFullPath {
   '/estoque': typeof AuthenticatedEstoqueRoute
   '/farmacia-ai': typeof AuthenticatedFarmaciaAiRoute
   '/financeiro': typeof AuthenticatedFinanceiroRoute
+  '/gestacao': typeof AuthenticatedGestacaoRoute
   '/granja-3d': typeof AuthenticatedGranja3dRoute
   '/inteligencia': typeof AuthenticatedInteligenciaRoute
   '/lotes': typeof AuthenticatedLotesRoute
@@ -189,6 +196,7 @@ export interface FileRoutesByTo {
   '/estoque': typeof AuthenticatedEstoqueRoute
   '/farmacia-ai': typeof AuthenticatedFarmaciaAiRoute
   '/financeiro': typeof AuthenticatedFinanceiroRoute
+  '/gestacao': typeof AuthenticatedGestacaoRoute
   '/granja-3d': typeof AuthenticatedGranja3dRoute
   '/inteligencia': typeof AuthenticatedInteligenciaRoute
   '/lotes': typeof AuthenticatedLotesRoute
@@ -215,6 +223,7 @@ export interface FileRoutesById {
   '/_authenticated/estoque': typeof AuthenticatedEstoqueRoute
   '/_authenticated/farmacia-ai': typeof AuthenticatedFarmaciaAiRoute
   '/_authenticated/financeiro': typeof AuthenticatedFinanceiroRoute
+  '/_authenticated/gestacao': typeof AuthenticatedGestacaoRoute
   '/_authenticated/granja-3d': typeof AuthenticatedGranja3dRoute
   '/_authenticated/inteligencia': typeof AuthenticatedInteligenciaRoute
   '/_authenticated/lotes': typeof AuthenticatedLotesRoute
@@ -241,6 +250,7 @@ export interface FileRouteTypes {
     | '/estoque'
     | '/farmacia-ai'
     | '/financeiro'
+    | '/gestacao'
     | '/granja-3d'
     | '/inteligencia'
     | '/lotes'
@@ -265,6 +275,7 @@ export interface FileRouteTypes {
     | '/estoque'
     | '/farmacia-ai'
     | '/financeiro'
+    | '/gestacao'
     | '/granja-3d'
     | '/inteligencia'
     | '/lotes'
@@ -290,6 +301,7 @@ export interface FileRouteTypes {
     | '/_authenticated/estoque'
     | '/_authenticated/farmacia-ai'
     | '/_authenticated/financeiro'
+    | '/_authenticated/gestacao'
     | '/_authenticated/granja-3d'
     | '/_authenticated/inteligencia'
     | '/_authenticated/lotes'
@@ -395,6 +407,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFinanceiroRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/gestacao': {
+      id: '/_authenticated/gestacao'
+      path: '/gestacao'
+      fullPath: '/gestacao'
+      preLoaderRoute: typeof AuthenticatedGestacaoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/granja-3d': {
       id: '/_authenticated/granja-3d'
       path: '/granja-3d'
@@ -498,6 +517,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedEstoqueRoute: typeof AuthenticatedEstoqueRoute
   AuthenticatedFarmaciaAiRoute: typeof AuthenticatedFarmaciaAiRoute
   AuthenticatedFinanceiroRoute: typeof AuthenticatedFinanceiroRoute
+  AuthenticatedGestacaoRoute: typeof AuthenticatedGestacaoRoute
   AuthenticatedGranja3dRoute: typeof AuthenticatedGranja3dRoute
   AuthenticatedInteligenciaRoute: typeof AuthenticatedInteligenciaRoute
   AuthenticatedLotesRoute: typeof AuthenticatedLotesRoute
@@ -520,6 +540,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedEstoqueRoute: AuthenticatedEstoqueRoute,
   AuthenticatedFarmaciaAiRoute: AuthenticatedFarmaciaAiRoute,
   AuthenticatedFinanceiroRoute: AuthenticatedFinanceiroRoute,
+  AuthenticatedGestacaoRoute: AuthenticatedGestacaoRoute,
   AuthenticatedGranja3dRoute: AuthenticatedGranja3dRoute,
   AuthenticatedInteligenciaRoute: AuthenticatedInteligenciaRoute,
   AuthenticatedLotesRoute: AuthenticatedLotesRoute,
