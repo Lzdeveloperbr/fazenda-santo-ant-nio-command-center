@@ -130,7 +130,7 @@ function ArchiveLitter({ l, tag, onDone }: { l: Litter; tag: string; onDone: () 
         const { error } = await supabase.from("litters").update({
           status: "cancelada",
           farrowing_notes: farrowingNotes,
-        }).eq("id", l.id).eq("status", "maternidade");
+        }).eq("id", l.id).eq("status", "maternidade").select("id").single();
         setBusy(false);
         if (error) { toast.error(error.message); return; }
         toast.success("Cadastro arquivado. Dados e histórico preservados.");
