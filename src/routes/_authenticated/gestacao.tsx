@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Plus, Download, Printer, ChevronLeft, ChevronRight } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
-import { boarsQuery, breedingsQuery, diagnosesQuery, gestationEventsQuery, littersQuery, sowsQuery, fmtDate, todayISO, type Breeding, type Sow } from "@/lib/farm";
+import { boarsQuery, breedingsQuery, diagnosesQuery, gestationEventsQuery, littersQuery, sowsQuery, fmtDate, todayISO, isCountedLitter, type Breeding, type Sow } from "@/lib/farm";
 import { addDays, cycleAlert, cycleDates, cycleStage, daysBetween, DEFAULT_CONFIG, farrowingWarning, PRIORITY_LABEL, PRIORITY_RANK, reproductiveIndicators, type GestationConfig } from "@/lib/farm/gestation";
 import { Empty, SectionTitle } from "@/components/farm/Kpi";
 import { FormDialog, Field, SubmitRow, selectCls } from "@/components/farm/FormDialog";
@@ -54,7 +54,7 @@ function Gestacao() {
   const [search, setSearch] = useState("");
   const today = todayISO();
   const refresh = () => ["breedings", "sows", "litters", "boars", "pregnancy_diagnoses", "gestation_events", "sow_events", "litter_events"].forEach((k) => qc.invalidateQueries({ queryKey: [k] }));
-  const S = sows.data ?? [], B = breedings.data ?? [], L = litters.data ?? [], BO = boars.data ?? [], D = diags.data ?? [], O = occs.data ?? [];
+  const S = sows.data ?? [], B = breedings.data ?? [], L = (litters.data ?? []).filter(isCountedLitter), BO = boars.data ?? [], D = diags.data ?? [], O = occs.data ?? [];
   const sowById = useMemo(() => new Map(S.map((s) => [s.id, s])), [S]);
   const boarName = (b: Breeding) => (b.boar_id ? BO.find((x) => x.id === b.boar_id)?.code : null) ?? b.boar ?? "—";
   const tag = (id: string) => sowById.get(id)?.ear_tag ?? "?";
