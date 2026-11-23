@@ -10,6 +10,8 @@ Este roteiro deve ser concluído no ambiente real antes de divulgar o sistema co
 - [ ] Confirmar que todas as tabelas expostas têm RLS habilitado.
 - [ ] Testar acesso com usuário autorizado e usuário sem papel de membro.
 - [ ] Confirmar que dados da granja não ficam acessíveis a usuários não autorizados.
+- [ ] Confirmar que a Edge Function `vet-assistant` rejeita usuário autenticado sem papel `member` antes de consultar dados ou consumir a API de IA.
+- [ ] Revisar `farm_access_codes`: hashes de códigos de acesso não devem ser legíveis por usuários comuns; validar a correção em homologação antes de aplicar migration.
 - [ ] Confirmar que o frontend usa somente a chave publicável; nunca colocar `service_role` ou segredo no navegador.
 - [ ] Verificar regras de exclusão e vínculos antes de remover matrizes, leitegadas, lotes ou registros.
 - [ ] Validar o fluxo de recuperação de senha, login, logout e expiração de sessão.
