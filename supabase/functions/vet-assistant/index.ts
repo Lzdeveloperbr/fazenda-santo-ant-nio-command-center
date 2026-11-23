@@ -57,15 +57,36 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "Corpo da solicitação inválido." }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
     }
     const input = rawBody as Record<string, unknown>;
+    const textLimits: Record<string, number> = {
+      description: 8000,
+      image_url: 4096,
+      image_path: 512,
+      sector: 80,
+      production_phase: 80,
+      pen_id: 120,
+      animal_category: 80,
+      onset_date: 10,
+      severity_reported: 80,
+    };
+    for (const [field, maxLength] of Object.entries(textLimits)) {
+      const value = input[field];
+      if (value !== undefined && value !== null && (typeof value !== "string" || value.length > maxLength)) {
+        return new Response(JSON.stringify({ error: `Campo inválido ou muito longo: ${field}.` }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
+      }
+    }
+    for (const field of ["affected_count", "animal_count"]) {
+      const value = input[field];
+      if (value !== undefined && value !== null && (typeof value !== "number" || !Number.isSafeInteger(value) || value < 0)) {
+        return new Response(JSON.stringify({ error: `O campo ${field} precisa ser um número inteiro igual ou maior que zero.` }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
+      }
+    }
     const optionalText = (value: unknown): string | null =>
       typeof value === "string" && value.trim() ? value.trim() : null;
     const optionalCount = (value: unknown): number | null =>
-      typeof value === "number" && Number.isInteger(value) && value >= 0 ? value : null;
-    if (input.description !== undefined && typeof input.description !== "string") {
-      return new Response(JSON.stringify({ error: "A descrição precisa ser um texto." }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
-    }
-    if (input.image_url !== undefined && input.image_url !== null && typeof input.image_url !== "string") {
-      return new Response(JSON.stringify({ error: "Endereço da imagem inválido." }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
+      typeof value === "number" ? value : null;
+    const onsetDate = optionalText(input.onset_date);
+    if (onsetDate && (!/^\\d{4}-\\d{2}-\\d{2}$/.test(onsetDate) || Number.isNaN(Date.parse(`${onsetDate}T00:00:00Z`)))) {
+      return new Response(JSON.stringify({ error: "A data de início precisa estar no formato AAAA-MM-DD." }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
     }
     const body = {
       description: typeof input.description === "string" ? input.description : "",
@@ -77,9 +98,12 @@ Deno.serve(async (req) => {
       animal_category: optionalText(input.animal_category),
       affected_count: optionalCount(input.affected_count),
       animal_count: optionalCount(input.animal_count),
-      onset_date: optionalText(input.onset_date),
+      onset_date: onsetDate,
       severity_reported: optionalText(input.severity_reported),
     };
+    if (body.affected_count !== null && body.animal_count !== null && body.affected_count > body.animal_count) {
+      return new Response(JSON.stringify({ error: "A quantidade afetada não pode ser maior que o total de animais." }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
+    }
 
     // A função também pode ser chamada diretamente fora da interface. Exija
     // associação ativa à granja antes de consultar dados ou consumir a API de IA.
