@@ -126,7 +126,7 @@ function ArchiveLitter({ l, tag, onDone }: { l: Litter; tag: string; onDone: () 
         if (!confirm(`Arquivar o cadastro da matriz ${tag}? A leitegada e todos os eventos serão preservados no histórico, mas sairão dos indicadores operacionais. Esta ação não altera a situação da matriz.`)) return;
         setBusy(true);
         const archiveNote = `[ARQUIVADO EM ${todayISO()}] Motivo: ${reason}`;
-        const farrowingNotes = [l.farrowing_notes?.trim(), archiveNote].filter(Boolean).join("\\n\\n");
+        const farrowingNotes = [l.farrowing_notes?.trim(), archiveNote].filter(Boolean).join("\n\n");
         const { error } = await supabase.from("litters").update({
           status: "cancelada",
           farrowing_notes: farrowingNotes,
