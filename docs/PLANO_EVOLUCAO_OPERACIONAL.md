@@ -77,7 +77,7 @@ Não duplicar esses módulos. Melhorar sua integração, confiabilidade, experi�
 1. Não inventar números, metas, datas, tratamentos ou eventos.
 2. Não converter ausência de informação em zero.
 3. Previsões devem ser identificadas como estimativas e mostrar a regra usada.
-4. Registros históricos não devem ser apagados ou sobrescritos silenciosamente.
+4. Registros históricos não devem ser apagados ou sobrescritos silenciosamente; cadastros incorretos devem ser arquivados com motivo e permanecer acessíveis na ficha histórica.
 5. Eventos que alteram saldo de leitões devem continuar usando o livro de eventos e seus gatilhos existentes.
 6. Mudanças de banco precisam de migration revisada, backup, teste de RLS e verificação no ambiente de homologação.
 7. Não colocar credenciais em código, commits, screenshots ou dados de demonstração.
