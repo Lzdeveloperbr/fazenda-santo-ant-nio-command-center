@@ -110,6 +110,7 @@ function SowRecord() {
               <div><dt className="text-xs text-muted-foreground">Transferências</dt><dd className="font-mono font-semibold">+{litter.transfers_in} / −{litter.transfers_out}</dd></div>
               <div><dt className="text-xs text-muted-foreground">Peso médio</dt><dd className="font-mono font-semibold">{litter.avg_weight ? `${litter.avg_weight} kg` : "—"}</dd></div>
             </dl>
+            {litter.farrowing_notes && <p className="mt-3 whitespace-pre-wrap rounded-lg bg-muted/50 p-3 text-xs leading-5 text-muted-foreground">{litter.farrowing_notes}</p>}
             {eventsForLitter.length > 0 && <div className="mt-3 border-t pt-3"><p className="label-tech mb-2">Eventos da leitegada</p><ul className="space-y-2">{eventsForLitter.map((event) => <li key={event.id} className="text-sm"><span className="font-mono text-xs text-muted-foreground">{fmtDate(event.event_date)}</span> · <strong>{LITTER_EVENT_LABEL[event.event_type] ?? event.event_type}</strong>{event.quantity > 0 ? ` · ${event.quantity} leitão(ões)` : ""}{event.value ? ` · ${event.value} kg` : ""}{event.note ? <span className="block pl-1 text-xs text-muted-foreground">{event.note}</span> : null}</li>)}</ul></div>}
           </article>;
         })}</div>}
