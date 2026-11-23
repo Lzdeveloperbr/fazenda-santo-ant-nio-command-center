@@ -85,7 +85,8 @@ Deno.serve(async (req) => {
     const optionalCount = (value: unknown): number | null =>
       typeof value === "number" ? value : null;
     const onsetDate = optionalText(input.onset_date);
-    if (onsetDate && (!/^\\d{4}-\\d{2}-\\d{2}$/.test(onsetDate) || Number.isNaN(Date.parse(`${onsetDate}T00:00:00Z`)))) {
+    const parsedOnsetDate = onsetDate ? new Date(`${onsetDate}T00:00:00Z`) : null;
+    if (onsetDate && (!/^\\d{4}-\\d{2}-\\d{2}$/.test(onsetDate) || !parsedOnsetDate || Number.isNaN(parsedOnsetDate.getTime()) || parsedOnsetDate.toISOString().slice(0, 10) !== onsetDate)) {
       return new Response(JSON.stringify({ error: "A data de início precisa estar no formato AAAA-MM-DD." }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
     }
     const body = {
