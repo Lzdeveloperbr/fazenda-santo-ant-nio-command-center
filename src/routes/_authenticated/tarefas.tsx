@@ -121,10 +121,25 @@ function QuickRoutine({onDone}:{onDone:()=>void}) {
   const [busy,setBusy]=useState(false);
   const routines=[
     {title:"Conferir água e funcionamento dos bebedouros",sector:"Geral",icon:Droplets},
+    {title:"Conferir temperatura, ventilação e conforto dos setores",sector:"Geral",icon:Thermometer},
+    {title:"Conferir limpeza, piso e condições das baias",sector:"Geral",icon:ClipboardList},
+    {title:"Verificar controle de acesso e condições de higiene da entrada",sector:"Geral",icon:ClipboardCheck},
     {title:"Conferir ração e funcionamento dos comedouros",sector:"Ração",icon:Wheat},
-    {title:"Observar comportamento e apetite dos animais",sector:"Sanidade",icon:HeartPulse},
-    {title:"Verificar temperatura e ventilação dos setores",sector:"Geral",icon:Thermometer},
-    {title:"Conferir limpeza e condições das baias",sector:"Geral",icon:ClipboardList},
+    {title:"Registrar recebimento, consumo e saldo de ração",sector:"Ração",icon:Wheat},
+    {title:"Verificar armazenamento e identificação dos lotes de ração",sector:"Ração",icon:Wheat},
+    {title:"Conferir matrizes com retorno ao cio ou diagnóstico pendente",sector:"Gestação",icon:HeartPulse},
+    {title:"Revisar previsões de parto e preparação das baias",sector:"Gestação",icon:ClipboardCheck},
+    {title:"Acompanhar matrizes em trabalho de parto e registrar ocorrências",sector:"Maternidade",icon:HeartPulse},
+    {title:"Conferir nascidos e conciliar vivos, natimortos e mumificados",sector:"Maternidade",icon:ClipboardList},
+    {title:"Conferir saldo vivo das leitegadas e registrar mortes e transferências",sector:"Maternidade",icon:ClipboardList},
+    {title:"Observar acesso dos leitões ao colostro e comportamento da leitegada",sector:"Maternidade",icon:HeartPulse},
+    {title:"Conferir limpeza e preparação das baias de maternidade",sector:"Maternidade",icon:ClipboardCheck},
+    {title:"Observar apetite, comportamento, respiração e sinais clínicos",sector:"Sanidade",icon:HeartPulse},
+    {title:"Registrar ocorrências sanitárias e comunicar o responsável técnico",sector:"Sanidade",icon:ClipboardList},
+    {title:"Conferir prescrições veterinárias em andamento e registrar execuções",sector:"Sanidade",icon:ClipboardCheck},
+    {title:"Conferir validade e saldo cadastrado dos medicamentos",sector:"Sanidade",icon:ClipboardList},
+    {title:"Registrar nascimentos, mortalidade, transferências e desmames do dia",sector:"Maternidade",icon:ClipboardList},
+    {title:"Conferir tarefas pendentes e repassar ocorrências ao próximo turno",sector:"Geral",icon:ClipboardCheck},
   ];
   async function add(title:string,sector:string){
     setBusy(true);
@@ -140,9 +155,9 @@ function QuickRoutine({onDone}:{onDone:()=>void}) {
   }
   return <div className="relative">
     <Button variant="outline" className="h-10" onClick={()=>setOpen(v=>!v)}><ClipboardCheck className="mr-1 h-4 w-4"/>Rotina rápida</Button>
-    {open&&<div className="absolute right-0 top-12 z-30 w-[min(88vw,340px)] rounded-xl border bg-card p-2 shadow-xl">
-      <p className="px-3 py-2 text-xs font-semibold text-muted-foreground">Adicionar tarefa de rotina para hoje</p>
-      {routines.map(item=><button key={item.title} disabled={busy} onClick={()=>add(item.title,item.sector)} className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm hover:bg-muted disabled:opacity-50"><item.icon className="h-4 w-4 shrink-0 text-primary"/><span>{item.title}</span></button>)}
+    {open&&<div className="absolute right-0 top-12 z-30 w-[min(88vw,360px)] max-h-[70vh] overflow-y-auto rounded-xl border bg-card p-2 shadow-xl">
+      <div className="px-3 py-2"><p className="text-xs font-semibold text-muted-foreground">Rotinas operacionais</p><p className="mt-1 text-[11px] text-muted-foreground">Escolha uma atividade para adicionar às tarefas de hoje. Os itens são modelos editáveis, não substituem o protocolo técnico da granja.</p></div>
+      {routines.map(item=><button key={item.title} disabled={busy} onClick={()=>add(item.title,item.sector)} className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm hover:bg-muted disabled:opacity-50"><item.icon className="h-4 w-4 shrink-0 text-primary"/><span className="min-w-0"><span className="block">{item.title}</span><span className="mt-0.5 block text-[10px] uppercase tracking-wide text-muted-foreground">{item.sector}</span></span></button>)}
     </div>}
   </div>;
 }
