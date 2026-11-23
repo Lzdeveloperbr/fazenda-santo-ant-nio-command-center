@@ -1,6 +1,8 @@
 import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import { isCountedLitter, livePiglets } from "@/lib/farm/litter-status";
+export { isCountedLitter, livePiglets } from "@/lib/farm/litter-status";
 
 export type Sow = Database["public"]["Tables"]["sows"]["Row"];
 export type Breeding = Database["public"]["Tables"]["breedings"]["Row"];
@@ -43,16 +45,6 @@ export const PRIORITY: Record<string, { label: string; tone: string }> = {
   baixa: { label: "Baixa", tone: "text-info" },
 };
 
-/** Live piglets in a litter, from recorded numbers only. */
-export function livePiglets(l: Pick<Litter, "born_alive" | "deaths" | "transfers_in" | "transfers_out" | "weaned" | "status">) {
-  if (l.status !== "maternidade") return 0;
-  return Math.max(0, l.born_alive - l.deaths + l.transfers_in - l.transfers_out);
-}
-
-/** Archived/cancelled litter records remain in history but are excluded from operating indicators. */
-export function isCountedLitter(l: Pick<Litter, "status">) {
-  return l.status !== "cancelada";
-}
 
 export function todayISO() {
   const d = new Date();
