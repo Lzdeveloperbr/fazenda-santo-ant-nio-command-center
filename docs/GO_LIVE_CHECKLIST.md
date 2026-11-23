@@ -62,7 +62,8 @@ Este roteiro deve ser concluído no ambiente real antes de divulgar o sistema co
 - [ ] Conferir que unidades (kg, sacos, litros) não são somadas incorretamente.
 
 ### Tarefas, relatórios e financeiro
-- [ ] Criar, atribuir, concluir e filtrar tarefas.
+- [ ] Criar, atribuir, concluir, cancelar e filtrar tarefas; confirmar que canceladas permanecem no histórico.
+- [ ] Estornar um lançamento financeiro de teste e confirmar que o original permanece, o lançamento compensatório aparece e os totais são neutralizados.
 - [ ] Conferir datas vencidas e fuso horário local.
 - [ ] Registrar receita e despesa de teste e validar o relatório mensal.
 - [ ] Exportar CSV e abrir no Excel/Google Sheets.
