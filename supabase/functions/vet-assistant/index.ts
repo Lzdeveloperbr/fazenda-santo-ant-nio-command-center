@@ -47,16 +47,39 @@ Deno.serve(async (req) => {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) return new Response(JSON.stringify({ error: "Sessão inválida" }), { status: 401, headers: { ...cors, "Content-Type": "application/json" } });
 
-    let body: Record<string, unknown>;
+    let rawBody: unknown;
     try {
-      const parsedBody: unknown = await req.json();
-      if (!parsedBody || typeof parsedBody !== "object" || Array.isArray(parsedBody)) {
-        return new Response(JSON.stringify({ error: "Corpo da solicitação inválido." }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
-      }
-      body = parsedBody as Record<string, unknown>;
+      rawBody = await req.json();
     } catch {
       return new Response(JSON.stringify({ error: "JSON inválido na solicitação." }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
     }
+    if (!rawBody || typeof rawBody !== "object" || Array.isArray(rawBody)) {
+      return new Response(JSON.stringify({ error: "Corpo da solicitação inválido." }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
+    }
+    const input = rawBody as Record<string, unknown>;
+    const optionalText = (value: unknown): string | null =>
+      typeof value === "string" && value.trim() ? value.trim() : null;
+    const optionalCount = (value: unknown): number | null =>
+      typeof value === "number" && Number.isInteger(value) && value >= 0 ? value : null;
+    if (input.description !== undefined && typeof input.description !== "string") {
+      return new Response(JSON.stringify({ error: "A descrição precisa ser um texto." }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
+    }
+    if (input.image_url !== undefined && input.image_url !== null && typeof input.image_url !== "string") {
+      return new Response(JSON.stringify({ error: "Endereço da imagem inválido." }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
+    }
+    const body = {
+      description: typeof input.description === "string" ? input.description : "",
+      image_url: optionalText(input.image_url),
+      image_path: optionalText(input.image_path),
+      sector: optionalText(input.sector),
+      production_phase: optionalText(input.production_phase),
+      pen_id: optionalText(input.pen_id),
+      animal_category: optionalText(input.animal_category),
+      affected_count: optionalCount(input.affected_count),
+      animal_count: optionalCount(input.animal_count),
+      onset_date: optionalText(input.onset_date),
+      severity_reported: optionalText(input.severity_reported),
+    };
 
     // A função também pode ser chamada diretamente fora da interface. Exija
     // associação ativa à granja antes de consultar dados ou consumir a API de IA.
@@ -149,11 +172,11 @@ Deno.serve(async (req) => {
     if (!raw) throw new Error("Resposta vazia do serviço de IA");
     const parsed = JSON.parse(raw);
     const { data: saved, error: saveError } = await supabase.from("ai_health_analyses").insert({
-      sector: body.sector ?? null, production_phase: body.production_phase ?? null,
-      pen_id: body.pen_id || null, animal_category: body.animal_category ?? null,
-      affected_count: body.affected_count ?? null, animal_count: body.animal_count ?? null,
-      onset_date: body.onset_date || null, severity_reported: body.severity_reported ?? null,
-      description, image_path: body.image_path ?? null, ai_response: parsed,
+      sector: body.sector, production_phase: body.production_phase,
+      pen_id: body.pen_id, animal_category: body.animal_category,
+      affected_count: body.affected_count, animal_count: body.animal_count,
+      onset_date: body.onset_date, severity_reported: body.severity_reported,
+      description, image_path: body.image_path, ai_response: parsed,
       model_name: Deno.env.get("OPENAI_MODEL") || "gpt-4o-mini",
     }).select("id").single();
     if (saveError) throw saveError;
