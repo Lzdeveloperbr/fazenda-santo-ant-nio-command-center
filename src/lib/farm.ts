@@ -45,8 +45,13 @@ export const PRIORITY: Record<string, { label: string; tone: string }> = {
 
 /** Live piglets in a litter, from recorded numbers only. */
 export function livePiglets(l: Pick<Litter, "born_alive" | "deaths" | "transfers_in" | "transfers_out" | "weaned" | "status">) {
-  if (l.status === "desmamada") return 0;
+  if (l.status !== "maternidade") return 0;
   return Math.max(0, l.born_alive - l.deaths + l.transfers_in - l.transfers_out);
+}
+
+/** Archived/cancelled litter records remain in history but are excluded from operating indicators. */
+export function isCountedLitter(l: Pick<Litter, "status">) {
+  return l.status !== "cancelada";
 }
 
 export function todayISO() {
