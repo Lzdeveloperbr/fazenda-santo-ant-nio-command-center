@@ -192,7 +192,6 @@ const sowHistoryTables = [
   "breedings",
   "gestation_events",
   "health_records",
-  "health_samples",
   "inventory_checks",
   "litters",
   "medication_records",
