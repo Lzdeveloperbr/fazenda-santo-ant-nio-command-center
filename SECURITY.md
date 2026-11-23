@@ -26,6 +26,9 @@ Apagar um arquivo no commit mais recente não remove cópias dos commits anterio
 
 ## Revisão Supabase antes de produção
 
+- A migration `0008_farm_employee_access_code.sql` concede `SELECT` em `farm_access_codes` aos usuários autenticados membros e permite ler `code_hash`. O código de acesso não precisa ser exposto ao frontend para ser validado no trigger de cadastro. Planejar uma migration revisada para remover a leitura direta e, se a interface precisar exibir estado do convite, oferecer somente metadados não sensíveis por função controlada. Não alterar o banco de produção sem backup e validação em homologação.
+- A Edge Function `vet-assistant` agora verifica o papel `member` antes de consultar dados da granja ou chamar o provedor de IA. Manter teste explícito para usuário autenticado sem associação.
+
 - Habilitar RLS em todas as tabelas de schemas expostos.
 - Revisar cada policy com o modelo real de acesso compartilhado da granja; `TO authenticated` isoladamente não define autorização suficiente.
 - Revisar views, funções `SECURITY DEFINER`, triggers e Storage privado.
