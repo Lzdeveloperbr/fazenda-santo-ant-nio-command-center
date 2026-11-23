@@ -125,18 +125,15 @@ function ArchiveLitter({ l, tag, onDone }: { l: Litter; tag: string; onDone: () 
         if (reason.length < 8) { toast.error("Descreva o motivo do arquivamento."); return; }
         if (!confirm(`Arquivar o cadastro da matriz ${tag}? A leitegada e todos os eventos serão preservados no histórico, mas sairão dos indicadores operacionais. Esta ação não altera a situação da matriz.`)) return;
         setBusy(true);
-        const { error } = await supabase.from("litters").update({ status: "cancelada" }).eq("id", l.id).eq("status", "maternidade");
-        if (error) { setBusy(false); toast.error(error.message); return; }
-        const { error: historyError } = await supabase.from("litter_events").insert({
-          litter_id: l.id,
-          event_type: "observacao",
-          quantity: 0,
-          event_date: todayISO(),
-          note: `Cadastro arquivado. Motivo informado: ${reason}`,
-        });
+        const archiveNote = `[ARQUIVADO EM ${todayISO()}] Motivo: ${reason}`;
+        const farrowingNotes = [l.farrowing_notes?.trim(), archiveNote].filter(Boolean).join("\\n\\n");
+        const { error } = await supabase.from("litters").update({
+          status: "cancelada",
+          farrowing_notes: farrowingNotes,
+        }).eq("id", l.id).eq("status", "maternidade");
         setBusy(false);
-        if (historyError) toast.warning("Cadastro arquivado e preservado, mas não foi possível registrar o motivo no histórico: " + historyError.message);
-        else toast.success("Cadastro arquivado. Histórico preservado.");
+        if (error) { toast.error(error.message); return; }
+        toast.success("Cadastro arquivado. Dados e histórico preservados.");
         onDone();
         close();
       }}>
