@@ -46,6 +46,22 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, anonKey, { global: { headers: { Authorization: authHeader } } });
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) return new Response(JSON.stringify({ error: "Sessão inválida" }), { status: 401, headers: { ...cors, "Content-Type": "application/json" } });
+
+    // A função também pode ser chamada diretamente fora da interface. Exija
+    // associação ativa à granja antes de consultar dados ou consumir a API de IA.
+    const { data: membership, error: membershipError } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .eq("role", "member")
+      .maybeSingle();
+    if (membershipError) {
+      console.error("Membership check failed", membershipError);
+      return new Response(JSON.stringify({ error: "Não foi possível validar o acesso à fazenda." }), { status: 500, headers: { ...cors, "Content-Type": "application/json" } });
+    }
+    if (!membership) {
+      return new Response(JSON.stringify({ error: "Acesso não autorizado à fazenda." }), { status: 403, headers: { ...cors, "Content-Type": "application/json" } });
+    }
     const windowStart = new Date(Date.now() - 60 * 60 * 1000).toISOString();
     const { count: recentAnalyses, error: rateError } = await supabase
       .from("ai_health_analyses")
@@ -57,6 +73,7 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "Limite de 30 análises por hora atingido para esta conta. Registre os sinais e procure o veterinário se houver urgência." }), { status: 429, headers: { ...cors, "Content-Type": "application/json" } });
     }
     const body = await req.json();
+    if (!body || typeof body !== "object" || Array.isArray(body)) return new Response(JSON.stringify({ error: "Corpo da solicitação inválido." }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
     if (body.image_url) {
       let imageUrl: URL;
       try { imageUrl = new URL(String(body.image_url)); } catch { return new Response(JSON.stringify({ error: "Endereço da imagem inválido." }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } }); }
