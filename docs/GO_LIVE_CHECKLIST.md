@@ -11,6 +11,7 @@ Este roteiro deve ser concluído no ambiente real antes de divulgar o sistema co
 - [ ] Para tabelas novas no schema `public`, confirmar exposição explícita na Data API e os grants mínimos necessários; a exposição automática mudou em 30/10/2026. RLS e grants são controles complementares.
 - [ ] Testar acesso com usuário autorizado e usuário sem papel de membro.
 - [ ] Confirmar que dados da granja não ficam acessíveis a usuários não autorizados.
+- [ ] Aplicar em homologação a migration `0013_restringe_codigo_acesso_granja.sql`; confirmar que authenticated não consegue ler `farm_access_codes` e que o cadastro com código válido/inválido continua funcionando.
 - [ ] Confirmar que a Edge Function `vet-assistant` rejeita usuário autenticado sem papel `member` antes de consultar dados ou consumir a API de IA.
 - [ ] Revisar `farm_access_codes`: hashes de códigos de acesso não devem ser legíveis por usuários comuns; validar a correção em homologação antes de aplicar migration.
 - [ ] Confirmar que o frontend usa somente a chave publicável; nunca colocar `service_role` ou segredo no navegador.
