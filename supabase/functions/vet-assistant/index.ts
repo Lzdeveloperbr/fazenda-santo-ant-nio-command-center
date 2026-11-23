@@ -47,6 +47,17 @@ Deno.serve(async (req) => {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) return new Response(JSON.stringify({ error: "Sessão inválida" }), { status: 401, headers: { ...cors, "Content-Type": "application/json" } });
 
+    let body: Record<string, unknown>;
+    try {
+      const parsedBody: unknown = await req.json();
+      if (!parsedBody || typeof parsedBody !== "object" || Array.isArray(parsedBody)) {
+        return new Response(JSON.stringify({ error: "Corpo da solicitação inválido." }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
+      }
+      body = parsedBody as Record<string, unknown>;
+    } catch {
+      return new Response(JSON.stringify({ error: "JSON inválido na solicitação." }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
+    }
+
     // A função também pode ser chamada diretamente fora da interface. Exija
     // associação ativa à granja antes de consultar dados ou consumir a API de IA.
     const { data: membership, error: membershipError } = await supabase
@@ -72,8 +83,6 @@ Deno.serve(async (req) => {
     if ((recentAnalyses ?? 0) >= 30) {
       return new Response(JSON.stringify({ error: "Limite de 30 análises por hora atingido para esta conta. Registre os sinais e procure o veterinário se houver urgência." }), { status: 429, headers: { ...cors, "Content-Type": "application/json" } });
     }
-    const body = await req.json();
-    if (!body || typeof body !== "object" || Array.isArray(body)) return new Response(JSON.stringify({ error: "Corpo da solicitação inválido." }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
     if (body.image_url) {
       let imageUrl: URL;
       try { imageUrl = new URL(String(body.image_url)); } catch { return new Response(JSON.stringify({ error: "Endereço da imagem inválido." }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } }); }
