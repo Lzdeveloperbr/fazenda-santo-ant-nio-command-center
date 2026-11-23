@@ -196,7 +196,13 @@ Deno.serve(async (req) => {
     const result = await completion.json();
     const raw = result.choices?.[0]?.message?.content;
     if (!raw) throw new Error("Resposta vazia do serviço de IA");
-    const parsed: unknown = JSON.parse(raw);
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      console.error("AI provider returned invalid JSON");
+      return new Response(JSON.stringify({ error: "A análise retornou um formato inválido. Tente novamente." }), { status: 502, headers: { ...cors, "Content-Type": "application/json" } });
+    }
     const isRecord = (value: unknown): value is Record<string, unknown> =>
       Boolean(value) && typeof value === "object" && !Array.isArray(value);
     const isStringArray = (value: unknown) =>
@@ -215,7 +221,7 @@ Deno.serve(async (req) => {
         typeof item.medicine === "string" &&
         typeof item.stock_status === "string" &&
         typeof item.relevance_note === "string" &&
-        (typeof item.expiry === "string" || item.expiry === null)
+        (typeof item.expiry === "string" || item.expiry == null)
       );
     if (
       !isRecord(parsed) ||
