@@ -37,7 +37,7 @@ export function InstallAppButton() {
     };
   }, []);
 
-  if (installed || (!promptEvent && !isIos)) return null;
+  if (installed) return null;
 
   async function install() {
     if (promptEvent) {
@@ -47,7 +47,11 @@ export function InstallAppButton() {
       if (choice.outcome === "accepted") setInstalled(true);
       return;
     }
-    toast.info("Para instalar no iPhone: toque em Compartilhar no Safari e escolha “Adicionar à Tela de Início”.", { duration: 7000 });
+    if (isIos) {
+      toast.info("Para instalar no iPhone: toque em Compartilhar no Safari e escolha “Adicionar à Tela de Início”.", { duration: 7000 });
+    } else {
+      toast.info("Abra o menu do navegador e escolha “Instalar app” ou “Adicionar à tela inicial”.", { duration: 7000 });
+    }
   }
 
   return (
