@@ -8,8 +8,12 @@ Este roteiro deve ser concluído no ambiente real antes de divulgar o sistema co
 - [ ] Conferir a sequência de migrations no repositório e no banco; não aplicar duas vezes nem pular versões.
 - [ ] Aplicar migrations pendentes pelo fluxo oficial do projeto.
 - [ ] Confirmar que todas as tabelas expostas têm RLS habilitado.
+- [ ] Para tabelas novas no schema `public`, confirmar exposição explícita na Data API e os grants mínimos necessários; a exposição automática mudou em 30/10/2026. RLS e grants são controles complementares.
 - [ ] Testar acesso com usuário autorizado e usuário sem papel de membro.
 - [ ] Confirmar que dados da granja não ficam acessíveis a usuários não autorizados.
+- [ ] Aplicar em homologação a migration `0013_restringe_codigo_acesso_granja.sql`; confirmar que authenticated não consegue ler `farm_access_codes` e que o cadastro com código válido/inválido continua funcionando.
+- [ ] Confirmar que a Edge Function `vet-assistant` rejeita usuário autenticado sem papel `member` antes de consultar dados ou consumir a API de IA.
+- [ ] Revisar `farm_access_codes`: hashes de códigos de acesso não devem ser legíveis por usuários comuns; validar a correção em homologação antes de aplicar migration.
 - [ ] Confirmar que o frontend usa somente a chave publicável; nunca colocar `service_role` ou segredo no navegador.
 - [ ] Verificar regras de exclusão e vínculos antes de remover matrizes, leitegadas, lotes ou registros.
 - [ ] Validar o fluxo de recuperação de senha, login, logout e expiração de sessão.
@@ -41,6 +45,7 @@ Este roteiro deve ser concluído no ambiente real antes de divulgar o sistema co
 - [ ] Registrar mortalidade, adoção e transferência de entrada/saída.
 - [ ] Conferir saldo vivo da leitegada após cada evento.
 - [ ] Registrar pesagem e desmame.
+- [ ] Arquivar um cadastro de teste e confirmar que motivo, leitegada e eventos continuam na ficha histórica e deixam de compor os indicadores ativos.
 - [ ] Conferir se a ficha da matriz mostra somente suas leitegadas.
 
 ### Sanidade
@@ -58,7 +63,8 @@ Este roteiro deve ser concluído no ambiente real antes de divulgar o sistema co
 - [ ] Conferir que unidades (kg, sacos, litros) não são somadas incorretamente.
 
 ### Tarefas, relatórios e financeiro
-- [ ] Criar, atribuir, concluir e filtrar tarefas.
+- [ ] Criar, atribuir, concluir, cancelar e filtrar tarefas; confirmar que canceladas permanecem no histórico.
+- [ ] Estornar um lançamento financeiro de teste e confirmar que o original permanece, o lançamento compensatório aparece e os totais são neutralizados.
 - [ ] Conferir datas vencidas e fuso horário local.
 - [ ] Registrar receita e despesa de teste e validar o relatório mensal.
 - [ ] Exportar CSV e abrir no Excel/Google Sheets.

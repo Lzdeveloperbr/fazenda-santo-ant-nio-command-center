@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { lazy, Suspense, useMemo, useState } from "react";
-import { breedingsQuery, littersQuery, sowsQuery, SOW_STATUS, fmtDate, livePiglets } from "@/lib/farm";
+import { breedingsQuery, littersQuery, sowsQuery, SOW_STATUS, fmtDate, livePiglets, isCountedLitter } from "@/lib/farm";
 import { isActiveSowStatus } from "@/lib/farm/reproduction";
 import { Empty, SectionTitle } from "@/components/farm/Kpi";
 import { Button } from "@/components/ui/button";
@@ -35,7 +35,7 @@ function Plantel() {
 
   if (sows.isLoading) return <div className="panel p-8 text-center text-sm text-muted-foreground">Carregando o plantel…</div>;
   const lastBreeding = selected && (breedings.data ?? []).find((b) => b.sow_id === selected.id);
-  const sowLitters = selected ? (litters.data ?? []).filter((l) => l.sow_id === selected.id) : [];
+  const sowLitters = selected ? (litters.data ?? []).filter((l) => l.sow_id === selected.id && isCountedLitter(l)) : [];
   const current = sowLitters.find((l) => l.status === "maternidade");
 
   return (

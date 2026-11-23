@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Check, Trash2, ClipboardCheck, Droplets, Wheat, HeartPulse, ClipboardList, Thermometer } from "lucide-react";
+import { Plus, Check, Archive, ClipboardCheck, Droplets, Wheat, HeartPulse, ClipboardList, Thermometer } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { tasksQuery, profilesQuery, sowsQuery, PRIORITY, fmtDate, todayISO, type Task } from "@/lib/farm";
 import { SectionTitle, Empty } from "@/components/farm/Kpi";
@@ -28,7 +28,7 @@ function Tarefas() {
   const qc = useQueryClient();
   const tasks = useQuery(tasksQuery);
   const profiles = useQuery(profilesQuery);
-  const [view, setView] = useState<"abertas" | "concluidas">("abertas");
+  const [view, setView] = useState<"abertas" | "concluidas" | "canceladas">("abertas");
   const [sectorFilter,setSectorFilter] = useState("todos");
   const [who, setWho] = useState("todos");
   const today = todayISO();
@@ -36,7 +36,7 @@ function Tarefas() {
   const name = (id: string | null) => profiles.data?.find((p) => p.id === id)?.display_name ?? "—";
 
   const list = (tasks.data ?? [])
-    .filter((t) => (view === "abertas" ? t.status !== "concluida" : t.status === "concluida"))
+    .filter((t) => view === "abertas" ? !["concluida", "cancelada"].includes(t.status) : view === "concluidas" ? t.status === "concluida" : t.status === "cancelada")
     .filter((t) => who === "todos" || t.assignee_id === who)
     .filter((t) => sectorFilter === "todos" || t.sector === sectorFilter)
     .sort((a,b) => {
@@ -53,27 +53,29 @@ function Tarefas() {
     if (error) { toast.error(error.message); return; }
     toast.success("Tarefa concluída"); refresh();
   }
-  async function remove(t: Task) {
-    if (!confirm(`Excluir a tarefa “${t.title}”?`)) return;
-    const { error } = await supabase.from("tasks").delete().eq("id", t.id);
+  async function cancel(t: Task) {
+    if (!confirm(`Cancelar a tarefa “${t.title}”? Ela continuará disponível no histórico.`)) return;
+    const { error } = await supabase.from("tasks").update({ status: "cancelada", completed_at: null }).eq("id", t.id);
     if (error) { toast.error(error.message); return; }
+    toast.success("Tarefa cancelada e preservada no histórico.");
     refresh();
   }
 
   return (
     <div className="space-y-5">
       <SectionTitle kicker="Rotina da granja" title="Tarefas" action={<div className="flex gap-2"><QuickRoutine onDone={refresh}/><NewTask profiles={profiles.data ?? []} onDone={refresh} /></div>} />
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div className="panel p-3"><p className="text-xs text-muted-foreground">Abertas</p><p className="mt-1 text-2xl font-bold tabular-nums">{(tasks.data??[]).filter(t=>t.status!=="concluida").length}</p></div>
-        <div className="panel p-3"><p className="text-xs text-muted-foreground">Para hoje</p><p className="mt-1 text-2xl font-bold tabular-nums">{(tasks.data??[]).filter(t=>t.status!=="concluida"&&t.due_date===today).length}</p></div>
-        <div className="panel p-3"><p className="text-xs text-muted-foreground">Atrasadas</p><p className="mt-1 text-2xl font-bold tabular-nums text-destructive">{(tasks.data??[]).filter(t=>t.status!=="concluida"&&t.due_date&&t.due_date<today).length}</p></div>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+        <div className="panel p-3"><p className="text-xs text-muted-foreground">Abertas</p><p className="mt-1 text-2xl font-bold tabular-nums">{(tasks.data??[]).filter(t=>!["concluida","cancelada"].includes(t.status)).length}</p></div>
+        <div className="panel p-3"><p className="text-xs text-muted-foreground">Para hoje</p><p className="mt-1 text-2xl font-bold tabular-nums">{(tasks.data??[]).filter(t=>!["concluida","cancelada"].includes(t.status)&&t.due_date===today).length}</p></div>
+        <div className="panel p-3"><p className="text-xs text-muted-foreground">Atrasadas</p><p className="mt-1 text-2xl font-bold tabular-nums text-destructive">{(tasks.data??[]).filter(t=>!["concluida","cancelada"].includes(t.status)&&t.due_date&&t.due_date<today).length}</p></div>
         <div className="panel p-3"><p className="text-xs text-muted-foreground">Concluídas</p><p className="mt-1 text-2xl font-bold tabular-nums">{(tasks.data??[]).filter(t=>t.status==="concluida").length}</p></div>
+        <div className="panel p-3"><p className="text-xs text-muted-foreground">Canceladas</p><p className="mt-1 text-2xl font-bold tabular-nums">{(tasks.data??[]).filter(t=>t.status==="cancelada").length}</p></div>
       </div>
       <div className="flex flex-wrap gap-2">
         <div className="inline-flex rounded-md border p-1">
-          {(["abertas", "concluidas"] as const).map((v) => (
+          {(["abertas", "concluidas", "canceladas"] as const).map((v) => (
             <button key={v} onClick={() => setView(v)} className={`rounded px-4 py-2 text-sm ${view === v ? "bg-accent text-foreground" : "text-muted-foreground"}`}>
-              {v === "abertas" ? "Abertas" : "Concluídas"}
+              {v === "abertas" ? "Abertas" : v === "concluidas" ? "Concluídas" : "Canceladas"}
             </button>
           ))}
         </div>
@@ -85,14 +87,14 @@ function Tarefas() {
       </div>
 
       {tasks.isLoading ? <p className="label-tech animate-pulse-soft">Carregando…</p> : list.length === 0 ? (
-        <Empty>{view === "abertas" ? "Nenhuma tarefa aberta." : "Nenhuma tarefa concluída ainda."}</Empty>
+        <Empty>{view === "abertas" ? "Nenhuma tarefa aberta." : view === "concluidas" ? "Nenhuma tarefa concluída ainda." : "Nenhuma tarefa cancelada."}</Empty>
       ) : (
         <ul className="space-y-2">
           {list.map((t) => {
-            const late = t.status !== "concluida" && t.due_date && t.due_date < today;
+            const late = !["concluida", "cancelada"].includes(t.status) && t.due_date && t.due_date < today;
             return (
               <li key={t.id} className={`panel flex items-center gap-3 p-3 ${late ? "border-destructive/50" : ""}`}>
-                {t.status !== "concluida" && (
+                {!["concluida", "cancelada"].includes(t.status) && (
                   <button onClick={() => complete(t)} aria-label="Concluir" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border text-muted-foreground hover:border-ok hover:text-ok-glow">
                     <Check className="h-5 w-5" />
                   </button>
@@ -103,10 +105,10 @@ function Tarefas() {
                     <span className={PRIORITY[t.priority]?.tone}>● {PRIORITY[t.priority]?.label}</span>
                     {t.sector && <span>{t.sector}</span>}
                     <span>{name(t.assignee_id)}</span>
-                    <span className={late ? "text-destructive" : ""}>{t.status === "concluida" ? `Concluída ${fmtDate(t.completed_at)}` : `Prevista ${fmtDate(t.due_date)}`}</span>
+                    <span className={late ? "text-destructive" : ""}>{t.status === "concluida" ? `Concluída ${fmtDate(t.completed_at)}` : t.status === "cancelada" ? "Cancelada" : `Prevista ${fmtDate(t.due_date)}`}</span>
                   </p>
                 </div>
-                <button onClick={() => remove(t)} aria-label="Excluir" className="p-2 text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
+                {!["concluida", "cancelada"].includes(t.status) && <button onClick={() => cancel(t)} aria-label="Cancelar tarefa" className="p-2 text-muted-foreground hover:text-destructive"><Archive className="h-4 w-4" /></button>}
               </li>
             );
           })}
@@ -121,10 +123,25 @@ function QuickRoutine({onDone}:{onDone:()=>void}) {
   const [busy,setBusy]=useState(false);
   const routines=[
     {title:"Conferir água e funcionamento dos bebedouros",sector:"Geral",icon:Droplets},
+    {title:"Conferir temperatura, ventilação e conforto dos setores",sector:"Geral",icon:Thermometer},
+    {title:"Conferir limpeza, piso e condições das baias",sector:"Geral",icon:ClipboardList},
+    {title:"Verificar controle de acesso e condições de higiene da entrada",sector:"Geral",icon:ClipboardCheck},
     {title:"Conferir ração e funcionamento dos comedouros",sector:"Ração",icon:Wheat},
-    {title:"Observar comportamento e apetite dos animais",sector:"Sanidade",icon:HeartPulse},
-    {title:"Verificar temperatura e ventilação dos setores",sector:"Geral",icon:Thermometer},
-    {title:"Conferir limpeza e condições das baias",sector:"Geral",icon:ClipboardList},
+    {title:"Registrar recebimento, consumo e saldo de ração",sector:"Ração",icon:Wheat},
+    {title:"Verificar armazenamento e identificação dos lotes de ração",sector:"Ração",icon:Wheat},
+    {title:"Conferir matrizes com retorno ao cio ou diagnóstico pendente",sector:"Gestação",icon:HeartPulse},
+    {title:"Revisar previsões de parto e preparação das baias",sector:"Gestação",icon:ClipboardCheck},
+    {title:"Acompanhar matrizes em trabalho de parto e registrar ocorrências",sector:"Maternidade",icon:HeartPulse},
+    {title:"Conferir nascidos e conciliar vivos, natimortos e mumificados",sector:"Maternidade",icon:ClipboardList},
+    {title:"Conferir saldo vivo das leitegadas e registrar mortes e transferências",sector:"Maternidade",icon:ClipboardList},
+    {title:"Observar acesso dos leitões ao colostro e comportamento da leitegada",sector:"Maternidade",icon:HeartPulse},
+    {title:"Conferir limpeza e preparação das baias de maternidade",sector:"Maternidade",icon:ClipboardCheck},
+    {title:"Observar apetite, comportamento, respiração e sinais clínicos",sector:"Sanidade",icon:HeartPulse},
+    {title:"Registrar ocorrências sanitárias e comunicar o responsável técnico",sector:"Sanidade",icon:ClipboardList},
+    {title:"Conferir prescrições veterinárias em andamento e registrar execuções",sector:"Sanidade",icon:ClipboardCheck},
+    {title:"Conferir validade e saldo cadastrado dos medicamentos",sector:"Sanidade",icon:ClipboardList},
+    {title:"Registrar nascimentos, mortalidade, transferências e desmames do dia",sector:"Maternidade",icon:ClipboardList},
+    {title:"Conferir tarefas pendentes e repassar ocorrências ao próximo turno",sector:"Geral",icon:ClipboardCheck},
   ];
   async function add(title:string,sector:string){
     setBusy(true);
@@ -140,9 +157,9 @@ function QuickRoutine({onDone}:{onDone:()=>void}) {
   }
   return <div className="relative">
     <Button variant="outline" className="h-10" onClick={()=>setOpen(v=>!v)}><ClipboardCheck className="mr-1 h-4 w-4"/>Rotina rápida</Button>
-    {open&&<div className="absolute right-0 top-12 z-30 w-[min(88vw,340px)] rounded-xl border bg-card p-2 shadow-xl">
-      <p className="px-3 py-2 text-xs font-semibold text-muted-foreground">Adicionar tarefa de rotina para hoje</p>
-      {routines.map(item=><button key={item.title} disabled={busy} onClick={()=>add(item.title,item.sector)} className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm hover:bg-muted disabled:opacity-50"><item.icon className="h-4 w-4 shrink-0 text-primary"/><span>{item.title}</span></button>)}
+    {open&&<div className="absolute right-0 top-12 z-30 w-[min(88vw,360px)] max-h-[70vh] overflow-y-auto rounded-xl border bg-card p-2 shadow-xl">
+      <div className="px-3 py-2"><p className="text-xs font-semibold text-muted-foreground">Rotinas operacionais</p><p className="mt-1 text-[11px] text-muted-foreground">Escolha uma atividade para adicionar às tarefas de hoje. Os itens são modelos editáveis, não substituem o protocolo técnico da granja.</p></div>
+      {routines.map(item=><button key={item.title} disabled={busy} onClick={()=>add(item.title,item.sector)} className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm hover:bg-muted disabled:opacity-50"><item.icon className="h-4 w-4 shrink-0 text-primary"/><span className="min-w-0"><span className="block">{item.title}</span><span className="mt-0.5 block text-[10px] uppercase tracking-wide text-muted-foreground">{item.sector}</span></span></button>)}
     </div>}
   </div>;
 }

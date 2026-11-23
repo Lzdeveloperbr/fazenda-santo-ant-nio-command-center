@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { lazy, Suspense, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { ClipboardList, Trash2, History, Stethoscope, AlertTriangle, AlertCircle, Info, CheckCircle2, Box } from "lucide-react";
+import { ClipboardList, History, Stethoscope, AlertTriangle, AlertCircle, Info, CheckCircle2, Box } from "lucide-react";
 import { litterAlerts, daysSince, type LitterAlert } from "@/lib/farm/litter-alerts";
 const LitterDiagnosisScene = lazy(() => import("@/components/farm3d/LitterDiagnosisScene"));
 import { supabase } from "@/integrations/supabase/client";
@@ -106,7 +106,7 @@ function LitterCard({ l, tag, events, delay, onDone }: { l: Litter; tag: string;
       <dl className="mt-3 grid grid-cols-4 gap-2 border-t pt-3 font-mono text-xs"><div><dt className="text-muted-foreground">Vivos</dt><dd>{l.born_alive}</dd></div><div><dt className="text-muted-foreground">Mortes</dt><dd>{l.deaths}</dd></div><div><dt className="text-muted-foreground">Transf.</dt><dd>{l.transfers_in - l.transfers_out >= 0 ? "+" : ""}{l.transfers_in - l.transfers_out}</dd></div><div><dt className="text-muted-foreground">Peso</dt><dd>{l.avg_weight ? `${l.avg_weight}kg` : "—"}</dd></div></dl>
       <p className="mt-2 font-mono text-[0.7rem] text-muted-foreground">Parto {fmtDate(l.farrowing_date)} · {days} dias</p>
       <div className="mt-2 flex flex-wrap gap-1.5">{litterAlerts(l, live).map((al) => <span key={al.id} className={`rounded-full border px-2 py-0.5 text-[0.68rem] font-semibold ${LEVEL[al.level].chip}`}>{al.title}</span>)}</div>
-      <div className="mt-3 grid grid-cols-2 gap-2">{ACTIONS.map((a) => <EventAction key={a.type} a={a} l={l} tag={tag} live={live} onDone={onDone} />)}<LitterHistory tag={tag} events={events} /><DeleteLitter l={l} tag={tag} onDone={onDone} /></div>
+      <div className="mt-3 grid grid-cols-2 gap-2">{ACTIONS.map((a) => <EventAction key={a.type} a={a} l={l} tag={tag} live={live} onDone={onDone} />)}<LitterHistory tag={tag} events={events} /><ArchiveLitter l={l} tag={tag} onDone={onDone} /></div>
     </div>
   );
 }
@@ -115,18 +115,34 @@ function LitterHistory({ tag, events }: { tag: string; events: LitterEvent[] }) 
   return <FormDialog title={`Histórico da leitegada · ${tag}`} trigger={<Button size="sm" variant="outline" className="h-10"><History className="mr-2 h-4 w-4" />Histórico</Button>}>{() => events.length === 0 ? <Empty>Nenhum evento lançado nesta leitegada.</Empty> : <ul className="divide-y">{events.map((event) => <li key={event.id} className="py-3"><div className="flex flex-wrap items-center justify-between gap-2"><strong className="text-sm">{LITTER_EVENT_LABEL[event.event_type] ?? event.event_type}</strong><span className="font-mono text-xs text-muted-foreground">{fmtDate(event.event_date)}</span></div><p className="mt-1 text-sm">{event.quantity > 0 ? `${event.quantity} leitão(ões)` : ""}{event.value ? ` · ${event.value} kg` : ""}</p>{event.note && <p className="mt-1 whitespace-pre-wrap text-xs leading-5 text-muted-foreground">{event.note}</p>}</li>)}</ul>}</FormDialog>;
 }
 
-function DeleteLitter({ l, tag, onDone }: { l: Litter; tag: string; onDone: () => void }) {
+function ArchiveLitter({ l, tag, onDone }: { l: Litter; tag: string; onDone: () => void }) {
   const [busy, setBusy] = useState(false);
-  async function remove() {
-    if (!confirm(`Excluir definitivamente o cadastro da leitegada da matriz ${tag}, do parto de ${fmtDate(l.farrowing_date)}? Os eventos e observações vinculados também serão excluídos. Essa ação não pode ser desfeita.`)) return;
-    setBusy(true);
-    const { error } = await supabase.from("litters").delete().eq("id", l.id);
-    setBusy(false);
-    if (error) { toast.error(error.message); return; }
-    await supabase.from("sows").update({ status: "vazia" }).eq("id", l.sow_id).eq("status", "lactante");
-    toast.success("Cadastro da leitegada excluído"); onDone();
-  }
-  return <Button type="button" size="sm" variant="destructive" className="col-span-2 h-10" disabled={busy} onClick={remove}><Trash2 className="mr-2 h-4 w-4" />{busy ? "Excluindo…" : "Excluir leitegada"}</Button>;
+  return (
+    <FormDialog title={`Arquivar cadastro · ${tag}`} trigger={<Button size="sm" variant="outline" className="col-span-2 h-10">Arquivar cadastro incorreto</Button>}>
+      {(close) => <form className="space-y-4" onSubmit={async (e) => {
+        e.preventDefault();
+        const reason = String(new FormData(e.currentTarget).get("reason") || "").trim();
+        if (reason.length < 8) { toast.error("Descreva o motivo do arquivamento."); return; }
+        if (!confirm(`Arquivar o cadastro da matriz ${tag}? A leitegada e todos os eventos serão preservados no histórico, mas sairão dos indicadores operacionais. Esta ação não altera a situação da matriz.`)) return;
+        setBusy(true);
+        const archiveNote = `[ARQUIVADO EM ${todayISO()}] Motivo: ${reason}`;
+        const farrowingNotes = [l.farrowing_notes?.trim(), archiveNote].filter(Boolean).join("\n\n");
+        const { error } = await supabase.from("litters").update({
+          status: "cancelada",
+          farrowing_notes: farrowingNotes,
+        }).eq("id", l.id).eq("status", "maternidade").select("id").single();
+        setBusy(false);
+        if (error) { toast.error(error.message); return; }
+        toast.success("Cadastro arquivado. Dados e histórico preservados.");
+        onDone();
+        close();
+      }}>
+        <p className="rounded-lg bg-muted p-3 text-xs leading-5 text-muted-foreground">Use somente para cadastros incorretos ou duplicados. Nenhum dado ou evento será apagado. A situação da matriz não será alterada automaticamente.</p>
+        <Field label="Motivo do arquivamento"><Textarea name="reason" rows={3} maxLength={500} required placeholder="Ex.: cadastro duplicado; parto correto registrado em outra ficha."/></Field>
+        <SubmitRow busy={busy} label="Arquivar sem excluir"/>
+      </form>}
+    </FormDialog>
+  );
 }
 
 function EventAction({ a, l, tag, live, onDone }: { a: (typeof ACTIONS)[number]; l: Litter; tag: string; live: number; onDone: () => void }) {

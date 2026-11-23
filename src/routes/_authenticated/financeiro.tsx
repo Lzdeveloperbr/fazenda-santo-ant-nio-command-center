@@ -2,8 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Plus, Printer, Trash2 } from "lucide-react";
-import { financeQuery, litterEventsQuery, littersQuery, fmtDate, todayISO } from "@/lib/farm";
+import { Plus, Printer, RotateCcw } from "lucide-react";
+import { financeQuery, litterEventsQuery, littersQuery, fmtDate, todayISO, type FinanceEntry } from "@/lib/farm";
 import { costPerWeaned, deathsByMonth, financeSummary } from "@/lib/farm/insights";
 import { supabase } from "@/integrations/supabase/client";
 import { Empty, SectionTitle } from "@/components/farm/Kpi";
@@ -69,7 +69,7 @@ function Financeiro() {
             <span className="w-20 shrink-0 font-mono text-xs">{fmtDate(e.entry_date)}</span>
             <div className="min-w-0 flex-1"><p className="truncate font-semibold">{e.category}</p><p className="truncate text-xs text-muted-foreground">{[e.description, e.counterpart].filter(Boolean).join(" · ") || "—"}{e.status === "pendente" ? ` · pendente${e.due_date ? ` até ${fmtDate(e.due_date)}` : ""}` : ""}</p></div>
             <span className={`font-mono font-semibold ${e.entry_type === "receita" ? "text-ok" : "text-destructive"}`}>{e.entry_type === "receita" ? "+" : "−"}{brl(Number(e.amount))}</span>
-            <DeleteEntry id={e.id} />
+            <ReverseEntry entry={e} />
           </li>)}</ul>}
       </section>
     </div>
@@ -93,11 +93,46 @@ function EntryDialog() {
     </form>}</FormDialog>;
 }
 
-function DeleteEntry({ id }: { id: string }) {
+function ReverseEntry({ entry }: { entry: FinanceEntry }) {
   const qc = useQueryClient();
-  return <AlertDialog><AlertDialogTrigger asChild><button className="no-print rounded-lg p-2 text-muted-foreground hover:bg-muted" aria-label="Apagar lançamento"><Trash2 className="h-4 w-4" /></button></AlertDialogTrigger>
-    <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Apagar este lançamento?</AlertDialogTitle><AlertDialogDescription>Essa ação não pode ser desfeita.</AlertDialogDescription></AlertDialogHeader>
-      <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={async () => { const { error } = await supabase.from("finance_entries").delete().eq("id", id); if (error) return void toast.error(error.message); toast.success("Lançamento apagado."); qc.invalidateQueries({ queryKey: ["finance_entries"] }); }}>Apagar</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>;
+  const [busy, setBusy] = useState(false);
+  const [open, setOpen] = useState(false);
+  const marker = `[ESTORNO:${entry.id}]`;
+  return <AlertDialog open={open} onOpenChange={setOpen}>
+    <AlertDialogTrigger asChild>
+      <button className="no-print rounded-lg p-2 text-muted-foreground hover:bg-muted" aria-label="Estornar lançamento"><RotateCcw className="h-4 w-4" /></button>
+    </AlertDialogTrigger>
+    <AlertDialogContent>
+      <AlertDialogHeader>
+        <AlertDialogTitle>Estornar lançamento?</AlertDialogTitle>
+        <AlertDialogDescription>O registro original não será apagado. Será criado um lançamento compensatório de mesmo valor, categoria e situação, com referência ao original.</AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogCancel disabled={busy}>Cancelar</AlertDialogCancel>
+        <AlertDialogAction disabled={busy} onClick={async (event) => {
+          event.preventDefault();
+          setBusy(true);
+          const { data: existing, error: lookupError } = await supabase.from("finance_entries").select("id").eq("description", marker).maybeSingle();
+          if (lookupError) { setBusy(false); toast.error(lookupError.message); return; }
+          if (existing) { setBusy(false); setOpen(false); toast.error("Este lançamento já possui um estorno registrado."); return; }
+          const { error } = await supabase.from("finance_entries").insert({
+            entry_type: entry.entry_type === "receita" ? "despesa" : "receita",
+            category: entry.category,
+            description: marker,
+            counterpart: entry.counterpart,
+            amount: entry.amount,
+            entry_date: todayISO(),
+            due_date: entry.due_date,
+            status: entry.status,
+            batch_id: entry.batch_id,
+          });
+          setBusy(false);
+          if (error) { toast.error(error.message); return; }
+          toast.success("Estorno registrado. O lançamento original foi preservado.");
+          setOpen(false);
+          qc.invalidateQueries({ queryKey: ["finance_entries"] });
+        }}> {busy ? "Registrando…" : "Confirmar estorno"} </AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>;
 }
-
-function Stat({ label, value, hint, tone = "" }: { label: string; value: string; hint?: string | undefined; tone?: string }) { return <div className="panel p-4"><p className="label-tech">{label}</p><p className={`mt-2 font-mono text-xl font-bold ${tone}`}>{value}</p>{hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}</div>; }
