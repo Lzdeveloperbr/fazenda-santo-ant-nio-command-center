@@ -26,7 +26,11 @@ Apagar um arquivo no commit mais recente não remove cópias dos commits anterio
 
 ## Revisão Supabase antes de produção
 
-- A migration `0008_farm_employee_access_code.sql` concede `SELECT` em `farm_access_codes` aos usuários autenticados membros e permite ler `code_hash`. O código de acesso não precisa ser exposto ao frontend para ser validado no trigger de cadastro. Planejar uma migration revisada para remover a leitura direta e, se a interface precisar exibir estado do convite, oferecer somente metadados não sensíveis por função controlada. Não alterar o banco de produção sem backup e validação em homologação.
+- A migration `0008_farm_employee_access_code.sql` concede `SELECT` em `farm_access_codes` aos usuários autenticados membros e permite ler `code_hash`. O código de acesso não precisa ser exposto ao frontend para ser validado no trigger de cadastro. A correção deve ser uma nova migration (não editar a migration histórica já aplicada), gerada pelo fluxo de migração do projeto e validada primeiro em homologação.
+  - Remover a policy `members view farm access codes` e revogar leitura direta: `drop policy if exists "members view farm access codes" on public.farm_access_codes; revoke all on table public.farm_access_codes from public, anon, authenticated; grant all on table public.farm_access_codes to service_role;`.
+  - O trigger `handle_new_user` continua consultando a tabela como função `SECURITY DEFINER`; validar isso em homologação com um cadastro usando código válido e outro inválido.
+  - Verificar as permissões após a migration: `select has_table_privilege('authenticated', 'public.farm_access_codes', 'SELECT') as authenticated_can_read;` deve retornar `false`. Confirmar também que a policy de leitura não existe. Não alterar o banco de produção sem backup e validação em homologação.
+  - Os códigos devem ser gerados com alta entropia e tratados como segredo. Não usar códigos curtos previsíveis ou reutilizados.
 - A Edge Function `vet-assistant` agora verifica o papel `member` antes de consultar dados da granja ou chamar o provedor de IA. Manter teste explícito para usuário autenticado sem associação.
 
 - Habilitar RLS em todas as tabelas de schemas expostos.
