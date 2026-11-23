@@ -8,6 +8,7 @@ Este roteiro deve ser concluído no ambiente real antes de divulgar o sistema co
 - [ ] Conferir a sequência de migrations no repositório e no banco; não aplicar duas vezes nem pular versões.
 - [ ] Aplicar migrations pendentes pelo fluxo oficial do projeto.
 - [ ] Confirmar que todas as tabelas expostas têm RLS habilitado.
+- [ ] Para tabelas novas no schema `public`, confirmar exposição explícita na Data API e os grants mínimos necessários; a exposição automática mudou em 30/10/2026. RLS e grants são controles complementares.
 - [ ] Testar acesso com usuário autorizado e usuário sem papel de membro.
 - [ ] Confirmar que dados da granja não ficam acessíveis a usuários não autorizados.
 - [ ] Confirmar que a Edge Function `vet-assistant` rejeita usuário autenticado sem papel `member` antes de consultar dados ou consumir a API de IA.
@@ -43,6 +44,7 @@ Este roteiro deve ser concluído no ambiente real antes de divulgar o sistema co
 - [ ] Registrar mortalidade, adoção e transferência de entrada/saída.
 - [ ] Conferir saldo vivo da leitegada após cada evento.
 - [ ] Registrar pesagem e desmame.
+- [ ] Arquivar um cadastro de teste e confirmar que motivo, leitegada e eventos continuam na ficha histórica e deixam de compor os indicadores ativos.
 - [ ] Conferir se a ficha da matriz mostra somente suas leitegadas.
 
 ### Sanidade
