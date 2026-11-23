@@ -32,9 +32,12 @@ O objetivo é concentrar a rotina da granja em um único lugar: cadastro e hist�
 Requisitos: Node.js compatível com o lockfile e npm.
 
 ```bash
+cp .env.example .env
 npm install
 npm run dev
 ```
+
+Preencha o arquivo local `.env` com as credenciais do seu ambiente. **Nunca faça commit de `.env`, chaves secretas, tokens, senhas ou arquivos de service role.** O arquivo `.env.example` contém apenas marcadores.
 
 Verificações locais:
 
@@ -54,9 +57,17 @@ No ambiente de servidor também podem ser usados `SUPABASE_URL` e `SUPABASE_PUBL
 
 As migrations do projeto ficam em `drizzle/migrations`. Antes de publicar, confira a sequência aplicada no banco, valide RLS em todas as tabelas expostas e faça backup. Não considere uma migration aplicada apenas porque o arquivo existe no GitHub.
 
+## Segurança e resposta a incidentes
+
+Consulte [SECURITY.md](SECURITY.md) antes de configurar variáveis ou publicar. Se um segredo já tiver sido versionado em um repositório público, apagar o arquivo do último commit não invalida o segredo nem remove cópias do histórico: revogue/rotacione a credencial no serviço emissor e revise os logs de uso.
+
 ## Lançamento
 
 Consulte [docs/GO_LIVE_CHECKLIST.md](docs/GO_LIVE_CHECKLIST.md) para o roteiro de homologação, testes por módulo, segurança, backup e preparação dos dados reais.
+
+## Plano de evolução
+
+Consulte [docs/PLANO_EVOLUCAO_OPERACIONAL.md](docs/PLANO_EVOLUCAO_OPERACIONAL.md) para prioridades de produto, melhorias propostas e referências técnicas.
 
 ## Referências de produto e manejo
 
