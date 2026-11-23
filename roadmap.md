@@ -23,3 +23,7 @@
 - [ ] Administração: financeiro, funcionários, custos e fluxo de caixa
 - [ ] Central de relatórios em PDF e Excel, com os modelos solicitados
 - [ ] Revisão mobile e auditoria final de todos os módulos
+
+## Gestação e reprodução
+- [x] Ciclos reprodutivos, retorno ao cio, diagnósticos, partos vinculados, perdas, reprodutores, calendário, indicadores, CSV/impressão
+- [ ] Anexos/fotos de exames e cobertura; edição de cobertura com recálculo; foto da matriz

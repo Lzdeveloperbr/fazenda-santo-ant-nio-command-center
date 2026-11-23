@@ -15,3 +15,4 @@
 - App pages live under `src/routes/_authenticated/` (client-only shell with nav); queries are shared `queryOptions` in `src/lib/farm.ts`.
 - Indicators must come from recorded data only — never show invented numbers or comparisons.
 - 3D scenes are stylized procedural low-poly meshes in src/components/farm3d, lazy-loaded so three.js stays out of SSR; they only draw real sow records.
+- Reproductive cycles live on `breedings` (cycle_status/heat_check); diagnoses, gestation losses and farrowings (litters.breeding_id, unique) close cycles via DB triggers; alerts are derived from dates in `src/lib/farm/gestation.ts` (one per cycle stage, never stored) so they can't duplicate.
