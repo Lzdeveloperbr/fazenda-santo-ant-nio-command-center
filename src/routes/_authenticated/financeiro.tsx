@@ -96,8 +96,9 @@ function EntryDialog() {
 function ReverseEntry({ entry }: { entry: FinanceEntry }) {
   const qc = useQueryClient();
   const [busy, setBusy] = useState(false);
+  const [open, setOpen] = useState(false);
   const marker = `[ESTORNO:${entry.id}]`;
-  return <AlertDialog>
+  return <AlertDialog open={open} onOpenChange={setOpen}>
     <AlertDialogTrigger asChild>
       <button className="no-print rounded-lg p-2 text-muted-foreground hover:bg-muted" aria-label="Estornar lançamento"><RotateCcw className="h-4 w-4" /></button>
     </AlertDialogTrigger>
@@ -113,7 +114,7 @@ function ReverseEntry({ entry }: { entry: FinanceEntry }) {
           setBusy(true);
           const { data: existing, error: lookupError } = await supabase.from("finance_entries").select("id").eq("description", marker).maybeSingle();
           if (lookupError) { setBusy(false); toast.error(lookupError.message); return; }
-          if (existing) { setBusy(false); toast.error("Este lançamento já possui um estorno registrado."); return; }
+          if (existing) { setBusy(false); setOpen(false); toast.error("Este lançamento já possui um estorno registrado."); return; }
           const { error } = await supabase.from("finance_entries").insert({
             entry_type: entry.entry_type === "receita" ? "despesa" : "receita",
             category: entry.category,
@@ -128,6 +129,7 @@ function ReverseEntry({ entry }: { entry: FinanceEntry }) {
           setBusy(false);
           if (error) { toast.error(error.message); return; }
           toast.success("Estorno registrado. O lançamento original foi preservado.");
+          setOpen(false);
           qc.invalidateQueries({ queryKey: ["finance_entries"] });
         }}> {busy ? "Registrando…" : "Confirmar estorno"} </AlertDialogAction>
       </AlertDialogFooter>
