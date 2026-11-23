@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Plus, Search, ArrowUpDown, Download, RotateCcw, FileText, Pencil, ClipboardPlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { sowsQuery, breedingsQuery, littersQuery, SOW_STATUS, SOW_EVENT_LABEL, fmtDate, todayISO, type Sow, type Breeding, type Litter } from "@/lib/farm";
+import { sowsQuery, breedingsQuery, littersQuery, SOW_STATUS, isCountedLitter, SOW_EVENT_LABEL, fmtDate, todayISO, type Sow, type Breeding, type Litter } from "@/lib/farm";
 import { isActiveSowStatus } from "@/lib/farm/reproduction";
 import { SectionTitle, Empty } from "@/components/farm/Kpi";
 import { FormDialog, SubmitRow, Field, selectCls } from "@/components/farm/FormDialog";
@@ -41,7 +41,7 @@ function Matrizes() {
   const refresh = () => qc.invalidateQueries();
 
   const rows = useMemo(() => {
-    const B = breedings.data ?? [], L = litters.data ?? [];
+    const B = breedings.data ?? [], L = (litters.data ?? []).filter(isCountedLitter);
     return (sows.data ?? []).map((s) => {
       const lastB = B.find((b) => b.sow_id === s.id);
       const sowL = L.filter((l) => l.sow_id === s.id);
