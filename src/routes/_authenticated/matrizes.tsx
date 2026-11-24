@@ -2,7 +2,7 @@ import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-r
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Plus, Search, ArrowUpDown, Download, RotateCcw, FileText, Pencil, ClipboardPlus } from "lucide-react";
+import { Plus, Search, ArrowUpDown, Download, RotateCcw, FileText, Pencil, ClipboardPlus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { sowsQuery, breedingsQuery, littersQuery, SOW_STATUS, isCountedLitter, SOW_EVENT_LABEL, fmtDate, todayISO, type Sow, type Breeding, type Litter } from "@/lib/farm";
 import { isActiveSowStatus } from "@/lib/farm/reproduction";
@@ -155,6 +155,7 @@ function SowActions({ s, lastB, onDone }: { s: Sow; lastB: Breeding | undefined;
       {active && <SowEventDialog sow={s} onDone={onDone} />}
       {(s.status === "descartada" || s.status === "transferida") && <ReactivateSow sow={s} onDone={onDone} />}
       <EditSow sow={s} onDone={onDone} />
+      <DeleteSow sow={s} onDone={onDone} />
     </div>
   );
 }
@@ -184,6 +185,66 @@ function EditSow({ sow, onDone }: { sow: Sow; onDone: () => void }) {
         <SubmitRow busy={busy} />
       </form>}
     </FormDialog>
+  );
+}
+
+const sowHistoryTables = [
+  "breedings",
+  "gestation_events",
+  "health_records",
+  "inventory_checks",
+  "litters",
+  "medication_records",
+  "pregnancy_diagnoses",
+  "sow_events",
+  "tasks",
+  "vaccination_records",
+] as const;
+
+function DeleteSow({ sow, onDone }: { sow: Sow; onDone: () => void }) {
+  const [busy, setBusy] = useState(false);
+
+  async function removeSow() {
+    if (busy) return;
+    setBusy(true);
+    try {
+      const db = supabase as any;
+      const checks = await Promise.all(sowHistoryTables.map(async (table) => {
+        const { count, error } = await db.from(table).select("id", { count: "exact", head: true }).eq("sow_id", sow.id);
+        return { table, count: count ?? 0, error };
+      }));
+      const failed = checks.find((item) => item.error);
+      if (failed) {
+        toast.error("Não foi possível verificar todo o histórico. A exclusão foi cancelada por segurança.");
+        return;
+      }
+      const linked = checks.filter((item) => item.count > 0);
+      if (linked.length) {
+        const total = linked.reduce((sum, item) => sum + item.count, 0);
+        toast.error(`Esta matriz possui ${total} registro(s) vinculado(s). Use “Evento / saída” para descartá-la e preservar o histórico.`);
+        return;
+      }
+      if (!window.confirm(`Excluir definitivamente a matriz ${sow.ear_tag}?
+
+Esta ação só será permitida porque não existem registros de reprodução, parto, saúde ou manejo vinculados. Não será possível desfazer.`)) return;
+      const { error } = await db.from("sows").delete().eq("id", sow.id);
+      if (error) {
+        toast.error(error.message || "Não foi possível excluir a matriz.");
+        return;
+      }
+      toast.success(`Matriz ${sow.ear_tag} excluída.`);
+      onDone();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Falha ao verificar a matriz.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Button size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10 hover:text-destructive" disabled={busy} onClick={removeSow}>
+      <Trash2 className="mr-1 h-3.5 w-3.5" />{busy ? "Verificando…" : "Excluir"}
+    </Button>
   );
 }
 

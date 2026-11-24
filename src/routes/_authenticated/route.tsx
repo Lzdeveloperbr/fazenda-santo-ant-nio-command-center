@@ -2,6 +2,7 @@ import { createFileRoute, redirect, Outlet, Link, useNavigate, useRouterState } 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { LayoutDashboard, PiggyBank, Baby, ListChecks, LogOut, Menu, X, Layers3, HeartPulse, Wheat, TrendingUp, Fence, Ear, BrainCircuit, BookOpen, Box, Warehouse, ClipboardCheck, Radar, Wallet, Calculator, Search, Moon, Sun, PanelLeftClose, PanelLeftOpen, ChevronRight, LayoutGrid, HeartHandshake } from "lucide-react";
+import { InstallAppButton } from "@/components/farm/InstallAppButton";
 import { supabase } from "@/integrations/supabase/client";
 import { Wordmark, LogoMark } from "@/components/farm/Logo";
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -91,6 +92,7 @@ function Shell(){
     <div className="ml-auto flex shrink-0 items-center gap-2">
      <button onClick={()=>setSearchOpen(true)} className="hidden h-10 items-center gap-2 rounded-lg border border-border bg-card px-3 text-sm text-muted-foreground hover:bg-muted lg:flex lg:w-64"><Search className="h-4 w-4"/><span className="flex-1 text-left">Buscar módulo…</span><kbd className="rounded border border-border bg-muted px-1.5 font-mono text-[.65rem]">Ctrl K</kbd></button>
      <button onClick={()=>setSearchOpen(true)} className={`${iconBtn} inline-flex lg:hidden`} aria-label="Buscar"><Search className="h-[18px] w-[18px]"/></button>
+     <InstallAppButton />
      <button onClick={toggle} className={`${iconBtn} inline-flex`} aria-label={theme==="dark"?"Usar tema claro":"Usar tema escuro"}>{theme==="dark"?<Sun className="h-[18px] w-[18px]"/>:<Moon className="h-[18px] w-[18px]"/>}</button>
      <div className="hidden pl-2 text-right sm:block"><p className="font-mono text-sm font-semibold tabular-nums">{now.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}</p><p className="text-[.65rem] capitalize text-muted-foreground">{now.toLocaleDateString("pt-BR",{weekday:"short",day:"2-digit",month:"short"})}</p></div>
     </div>

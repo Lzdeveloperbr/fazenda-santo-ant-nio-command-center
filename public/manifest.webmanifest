@@ -1,0 +1,22 @@
+{
+  "id": "/",
+  "name": "Santo Antônio Agro | Gestão Rural",
+  "short_name": "Santo Antônio",
+  "description": "Gestão profissional da Fazenda Santo Antônio: matrizes, reprodução, maternidade, sanidade e manejo.",
+  "lang": "pt-BR",
+  "start_url": "/painel",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#102c20",
+  "theme_color": "#1F4D36",
+  "categories": ["business", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/icons/santo-antonio-agro.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
