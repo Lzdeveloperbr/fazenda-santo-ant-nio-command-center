@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Plus, Search, ArrowUpDown, Download, RotateCcw, FileText, Pencil, ClipboardPlus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { sowsQuery, breedingsQuery, littersQuery, SOW_STATUS, isCountedLitter, SOW_EVENT_LABEL, fmtDate, todayISO, addDaysISO, type Sow, type Breeding, type Litter } from "@/lib/farm";
-import { breedingDateError, isActiveSowStatus } from "@/lib/farm/reproduction";
+import { breedingDateError, farrowingTimeError, isActiveSowStatus } from "@/lib/farm/reproduction";
 import { SectionTitle, Empty } from "@/components/farm/Kpi";
 import { FormDialog, SubmitRow, Field, selectCls } from "@/components/farm/FormDialog";
 import { Button } from "@/components/ui/button";
