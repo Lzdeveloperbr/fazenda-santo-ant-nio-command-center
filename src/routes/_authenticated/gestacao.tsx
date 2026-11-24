@@ -35,8 +35,19 @@ const ACTIVE_SOW = ["vazia", "coberta", "gestante"];
 
 function useConfig() {
   const [cfg, setCfg] = useState<GestationConfig>(DEFAULT_CONFIG);
-  useEffect(() => { try { const s = localStorage.getItem("fsa-gestacao-cfg"); if (s) setCfg({ ...DEFAULT_CONFIG, ...JSON.parse(s) }); } catch { /* ignore */ } }, []);
-  const save = (c: GestationConfig) => { setCfg(c); localStorage.setItem("fsa-gestacao-cfg", JSON.stringify(c)); };
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("fsa-gestacao-cfg");
+      if (!stored) return;
+      const parsed = { ...DEFAULT_CONFIG, ...JSON.parse(stored) } as GestationConfig;
+      if (validateGestationConfig(parsed) === null) setCfg(parsed);
+    } catch { /* Configuração inválida: mantém os prazos padrão. */ }
+  }, []);
+  const save = (c: GestationConfig) => {
+    if (validateGestationConfig(c) !== null) return;
+    setCfg(c);
+    localStorage.setItem("fsa-gestacao-cfg", JSON.stringify(c));
+  };
   return [cfg, save] as const;
 }
 function csv(name: string, header: string[], rows: (string | number | null | undefined)[][]) {
