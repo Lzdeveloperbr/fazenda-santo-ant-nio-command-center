@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isActiveSowStatus, litterEventError } from "./reproduction";
+import { isActiveSowStatus, litterEventError, breedingDateError } from "./reproduction";
 
 describe("situação das matrizes", () => {
   it("mantém no plantel somente as situações reprodutivas ativas", () => {
@@ -33,5 +33,18 @@ describe("limites dos eventos da leitegada", () => {
   it("exige peso médio maior que zero", () => {
     expect(litterEventError({ eventType: "pesagem", quantity: 0, live: 3, value: 0 })).toContain("maior que zero");
     expect(litterEventError({ eventType: "pesagem", quantity: 0, live: 3, value: 1.25 })).toBeNull();
+  });
+});
+
+
+describe("validação da cobertura", () => {
+  it("aceita uma data válida até hoje", () => {
+    expect(breedingDateError("2026-11-24", "2026-11-24")).toBeNull();
+    expect(breedingDateError("2026-11-20", "2026-11-24")).toBeNull();
+  });
+  it("rejeita data futura e datas impossíveis", () => {
+    expect(breedingDateError("2026-11-25", "2026-11-24")).toContain("futuro");
+    expect(breedingDateError("2026-02-30", "2026-11-24")).toContain("válida");
+    expect(breedingDateError("", "2026-11-24")).toContain("válida");
   });
 });
