@@ -394,21 +394,52 @@ function NewLitter({ sow, onDone }: { sow: Sow; onDone: () => void }) {
       {(close) => <form className="space-y-4" onSubmit={async (e) => {
         e.preventDefault();
         const f = new FormData(e.currentTarget);
-        const alive = Number(f.get("alive")), still = Number(f.get("still"));
-        if (!Number.isInteger(alive) || alive < 0 || !Number.isInteger(still) || still < 0) { toast.error("Informe quantidades inteiras e válidas."); return; }
-        if (!confirm(`Confirmar parto: ${alive} vivos e ${still} natimortos?`)) return;
+        const date = String(f.get("date") || "");
+        const dateError = breedingDateError(date, todayISO());
+        if (dateError) { toast.error(dateError.replace("cobertura", "parto")); return; }
+        const alive = Number(f.get("alive")), still = Number(f.get("still")), mummified = Number(f.get("mummified") || 0);
+        if (![alive, still, mummified].every((value) => Number.isInteger(value) && value >= 0)) { toast.error("Informe quantidades inteiras e válidas."); return; }
+        const startTime = String(f.get("start_time") || ""), endTime = String(f.get("end_time") || "");
+        const timeError = farrowingTimeError(startTime, endTime);
+        if (timeError) { toast.error(timeError); return; }
+        const total = alive + still + mummified;
+        if (!confirm(`Confirmar parto: ${alive} vivos, ${still} natimortos e ${mummified} mumificados (total ${total})?`)) return;
         setBusy(true);
-        const { error } = await supabase.from("litters").insert({ sow_id: sow.id, farrowing_date: String(f.get("date")), born_alive: alive, stillborn: still, born_total: alive + still });
-        if (!error) await supabase.from("sows").update({ status: "lactante" }).eq("id", sow.id);
+        const { error } = await supabase.from("litters").insert({
+          sow_id: sow.id,
+          farrowing_date: date,
+          born_alive: alive,
+          stillborn: still,
+          mummified,
+          born_total: total,
+          start_time: startTime || null,
+          end_time: endTime || null,
+          responsible: String(f.get("responsible") || "").trim() || null,
+          farrowing_notes: String(f.get("notes") || "").trim() || null,
+        });
+        if (error) { setBusy(false); toast.error(error.message); return; }
+        const statusResult = await supabase.from("sows").update({ status: "lactante" }).eq("id", sow.id);
         setBusy(false);
-        if (error) { toast.error(error.message); return; }
+        if (statusResult.error) {
+          toast.error("Parto salvo, mas não foi possível atualizar a situação da matriz. Confira a ficha.");
+          onDone();
+          close();
+          return;
+        }
         toast.success("Parto registrado"); onDone(); close();
       }}>
-        <Field label="Data do parto"><Input name="date" type="date" required defaultValue={todayISO()} className="h-11" /></Field>
+        <Field label="Data do parto"><Input name="date" type="date" required max={todayISO()} defaultValue={todayISO()} className="h-11" /></Field>
         <div className="grid grid-cols-2 gap-3">
+          <Field label="Início do parto"><Input name="start_time" type="time" className="h-11" /></Field>
+          <Field label="Fim do parto"><Input name="end_time" type="time" className="h-11" /></Field>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
           <Field label="Nascidos vivos"><Input name="alive" type="number" min={0} step={1} required inputMode="numeric" className="h-11" /></Field>
           <Field label="Natimortos"><Input name="still" type="number" min={0} step={1} defaultValue={0} inputMode="numeric" className="h-11" /></Field>
+          <Field label="Mumificados"><Input name="mummified" type="number" min={0} step={1} defaultValue={0} inputMode="numeric" className="h-11" /></Field>
         </div>
+        <Field label="Responsável pelo parto"><Input name="responsible" className="h-11" /></Field>
+        <Field label="Ocorrências / observações"><Textarea name="notes" rows={3} placeholder="Dificuldades, intervenções e observações do parto" /></Field>
         <SubmitRow busy={busy} label="Registrar parto" />
       </form>}
     </FormDialog>
