@@ -6,7 +6,7 @@ import { Plus, Download, Printer, ChevronLeft, ChevronRight } from "lucide-react
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { boarsQuery, breedingsQuery, diagnosesQuery, gestationEventsQuery, littersQuery, sowsQuery, fmtDate, todayISO, isCountedLitter, type Breeding, type Sow } from "@/lib/farm";
-import { addDays, cycleAlert, cycleDates, cycleStage, daysBetween, DEFAULT_CONFIG, farrowingWarning, PRIORITY_LABEL, PRIORITY_RANK, reproductiveIndicators, type GestationConfig } from "@/lib/farm/gestation";
+import { addDays, cycleAlert, cycleDates, cycleStage, daysBetween, DEFAULT_CONFIG, farrowingWarning, PRIORITY_LABEL, PRIORITY_RANK, reproductiveIndicators, validateGestationConfig, type GestationConfig } from "@/lib/farm/gestation";
 import { Empty, SectionTitle } from "@/components/farm/Kpi";
 import { FormDialog, Field, SubmitRow, selectCls } from "@/components/farm/FormDialog";
 import { Button } from "@/components/ui/button";
@@ -124,7 +124,7 @@ function Gestacao() {
       <TabsContent value="indicadores"><Indicators S={S} B={B} L={L} D={D} O={O} tag={tag} boarName={boarName} cfg={cfg} /></TabsContent>
 
       <TabsContent value="config"><section className="panel max-w-xl p-5"><SectionTitle kicker="Neste aparelho" title="Configurações reprodutivas" />
-        <form className="grid grid-cols-2 gap-3" onSubmit={(e) => { e.preventDefault(); const f = new FormData(e.currentTarget); const c = Object.fromEntries(Object.keys(DEFAULT_CONFIG).map((k) => [k, Number(f.get(k))])) as GestationConfig; if (!(c.heatPrep < c.heatStart && c.heatStart <= c.heatEnd && c.heatEnd < c.attentionStart && c.attentionStart <= c.approachDay && c.approachDay <= c.intensiveDay && c.intensiveDay <= c.gestationDays)) { toast.error("Os dias precisam estar em ordem crescente."); return; } saveCfg(c); toast.success("Configurações salvas"); }}>
+        <form className="grid grid-cols-2 gap-3" onSubmit={(e) => { e.preventDefault(); const f = new FormData(e.currentTarget); const c = Object.fromEntries(Object.keys(DEFAULT_CONFIG).map((k) => [k, Number(f.get(k))])) as GestationConfig; const validationError = validateGestationConfig(c); if (validationError) { toast.error(validationError); return; } saveCfg(c); toast.success("Configurações salvas"); }}>
           {([["heatPrep","Preparar observação de cio (dia)"],["heatStart","Início da janela de cio"],["heatEnd","Fim da janela de cio"],["attentionStart","Início da janela de atenção ao parto"],["approachDay","Alerta de proximidade"],["intensiveDay","Preparação intensificada"],["gestationDays","Duração de referência da gestação"]] as const).map(([k, l]) => <Field key={k} label={l}><Input name={k} type="number" min={1} max={130} defaultValue={cfg[k]} className="h-11" /></Field>)}
           <div className="col-span-2 flex gap-2"><Button type="submit" className="h-11 flex-1">Salvar</Button><Button type="button" variant="outline" className="h-11" onClick={() => { saveCfg(DEFAULT_CONFIG); toast.success("Padrão restaurado"); }}>Restaurar padrão</Button></div>
         </form>
