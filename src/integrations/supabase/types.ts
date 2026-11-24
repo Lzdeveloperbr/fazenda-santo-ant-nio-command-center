@@ -2190,6 +2190,7 @@ export type Database = {
     }
     Functions: {
       create_farm_access_code: { Args: { p_code: string }; Returns: undefined }
+      delete_sow: { Args: { p_sow_id: string }; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

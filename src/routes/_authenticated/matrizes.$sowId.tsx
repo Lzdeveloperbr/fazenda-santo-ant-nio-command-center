@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Printer, PiggyBank, CalendarDays, Baby, Scale, Syringe, Pill, ShieldCheck, CalendarClock } from "lucide-react";
 import { breedingsQuery, litterEventsQuery, littersQuery, LITTER_EVENT_LABEL, SOW_EVENT_LABEL, SOW_STATUS, sowEventsQuery, sowsQuery, fmtDate, livePiglets, todayISO, isCountedLitter } from "@/lib/farm";
@@ -55,7 +55,7 @@ function SowRecord() {
       <style>{`@media print { @page { size: A4 portrait; margin: 12mm; } body * { visibility: hidden !important; } .sow-record, .sow-record * { visibility: visible !important; } .sow-record { position: absolute !important; inset: 0 !important; width: 100% !important; } .sow-record .panel { box-shadow: none !important; break-inside: avoid; } .no-print { display: none !important; } }`}</style>
       <div className="no-print flex flex-wrap items-center justify-between gap-3">
         <Link to="/matrizes"><Button variant="outline"><ArrowLeft className="mr-2 h-4 w-4" />Voltar às matrizes</Button></Link>
-        <Button onClick={() => window.print()}><Printer className="mr-2 h-4 w-4" />Imprimir / salvar PDF</Button>
+        <div className="flex flex-wrap gap-2"><DeleteSowButton sow={sow} /><Button onClick={() => window.print()}><Printer className="mr-2 h-4 w-4" />Imprimir / salvar PDF</Button></div>
       </div>
 
       <section className="panel p-5 sm:p-6">
@@ -177,4 +177,34 @@ function NewAnimalVaccine({sow,litters,onDone}:{sow:Sow;litters:Litter[];onDone:
 function NewAnimalMedication({sow,litters,onDone}:{sow:Sow;litters:Litter[];onDone:()=>void}) {
  const [busy,setBusy]=useState(false),[scope,setScope]=useState<HealthScope>("matriz");
  return <FormDialog title={`Novo medicamento · matriz ${sow.ear_tag}`} trigger={<Button size="sm" variant="outline"><Pill className="mr-2 h-4 w-4"/>Registrar medicamento</Button>}>{close=><form className="space-y-3" onSubmit={async e=>{e.preventDefault();const fd=new FormData(e.currentTarget);const s=String(fd.get("animal_scope"));const litter=String(fd.get("litter_id")||"")||null;const piglet=String(fd.get("piglet_identifier")||"").trim()||null;const antimicrobial=fd.has("antimicrobial");const vet=String(fd.get("veterinarian")||"").trim();const prescription=String(fd.get("prescription")||"").trim();if(s!=="matriz"&&!litter){toast.error("Selecione a leitegada.");return;}if(s==="leitao"&&!piglet){toast.error("Informe a identificação do leitão.");return;}if(antimicrobial&&(!vet||!prescription)){toast.error("Antimicrobianos exigem veterinário e referência da prescrição.");return;}const payload={animal_scope:s,sow_id:sow.id,litter_id:litter,piglet_identifier:piglet,product_name:String(fd.get("product_name")).trim(),active_ingredient:String(fd.get("active_ingredient")||"")||null,therapeutic_class:String(fd.get("therapeutic_class")||"")||null,is_antimicrobial:antimicrobial,prescription_reference:prescription||null,veterinarian:vet||null,batch:String(fd.get("batch")||"")||null,animals_treated:Number(fd.get("animals_treated")||0),dose_as_prescribed:String(fd.get("dose")||"")||null,route:String(fd.get("route")||"")||null,frequency:String(fd.get("frequency")||"")||null,administration_start:String(fd.get("start")),administration_end:String(fd.get("end")||"")||null,withdrawal_days:Number(fd.get("withdrawal")||0),responsible:String(fd.get("responsible")||"")||null,notes:String(fd.get("notes")||"")||null};if(payload.administration_end&&payload.administration_end<payload.administration_start){toast.error("A data final não pode anteceder o início.");return;}setBusy(true);const {error}=await db.from("medication_records").insert(payload);setBusy(false);if(error){toast.error(error.message);return;}toast.success("Medicamento registrado no prontuário.");close();onDone();}}><p className="rounded-lg border border-warn/40 bg-warn/10 p-3 text-xs leading-5">Transcreva a prescrição confirmada. Não escolha produto, dose, via, frequência ou duração por conta própria. Respeite a carência definida na bula e pelo veterinário.</p><HealthTargetFields sow={sow} litters={litters} scope={scope} setScope={setScope}/><Field label="Medicamento / produto"><Input name="product_name" required/></Field><div className="grid grid-cols-2 gap-3"><Field label="Princípio ativo"><Input name="active_ingredient"/></Field><Field label="Classe terapêutica"><Input name="therapeutic_class"/></Field></div><label className="flex items-center gap-2 rounded-lg bg-muted/50 p-3 text-sm"><input type="checkbox" name="antimicrobial" className="h-4 w-4"/>É antimicrobiano</label><div className="grid grid-cols-2 gap-3"><Field label="Referência da prescrição"><Input name="prescription"/></Field><Field label="Médico-veterinário"><Input name="veterinarian"/></Field></div><div className="grid grid-cols-2 gap-3"><Field label="Data de início"><Input name="start" type="date" defaultValue={todayISO()} required/></Field><Field label="Data de término"><Input name="end" type="date"/></Field></div><div className="grid grid-cols-2 gap-3"><Field label="Quantidade de animais tratados"><Input name="animals_treated" type="number" min="0" defaultValue={scope==="matriz"?"1":"0"}/></Field><Field label="Carência (dias, conforme bula)"><Input name="withdrawal" type="number" min="0" defaultValue="0"/></Field></div><Field label="Dose exatamente como prescrita"><Input name="dose" placeholder="Transcrever da prescrição"/></Field><div className="grid grid-cols-2 gap-3"><Field label="Via"><Input name="route"/></Field><Field label="Frequência"><Input name="frequency"/></Field></div><div className="grid grid-cols-2 gap-3"><Field label="Lote do produto"><Input name="batch"/></Field><Field label="Responsável pela administração"><Input name="responsible"/></Field></div><Field label="Observações"><Textarea name="notes" rows={2}/></Field><SubmitRow busy={busy} label="Salvar medicamento"/></form>}</FormDialog>;
+}
+
+
+function DeleteSowButton({ sow }: { sow: Sow }) {
+  const qc = useQueryClient();
+  const navigate = useNavigate();
+  const [typed, setTyped] = useState("");
+  const [busy, setBusy] = useState(false);
+  return (
+    <FormDialog title={`Excluir matriz ${sow.ear_tag}`} trigger={<Button variant="destructive">Excluir matriz</Button>}>
+      {(close) => (
+        <form className="space-y-4" onSubmit={async (e) => {
+          e.preventDefault();
+          if (typed.trim() !== sow.ear_tag) { toast.error("Digite o brinco exatamente para confirmar."); return; }
+          setBusy(true);
+          const { error } = await supabase.rpc("delete_sow", { p_sow_id: sow.id });
+          setBusy(false);
+          if (error) { toast.error(error.message); return; }
+          await qc.invalidateQueries();
+          toast.success("Matriz excluída.");
+          close();
+          navigate({ to: "/matrizes" });
+        }}>
+          <p className="text-sm text-muted-foreground">Isto apaga para sempre a matriz e todo o histórico dela: coberturas, partos, leitegadas, eventos e registros sanitários. Não dá para desfazer. Se ela só saiu do plantel, prefira registrar descarte, morte ou transferência.</p>
+          <Field label={`Digite o brinco "${sow.ear_tag}" para confirmar`}><Input value={typed} onChange={(e) => setTyped(e.target.value)} /></Field>
+          <Button type="submit" variant="destructive" disabled={busy || typed.trim() !== sow.ear_tag} className="h-11 w-full">{busy ? "Excluindo…" : "Excluir definitivamente"}</Button>
+        </form>
+      )}
+    </FormDialog>
+  );
 }

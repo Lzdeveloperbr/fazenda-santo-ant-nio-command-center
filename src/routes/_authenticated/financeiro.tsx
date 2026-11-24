@@ -136,3 +136,13 @@ function ReverseEntry({ entry }: { entry: FinanceEntry }) {
     </AlertDialogContent>
   </AlertDialog>;
 }
+
+function Stat({ label, value, hint, tone }: { label: string; value: string; hint?: string | undefined; tone?: string }) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-4">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className={`mt-1 font-mono text-lg font-semibold ${tone ?? ""}`}>{value}</p>
+      {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
+    </div>
+  );
+}

@@ -99,6 +99,13 @@
       "when": 1795471560000,
       "tag": "0013_restringe_codigo_acesso_granja",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1795511212816,
+      "tag": "0014_delete_sow_function",
+      "breakpoints": true
     }
   ]
 }
