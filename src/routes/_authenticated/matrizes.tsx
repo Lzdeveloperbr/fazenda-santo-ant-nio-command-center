@@ -4,8 +4,8 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Plus, Search, ArrowUpDown, Download, RotateCcw, FileText, Pencil, ClipboardPlus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { sowsQuery, breedingsQuery, littersQuery, SOW_STATUS, isCountedLitter, SOW_EVENT_LABEL, fmtDate, todayISO, type Sow, type Breeding, type Litter } from "@/lib/farm";
-import { isActiveSowStatus } from "@/lib/farm/reproduction";
+import { sowsQuery, breedingsQuery, littersQuery, SOW_STATUS, isCountedLitter, SOW_EVENT_LABEL, fmtDate, todayISO, addDaysISO, type Sow, type Breeding, type Litter } from "@/lib/farm";
+import { breedingDateError, canReceiveBreeding, farrowingTimeError, isActiveSowStatus } from "@/lib/farm/reproduction";
 import { SectionTitle, Empty } from "@/components/farm/Kpi";
 import { FormDialog, SubmitRow, Field, selectCls } from "@/components/farm/FormDialog";
 import { Button } from "@/components/ui/button";
@@ -149,7 +149,7 @@ function SowActions({ s, lastB, onDone }: { s: Sow; lastB: Breeding | undefined;
   return (
     <div className="flex flex-wrap gap-2">
       <Link to="/matrizes/$sowId" params={{ sowId: s.id }}><Button size="sm" variant="outline"><FileText className="mr-1 h-3.5 w-3.5" />Ficha</Button></Link>
-      {active && <NewBreeding sow={s} onDone={onDone} />}
+      {canReceiveBreeding(s.status) && <NewBreeding sow={s} onDone={onDone} />}
       {active && lastB && lastB.pregnancy_check === "pendente" && <PregCheck sow={s} breedingId={lastB.id} onDone={onDone} />}
       {active && <NewLitter sow={s} onDone={onDone} />}
       {active && <SowEventDialog sow={s} onDone={onDone} />}
@@ -323,15 +323,44 @@ function NewBreeding({ sow, onDone }: { sow: Sow; onDone: () => void }) {
       {(close) => <form className="space-y-4" onSubmit={async (e) => {
         e.preventDefault();
         const f = new FormData(e.currentTarget);
+        const date = String(f.get("date") || "");
+        const dateError = breedingDateError(date, todayISO());
+        if (dateError) { toast.error(dateError); return; }
+        const services = Number(f.get("services_count") || 1);
+        if (!Number.isInteger(services) || services < 1) { toast.error("Informe uma quantidade inteira de serviços maior que zero."); return; }
         setBusy(true);
-        const { error } = await supabase.from("breedings").insert({ sow_id: sow.id, breeding_date: String(f.get("date")), boar: String(f.get("boar") || "") || null });
-        if (!error) await supabase.from("sows").update({ status: "coberta" }).eq("id", sow.id);
+        const { error } = await supabase.from("breedings").insert({
+          sow_id: sow.id,
+          breeding_date: date,
+          expected_farrowing: addDaysISO(date, 114),
+          boar: String(f.get("boar") || "").trim() || null,
+          breeding_type: String(f.get("breeding_type") || "inseminacao"),
+          services_count: services,
+          semen_code: String(f.get("semen_code") || "").trim() || null,
+          responsible: String(f.get("responsible") || "").trim() || null,
+          notes: String(f.get("notes") || "").trim() || null,
+        });
+        if (error) { setBusy(false); toast.error(error.message); return; }
+        const statusResult = await supabase.from("sows").update({ status: "coberta" }).eq("id", sow.id);
         setBusy(false);
-        if (error) { toast.error(error.message); return; }
-        toast.success("Cobertura registrada · parto estimado em 114 dias"); onDone(); close();
+        if (statusResult.error) {
+          toast.error("Cobertura salva, mas não foi possível atualizar a situação da matriz. Confira a ficha.");
+          onDone();
+          close();
+          return;
+        }
+        toast.success("Cobertura registrada · parto previsto para 114 dias após a data informada"); onDone(); close();
       }}>
-        <Field label="Data da cobertura"><Input name="date" type="date" required defaultValue={todayISO()} className="h-11" /></Field>
-        <Field label="Reprodutor / sêmen"><Input name="boar" className="h-11" /></Field>
+        <Field label="Data da cobertura"><Input name="date" type="date" required max={todayISO()} defaultValue={todayISO()} className="h-11" /></Field>
+        <Field label="Tipo de serviço"><select name="breeding_type" className={selectCls} defaultValue="inseminacao"><option value="inseminacao">Inseminação artificial</option><option value="monta_natural">Monta natural</option><option value="repasse">Repasse</option></select></Field>
+        <Field label="Reprodutor / sêmen"><Input name="boar" className="h-11" placeholder="Código do macho ou identificação" /></Field>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Nº de serviços"><Input name="services_count" type="number" min={1} step={1} defaultValue={1} required className="h-11" /></Field>
+          <Field label="Código da dose"><Input name="semen_code" className="h-11" /></Field>
+        </div>
+        <Field label="Responsável"><Input name="responsible" className="h-11" /></Field>
+        <Field label="Observações"><Textarea name="notes" rows={2} /></Field>
+        <p className="rounded-lg bg-muted p-3 text-xs text-muted-foreground">Previsão calculada automaticamente para 114 dias após a cobertura. Confirme o calendário com o manejo da granja.</p>
         <SubmitRow busy={busy} />
       </form>}
     </FormDialog>
@@ -365,21 +394,52 @@ function NewLitter({ sow, onDone }: { sow: Sow; onDone: () => void }) {
       {(close) => <form className="space-y-4" onSubmit={async (e) => {
         e.preventDefault();
         const f = new FormData(e.currentTarget);
-        const alive = Number(f.get("alive")), still = Number(f.get("still"));
-        if (!Number.isInteger(alive) || alive < 0 || !Number.isInteger(still) || still < 0) { toast.error("Informe quantidades inteiras e válidas."); return; }
-        if (!confirm(`Confirmar parto: ${alive} vivos e ${still} natimortos?`)) return;
+        const date = String(f.get("date") || "");
+        const dateError = breedingDateError(date, todayISO());
+        if (dateError) { toast.error(dateError.replace("cobertura", "parto")); return; }
+        const alive = Number(f.get("alive")), still = Number(f.get("still")), mummified = Number(f.get("mummified") || 0);
+        if (![alive, still, mummified].every((value) => Number.isInteger(value) && value >= 0)) { toast.error("Informe quantidades inteiras e válidas."); return; }
+        const startTime = String(f.get("start_time") || ""), endTime = String(f.get("end_time") || "");
+        const timeError = farrowingTimeError(startTime, endTime);
+        if (timeError) { toast.error(timeError); return; }
+        const total = alive + still + mummified;
+        if (!confirm(`Confirmar parto: ${alive} vivos, ${still} natimortos e ${mummified} mumificados (total ${total})?`)) return;
         setBusy(true);
-        const { error } = await supabase.from("litters").insert({ sow_id: sow.id, farrowing_date: String(f.get("date")), born_alive: alive, stillborn: still, born_total: alive + still });
-        if (!error) await supabase.from("sows").update({ status: "lactante" }).eq("id", sow.id);
+        const { error } = await supabase.from("litters").insert({
+          sow_id: sow.id,
+          farrowing_date: date,
+          born_alive: alive,
+          stillborn: still,
+          mummified,
+          born_total: total,
+          start_time: startTime || null,
+          end_time: endTime || null,
+          responsible: String(f.get("responsible") || "").trim() || null,
+          farrowing_notes: String(f.get("notes") || "").trim() || null,
+        });
+        if (error) { setBusy(false); toast.error(error.message); return; }
+        const statusResult = await supabase.from("sows").update({ status: "lactante" }).eq("id", sow.id);
         setBusy(false);
-        if (error) { toast.error(error.message); return; }
+        if (statusResult.error) {
+          toast.error("Parto salvo, mas não foi possível atualizar a situação da matriz. Confira a ficha.");
+          onDone();
+          close();
+          return;
+        }
         toast.success("Parto registrado"); onDone(); close();
       }}>
-        <Field label="Data do parto"><Input name="date" type="date" required defaultValue={todayISO()} className="h-11" /></Field>
+        <Field label="Data do parto"><Input name="date" type="date" required max={todayISO()} defaultValue={todayISO()} className="h-11" /></Field>
         <div className="grid grid-cols-2 gap-3">
+          <Field label="Início do parto"><Input name="start_time" type="time" className="h-11" /></Field>
+          <Field label="Fim do parto"><Input name="end_time" type="time" className="h-11" /></Field>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
           <Field label="Nascidos vivos"><Input name="alive" type="number" min={0} step={1} required inputMode="numeric" className="h-11" /></Field>
           <Field label="Natimortos"><Input name="still" type="number" min={0} step={1} defaultValue={0} inputMode="numeric" className="h-11" /></Field>
+          <Field label="Mumificados"><Input name="mummified" type="number" min={0} step={1} defaultValue={0} inputMode="numeric" className="h-11" /></Field>
         </div>
+        <Field label="Responsável pelo parto"><Input name="responsible" className="h-11" /></Field>
+        <Field label="Ocorrências / observações"><Textarea name="notes" rows={3} placeholder="Dificuldades, intervenções e observações do parto" /></Field>
         <SubmitRow busy={busy} label="Registrar parto" />
       </form>}
     </FormDialog>

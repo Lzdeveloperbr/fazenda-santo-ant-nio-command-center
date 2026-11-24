@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isActiveSowStatus, litterEventError } from "./reproduction";
+import { isActiveSowStatus, canReceiveBreeding, litterEventError, breedingDateError, farrowingTimeError } from "./reproduction";
 
 describe("situação das matrizes", () => {
   it("mantém no plantel somente as situações reprodutivas ativas", () => {
@@ -33,5 +33,41 @@ describe("limites dos eventos da leitegada", () => {
   it("exige peso médio maior que zero", () => {
     expect(litterEventError({ eventType: "pesagem", quantity: 0, live: 3, value: 0 })).toContain("maior que zero");
     expect(litterEventError({ eventType: "pesagem", quantity: 0, live: 3, value: 1.25 })).toBeNull();
+  });
+});
+
+
+describe("validação da cobertura", () => {
+  it("aceita uma data válida até hoje", () => {
+    expect(breedingDateError("2026-11-24", "2026-11-24")).toBeNull();
+    expect(breedingDateError("2026-11-20", "2026-11-24")).toBeNull();
+  });
+  it("rejeita data futura e datas impossíveis", () => {
+    expect(breedingDateError("2026-11-25", "2026-11-24")).toContain("futuro");
+    expect(breedingDateError("2026-02-30", "2026-11-24")).toContain("válida");
+    expect(breedingDateError("", "2026-11-24")).toContain("válida");
+  });
+});
+
+
+describe("validação dos horários de parto", () => {
+  it("aceita horários coerentes e registros sem horário", () => {
+    expect(farrowingTimeError("08:10", "10:30")).toBeNull();
+    expect(farrowingTimeError("", "")).toBeNull();
+  });
+  it("rejeita horário final anterior ao inicial e formatos inválidos", () => {
+    expect(farrowingTimeError("10:30", "08:10")).toContain("anterior");
+    expect(farrowingTimeError("8h", "09:00")).toContain("inicial válido");
+  });
+});
+
+
+describe("elegibilidade para cobertura", () => {
+  it("permite serviço em matriz vazia ou coberta", () => {
+    expect(canReceiveBreeding("vazia")).toBe(true);
+    expect(canReceiveBreeding("coberta")).toBe(true);
+  });
+  it("bloqueia nova cobertura em matriz gestante, lactante ou fora do plantel", () => {
+    expect(["gestante", "lactante", "descartada", "morta", "transferida"].some(canReceiveBreeding)).toBe(false);
   });
 });
