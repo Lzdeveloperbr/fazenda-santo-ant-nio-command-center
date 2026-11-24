@@ -1,63 +1,207 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend } from "recharts";
-import { PiggyBank, HeartPulse, CalendarClock, Baby, Sprout, Skull, ListChecks, AlertTriangle, ArrowUpRight, CalendarDays } from "lucide-react";
-import { Kpi, SectionTitle, Empty } from "@/components/farm/Kpi";
-import { sowsQuery, breedingsQuery, littersQuery, tasksQuery, livePiglets, isCountedLitter, todayISO, addDaysISO, fmtDate } from "@/lib/farm";
+import {
+  Activity, AlertTriangle, ArrowRight, Baby, CalendarClock, CheckCircle2,
+  ClipboardList, HeartPulse, PiggyBank, Skull, Sprout, TrendingUp, Wheat,
+} from "lucide-react";
+import {
+  Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis,
+} from "recharts";
+import {
+  addDaysISO, breedingsQuery, fmtDate, isCountedLitter, livePiglets,
+  littersQuery, sowsQuery, tasksQuery, todayISO,
+} from "@/lib/farm";
 import { isActiveSowStatus } from "@/lib/farm/reproduction";
-export const Route=createFileRoute("/_authenticated/painel")({head:()=>({meta:[{title:"Painel da granja | Fazenda Santo Antônio"},{name:"description",content:"Indicadores reais da produção, reprodução, maternidade e rotina da suinocultura."},{property:"og:title",content:"Painel da granja | Fazenda Santo Antônio"},{property:"og:description",content:"Indicadores e prioridades da operação da fazenda."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary"}]}),component:Painel});
-function Painel(){
- const sows=useQuery(sowsQuery),breedings=useQuery(breedingsQuery),litters=useQuery(littersQuery),tasks=useQuery(tasksQuery);const today=todayISO(),in7=addDaysISO(today,7);const loading=sows.isLoading||breedings.isLoading||litters.isLoading||tasks.isLoading;
- const s=useMemo(()=>{const S=sows.data??[],B=breedings.data??[],L=(litters.data??[]).filter(isCountedLitter),T=tasks.data??[];const active=S.filter(x=>isActiveSowStatus(x.status));const activeIds=new Set(active.map(x=>x.id));const latest=new Map<string,(typeof B)[number]>();for(const b of B)if(!latest.has(b.sow_id))latest.set(b.sow_id,b);const farrowed=(id:string,date:string)=>L.some(l=>l.sow_id===id&&l.farrowing_date>=date);const pending=[...latest.values()].filter(b=>activeIds.has(b.sow_id)&&b.pregnancy_check!=="negativo"&&!farrowed(b.sow_id,b.breeding_date));const due7=pending.filter(b=>b.expected_farrowing&&b.expected_farrowing>=today&&b.expected_farrowing<=in7);const overduePredictions=pending.filter(b=>b.expected_farrowing&&b.expected_farrowing<today);const inMat=L.filter(l=>l.status==="maternidade");const open=T.filter(t=>t.status!=="concluida");const overdue=open.filter(t=>t.due_date&&t.due_date<today);const month=today.slice(0,7);const deaths=L.filter(l=>l.farrowing_date.startsWith(month)).reduce((a,l)=>a+l.deaths,0);const monthly=new Map<string,{m:string;vivos:number;natimortos:number;desmamados:number;mortes:number;leitegadas:number}>();for(const l of [...L].reverse()){const m=l.farrowing_date.slice(0,7),r=monthly.get(m)??{m,vivos:0,natimortos:0,desmamados:0,mortes:0,leitegadas:0};r.vivos+=l.born_alive;r.natimortos+=l.stillborn;r.desmamados+=l.weaned??0;r.mortes+=l.deaths;r.leitegadas+=1;monthly.set(m,r);}return {active:active.length,overduePredictions,gestantes:S.filter(x=>x.status==="gestante").length,due7,inMat,liveMat:inMat.reduce((a,l)=>a+livePiglets(l),0),weaned:L.reduce((a,l)=>a+(l.weaned??0),0),deaths,open,overdue,chart:[...monthly.values()].slice(-12).map(r=>({...r,m:r.m.split("-").reverse().join("/")})),sowName:(id:string)=>S.find(x=>x.id===id)?.ear_tag??"?"};},[sows.data,breedings.data,litters.data,tasks.data,today,in7]);
- if(loading)return <div className="panel p-8 text-center text-sm text-muted-foreground animate-pulse-soft">Preparando os indicadores da fazenda…</div>;
- const attention=[...s.overdue.map(t=>({k:"t"+t.id,tone:"text-destructive",text:`Tarefa atrasada: ${t.title}`,sub:`Prevista ${fmtDate(t.due_date)}`,to:"/tarefas" as const})),...s.overduePredictions.map(b=>({k:"bp"+b.id,tone:"text-destructive",text:`Revisar previsão de parto · matriz ${s.sowName(b.sow_id)}`,sub:`Data prevista passou: ${fmtDate(b.expected_farrowing)}`,to:"/matrizes" as const})),...s.due7.map(b=>({k:"b"+b.id,tone:"text-warn",text:`Parto previsto · matriz ${s.sowName(b.sow_id)}`,sub:fmtDate(b.expected_farrowing),to:"/matrizes" as const}))];
- return <div className="space-y-7">
-  <section className="hero-premium relative rounded-[1.6rem] px-5 py-6 text-white sm:px-7 sm:py-8 lg:px-9 lg:py-9">
-   <div className="hero-orbit pointer-events-none hidden sm:block"/>
-   <div className="relative z-10 grid items-center gap-8 lg:grid-cols-[1.25fr_.75fr]">
-    <div className="max-w-2xl">
-     <div className="inline-flex items-center gap-2 rounded-full border border-[#D7B66C]/30 bg-[#D7B66C]/10 px-3 py-1.5 text-[.63rem] font-bold uppercase tracking-[.17em] text-[#E8D49F]"><span className="status-dot !h-1.5 !w-1.5 !bg-[#9CD2A4] !shadow-none"/> Centro de comando · Fazenda Santo Antônio</div>
-     <h1 className="mt-4 text-2xl font-bold leading-tight tracking-tight sm:text-3xl lg:text-[2.55rem]">Gestão inteligente.<br/><span className="text-[#DCC58A]">Produção sob controle.</span></h1>
-     <p className="mt-3 max-w-xl text-sm leading-6 text-white/70">Acompanhe o desempenho, antecipe manejos e tome decisões com mais clareza em cada etapa da suinocultura.</p>
-     <div className="mt-5 flex flex-wrap items-center gap-3">
-      <div className="flex items-center gap-2 rounded-xl border border-white/15 bg-white/[.08] px-3 py-2 text-xs font-semibold text-white/85"><CalendarDays className="h-4 w-4 text-[#D7B66C]"/>{new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"2-digit",month:"long"})}</div>
-      <span className="text-[.68rem] text-white/45">Painel operacional em tempo real dos registros</span>
-     </div>
-    </div>
-    <div className="hero-visual relative mx-auto hidden w-full max-w-[310px] lg:block" aria-hidden="true">
-     <div className="hero-glass-card relative rounded-[1.5rem] p-5">
-      <div className="flex items-center justify-between"><span className="text-[.62rem] font-bold uppercase tracking-[.16em] text-white/60">Visão da operação</span></div>
-      <div className="mt-6 flex items-end justify-between"><div><p className="text-[.65rem] text-white/55">Matrizes no plantel</p><p className="mt-1 font-mono text-4xl font-semibold tracking-tight">{s.active.toLocaleString("pt-BR")}</p></div><div className="grid h-12 w-12 place-items-center rounded-2xl border border-[#DCC58A]/25 bg-[#DCC58A]/10 text-2xl">🐖</div></div>
-      <div className="mt-5 grid grid-cols-2 gap-2">
-       <div className="rounded-xl border border-white/10 bg-black/10 p-3"><p className="text-[.58rem] text-white/50">Gestantes</p><p className="mt-1 font-mono text-xl">{s.gestantes}</p></div>
-       <div className="rounded-xl border border-white/10 bg-black/10 p-3"><p className="text-[.58rem] text-white/50">Leitões vivos</p><p className="mt-1 font-mono text-xl">{s.liveMat.toLocaleString("pt-BR")}</p></div>
-      </div>
-     </div>
-     <div className="absolute -bottom-4 -left-5 rounded-xl border border-white/15 bg-[#214D35]/90 px-3 py-2 shadow-xl backdrop-blur"><p className="text-[.56rem] uppercase tracking-wider text-white/50">Precisão no manejo</p><p className="mt-0.5 text-xs font-semibold text-[#E8D49F]">Santo Antônio · AgroTech</p></div>
-    </div>
-   </div>
-  </section>
-  <div className="flex items-center justify-between gap-3"><div><p className="label-tech">Resumo da operação</p><h2 className="mt-1 text-lg font-bold tracking-tight">Indicadores da granja</h2></div><span className="hidden rounded-full bg-accent px-3 py-1.5 text-[.68rem] font-bold text-primary sm:inline-flex">Dados registrados no sistema</span></div>
-  <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-   <Kpi label="Matrizes ativas" value={s.active} icon={PiggyBank} source="Matrizes" to="/matrizes"/>
-   <Kpi label="Gestantes" value={s.gestantes} icon={HeartPulse} tone="text-cyan" source="Matrizes" to="/matrizes" delay={35}/>
-   <Kpi label="Partos em 7 dias" value={s.due7.length} icon={CalendarClock} tone={s.due7.length?"text-warn":"text-foreground"} source="Coberturas" to="/matrizes" delay={70}/>
-   <Kpi label="Leitões na maternidade" value={s.liveMat} unit={`em ${s.inMat.length} leitegadas`} icon={Baby} tone="text-ok-glow" source="Leitegadas" to="/maternidade" delay={105}/>
-   <Kpi label="Leitões desmamados" value={s.weaned} unit="total" icon={Sprout} source="Leitegadas" to="/maternidade" delay={140}/>
-   <Kpi label="Mortes no mês" value={s.deaths} unit="leitegadas do mês" icon={Skull} tone={s.deaths?"text-destructive":"text-foreground"} source="Leitegadas" to="/maternidade" delay={175}/>
-   <Kpi label="Tarefas abertas" value={s.open.length} icon={ListChecks} tone="text-info" source="Tarefas" to="/tarefas" delay={210}/>
-   <Kpi label="Tarefas atrasadas" value={s.overdue.length} icon={AlertTriangle} tone={s.overdue.length?"text-destructive":"text-foreground"} source="Tarefas" to="/tarefas" delay={245}/>
-  </div>
-  <div className="grid gap-5 lg:grid-cols-5">
-   <section className="panel p-4 sm:p-5 lg:col-span-3"><SectionTitle kicker="Produção de leitões" title="Nascimentos por mês"/>{s.chart.length===0?<Empty>Ainda não há partos registrados. O gráfico aparecerá após o primeiro parto.</Empty>:<div className="h-64"><ResponsiveContainer><BarChart data={s.chart} margin={{top:8,right:8,left:-18,bottom:0}}><CartesianGrid stroke="var(--border)" vertical={false} strokeDasharray="4 5"/><XAxis dataKey="m" stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false}/><YAxis stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} allowDecimals={false}/><Tooltip cursor={{fill:"var(--accent)"}} contentStyle={{background:"var(--card)",border:"1px solid var(--border)",borderRadius:12,boxShadow:"0 12px 30px -18px rgba(0,0,0,.25)"}}/><Legend wrapperStyle={{fontSize:12,paddingTop:12}}/><Bar dataKey="vivos" name="Nascidos vivos" fill="var(--ok)" radius={[5,5,0,0]}/><Bar dataKey="natimortos" name="Natimortos" fill="var(--destructive)" radius={[5,5,0,0]}/><Bar dataKey="desmamados" name="Desmamados" fill="var(--info)" radius={[5,5,0,0]}/></BarChart></ResponsiveContainer></div>}</section>
-   <section className="panel p-4 sm:p-5 lg:col-span-2"><SectionTitle kicker="Acompanhamento" title="Prioridades do dia" action={<span className="rounded-full bg-[#F4EEDC] px-2.5 py-1 text-[.65rem] font-bold text-[#856A2C]">{attention.length} alertas</span>}/>{attention.length===0?<Empty>Nenhuma pendência crítica registrada. Continue mantendo os manejos em dia.</Empty>:<ul className="divide-y divide-border/70">{attention.slice(0,8).map(a=><li key={a.k}><Link to={a.to} className="group flex items-center gap-3 py-3"><span className={`h-2.5 w-2.5 shrink-0 rounded-full bg-current ${a.tone}`}/><div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold">{a.text}</p><p className="mt-1 font-mono text-[.68rem] text-muted-foreground">{a.sub}</p></div><ArrowUpRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"/></Link></li>)}</ul>}{s.open.length>0&&<p className="mt-3 border-t border-border/70 pt-3 text-[.68rem] text-muted-foreground">{s.open.filter(t=>t.priority==="alta").length} tarefa(s) de prioridade alta em aberto</p>}</section>
-  </div>
 
-  <section className="panel overflow-hidden">
-   <div className="border-b border-border px-4 py-4 sm:px-5"><SectionTitle kicker="Controle por período" title="Fechamento mensal das leitegadas"/><p className="mt-1 text-xs text-muted-foreground">Consolidação pelo mês do parto. As taxas usam somente os números registrados em cada leitegada.</p></div>
-   {s.chart.length===0?<Empty>Sem dados suficientes para montar o fechamento mensal.</Empty>:<div className="overflow-x-auto"><table className="w-full min-w-[760px] text-sm"><thead className="bg-muted/40 text-left text-xs text-muted-foreground"><tr><th className="px-4 py-3 font-medium">Mês</th><th className="px-3 py-3 font-medium">Leitegadas</th><th className="px-3 py-3 font-medium">Nascidos vivos</th><th className="px-3 py-3 font-medium">Natimortos</th><th className="px-3 py-3 font-medium">Mortalidade registrada</th><th className="px-3 py-3 font-medium">Desmamados</th><th className="px-3 py-3 font-medium">Média vivos/leitegada</th></tr></thead><tbody className="divide-y divide-border">{s.chart.map((r:any)=><tr key={r.m}><td className="px-4 py-3 font-semibold">{r.m}</td><td className="px-3 py-3 font-mono">{r.leitegadas}</td><td className="px-3 py-3 font-mono">{r.vivos}</td><td className="px-3 py-3 font-mono">{r.natimortos}</td><td className="px-3 py-3 font-mono">{r.vivos>0?(r.mortes/r.vivos*100).toFixed(1)+"%":"—"} <span className="text-xs text-muted-foreground">({r.mortes})</span></td><td className="px-3 py-3 font-mono">{r.desmamados}</td><td className="px-3 py-3 font-mono">{r.leitegadas>0?(r.vivos/r.leitegadas).toFixed(1):"—"}</td></tr>)}</tbody></table></div>}
-   <p className="border-t border-border px-4 py-3 text-[.68rem] text-muted-foreground">Mortalidade registrada = mortes anotadas ÷ nascidos vivos do grupo de partos do mês. Não substitui análise por coorte quando há transferências entre leitegadas. O fechamento respeita a data do parto, não a data em que o evento foi lançado.</p>
-  </section>
- </div>;
+export const Route = createFileRoute("/_authenticated/painel")({
+  head: () => ({ meta: [
+    { title: "Central de comando | Fazenda Santo Antônio" },
+    { name: "description", content: "Visão operacional da suinocultura com dados registrados da Fazenda Santo Antônio." },
+  ] }),
+  component: Dashboard,
+});
+
+function Dashboard() {
+  const sows = useQuery(sowsQuery);
+  const breedings = useQuery(breedingsQuery);
+  const litters = useQuery(littersQuery);
+  const tasks = useQuery(tasksQuery);
+  const today = todayISO();
+  const nextWeek = addDaysISO(today, 7);
+  const loading = sows.isLoading || breedings.isLoading || litters.isLoading || tasks.isLoading;
+  const error = sows.error || breedings.error || litters.error || tasks.error;
+
+  const data = useMemo(() => {
+    const sowRows = sows.data ?? [];
+    const breedingRows = breedings.data ?? [];
+    const litterRows = (litters.data ?? []).filter(isCountedLitter);
+    const taskRows = tasks.data ?? [];
+    const activeSows = sowRows.filter((sow) => isActiveSowStatus(sow.status));
+    const activeIds = new Set(activeSows.map((sow) => sow.id));
+    const latestBreeding = new Map<string, (typeof breedingRows)[number]>();
+    for (const breeding of breedingRows) {
+      if (!latestBreeding.has(breeding.sow_id)) latestBreeding.set(breeding.sow_id, breeding);
+    }
+    const farrowingCycles = [...latestBreeding.values()].filter((cycle) =>
+      activeIds.has(cycle.sow_id) &&
+      cycle.pregnancy_check !== "negativo" &&
+      !litterRows.some((litter) => litter.sow_id === cycle.sow_id && litter.farrowing_date >= cycle.breeding_date)
+    );
+    const dueSoon = farrowingCycles
+      .filter((cycle) => cycle.expected_farrowing && cycle.expected_farrowing >= today && cycle.expected_farrowing <= nextWeek)
+      .sort((a, b) => (a.expected_farrowing ?? "").localeCompare(b.expected_farrowing ?? ""));
+    const overdueFarrowings = farrowingCycles.filter((cycle) => cycle.expected_farrowing && cycle.expected_farrowing < today);
+    const maternity = litterRows.filter((litter) => litter.status === "maternidade");
+    const openTasks = taskRows.filter((task) => task.status !== "concluida");
+    const overdueTasks = openTasks.filter((task) => task.due_date && task.due_date < today);
+    const monthKey = today.slice(0, 7);
+    const deathsThisMonth = litterRows
+      .filter((litter) => litter.farrowing_date.startsWith(monthKey))
+      .reduce((total, litter) => total + litter.deaths, 0);
+    const monthly = new Map<string, { month: string; bornAlive: number; stillborn: number; weaned: number; deaths: number; litters: number }>();
+    for (const litter of [...litterRows].reverse()) {
+      const month = litter.farrowing_date.slice(0, 7);
+      const row = monthly.get(month) ?? { month, bornAlive: 0, stillborn: 0, weaned: 0, deaths: 0, litters: 0 };
+      row.bornAlive += litter.born_alive;
+      row.stillborn += litter.stillborn;
+      row.weaned += litter.weaned ?? 0;
+      row.deaths += litter.deaths;
+      row.litters += 1;
+      monthly.set(month, row);
+    }
+    return {
+      activeSows: activeSows.length,
+      pregnant: sowRows.filter((sow) => sow.status === "gestante").length,
+      dueSoon,
+      overdueFarrowings,
+      maternityCount: maternity.length,
+      liveInMaternity: maternity.reduce((total, litter) => total + livePiglets(litter), 0),
+      weaned: litterRows.reduce((total, litter) => total + (litter.weaned ?? 0), 0),
+      deathsThisMonth,
+      openTasks,
+      overdueTasks,
+      monthly: [...monthly.values()].slice(-8).map((row) => ({
+        ...row,
+        label: row.month.slice(5, 7) + "/" + row.month.slice(0, 4),
+      })),
+      sowTag: (id: string) => sowRows.find((sow) => sow.id === id)?.ear_tag ?? "Matriz sem identificação",
+    };
+  }, [sows.data, breedings.data, litters.data, tasks.data, today, nextWeek]);
+
+  if (loading) return <div className="rounded-2xl border bg-card p-10 text-center text-sm text-muted-foreground">Carregando dados registrados da granja…</div>;
+  if (error) return <div className="rounded-2xl border border-destructive/30 bg-card p-6"><p className="font-semibold">Não foi possível carregar o painel.</p><p className="mt-2 text-sm text-muted-foreground">{error instanceof Error ? error.message : "Verifique a conexão e tente novamente."}</p></div>;
+
+  const alerts = [
+    ...data.overdueTasks.map((task) => ({ id: "task-" + task.id, title: task.title, detail: "Tarefa vencida · " + fmtDate(task.due_date), critical: true, href: "/tarefas" as const })),
+    ...data.overdueFarrowings.map((cycle) => ({ id: "farrow-" + cycle.id, title: "Revisar previsão · " + data.sowTag(cycle.sow_id), detail: "Previsão: " + fmtDate(cycle.expected_farrowing), critical: true, href: "/gestacao" as const })),
+    ...data.dueSoon.map((cycle) => ({ id: "due-" + cycle.id, title: "Parto previsto · " + data.sowTag(cycle.sow_id), detail: fmtDate(cycle.expected_farrowing), critical: false, href: "/gestacao" as const })),
+  ];
+
+  return (
+    <div className="space-y-6">
+      <section className="relative overflow-hidden rounded-[26px] bg-[#173D2B] p-6 text-white shadow-xl sm:p-8">
+        <div className="pointer-events-none absolute -right-16 -top-28 h-80 w-80 rounded-full border border-white/10" />
+        <div className="pointer-events-none absolute -right-2 -top-14 h-56 w-56 rounded-full border border-white/10" />
+        <div className="relative grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#D8BD79]/30 bg-white/5 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[.16em] text-[#E7D49E]">
+              <Activity className="h-3.5 w-3.5" /> Fazenda Santo Antônio · Operação
+            </div>
+            <h1 className="mt-5 text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl">Central de comando<br /><span className="text-[#DCC58A]">da suinocultura.</span></h1>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-white/70">Uma visão clara do plantel, dos próximos manejos e dos resultados registrados. Os números abaixo vêm dos dados da granja.</p>
+            <p className="mt-5 text-xs font-medium capitalize text-white/55">{new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}</p>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:min-w-[300px]">
+            <HeroStat label="Matrizes ativas" value={data.activeSows} icon={<PiggyBank className="h-4 w-4" />} />
+            <HeroStat label="Gestantes" value={data.pregnant} icon={<HeartPulse className="h-4 w-4" />} />
+          </div>
+        </div>
+      </section>
+
+      <div className="flex items-end justify-between gap-3">
+        <div><p className="text-[11px] font-bold uppercase tracking-[.16em] text-muted-foreground">Resumo operacional</p><h2 className="mt-1 text-xl font-bold tracking-tight">Indicadores principais</h2></div>
+        <span className="hidden rounded-full bg-muted px-3 py-1.5 text-[11px] font-semibold text-muted-foreground sm:inline-flex">Atualizado a partir dos registros</span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+        <Metric label="Partos em 7 dias" value={data.dueSoon.length} hint="Previsões cadastradas" icon={<CalendarClock />} tone="gold" href="/gestacao" />
+        <Metric label="Leitões na maternidade" value={data.liveInMaternity} hint={data.maternityCount + " leitegadas" } icon={<Baby />} tone="green" href="/maternidade" />
+        <Metric label="Leitões desmamados" value={data.weaned} hint="Total registrado" icon={<Sprout />} tone="blue" href="/desmame" />
+        <Metric label="Mortalidade no mês" value={data.deathsThisMonth} hint="Óbitos registrados" icon={<Skull />} tone="red" href="/maternidade" />
+        <Metric label="Tarefas em aberto" value={data.openTasks.length} hint="Manejos pendentes" icon={<ClipboardList />} tone="blue" href="/tarefas" />
+        <Metric label="Tarefas atrasadas" value={data.overdueTasks.length} hint="Exigem conferência" icon={<AlertTriangle />} tone="red" href="/tarefas" />
+        <Metric label="Previsões vencidas" value={data.overdueFarrowings.length} hint="Conferir situação da matriz" icon={<CalendarClock />} tone="red" href="/gestacao" />
+        <Metric label="Matrizes no plantel" value={data.activeSows} hint="Situação ativa" icon={<TrendingUp />} tone="green" href="/matrizes" />
+      </div>
+
+      <div className="grid gap-5 xl:grid-cols-[1.4fr_.8fr]">
+        <section className="rounded-2xl border bg-card p-4 shadow-sm sm:p-5">
+          <div className="flex items-center justify-between gap-3"><div><p className="text-[11px] font-bold uppercase tracking-[.15em] text-muted-foreground">Histórico produtivo</p><h2 className="mt-1 text-lg font-bold">Produção por mês</h2></div><Wheat className="h-5 w-5 text-muted-foreground" /></div>
+          {data.monthly.length === 0 ? <EmptyChart /> : (
+            <div className="mt-5 h-[280px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={data.monthly} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
+                  <CartesianGrid stroke="var(--border)" strokeDasharray="4 5" vertical={false} />
+                  <XAxis dataKey="label" tickLine={false} axisLine={false} fontSize={11} stroke="var(--muted-foreground)" />
+                  <YAxis allowDecimals={false} tickLine={false} axisLine={false} fontSize={11} stroke="var(--muted-foreground)" />
+                  <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12 }} />
+                  <Legend wrapperStyle={{ fontSize: 11, paddingTop: 12 }} />
+                  <Bar dataKey="bornAlive" name="Nascidos vivos" fill="#2F7650" radius={[5, 5, 0, 0]} />
+                  <Bar dataKey="stillborn" name="Natimortos" fill="#C17B55" radius={[5, 5, 0, 0]} />
+                  <Bar dataKey="weaned" name="Desmamados" fill="#5B8FA8" radius={[5, 5, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+          <p className="mt-2 text-[11px] leading-5 text-muted-foreground">Consolidação pela data do parto. O gráfico não preenche meses sem registros com estimativas.</p>
+        </section>
+
+        <section className="rounded-2xl border bg-card p-4 shadow-sm sm:p-5">
+          <div className="flex items-center justify-between"><div><p className="text-[11px] font-bold uppercase tracking-[.15em] text-muted-foreground">Ação necessária</p><h2 className="mt-1 text-lg font-bold">Agenda e alertas</h2></div><span className="rounded-full bg-muted px-2.5 py-1 text-xs font-bold">{alerts.length}</span></div>
+          {alerts.length === 0 ? (
+            <div className="mt-6 rounded-xl bg-muted/50 p-5 text-center"><CheckCircle2 className="mx-auto h-7 w-7 text-emerald-600" /><p className="mt-2 text-sm font-semibold">Nenhum alerta identificado</p><p className="mt-1 text-xs text-muted-foreground">Isso considera somente as tarefas e previsões cadastradas.</p></div>
+          ) : (
+            <ul className="mt-3 divide-y">
+              {alerts.slice(0, 7).map((alert) => (
+                <li key={alert.id}><Link to={alert.href} className="flex items-center gap-3 py-3">
+                  <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${alert.critical ? "bg-red-500" : "bg-amber-500"}`} />
+                  <span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold">{alert.title}</span><span className="mt-0.5 block text-xs text-muted-foreground">{alert.detail}</span></span>
+                  <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                </Link></li>
+              ))}
+            </ul>
+          )}
+          <Link to="/tarefas" className="mt-3 flex items-center justify-between rounded-xl border px-3 py-2.5 text-sm font-semibold transition hover:bg-muted"><span>Ver rotina completa</span><ArrowRight className="h-4 w-4" /></Link>
+        </section>
+      </div>
+
+      <section className="overflow-hidden rounded-2xl border bg-card shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b p-4 sm:p-5"><div><p className="text-[11px] font-bold uppercase tracking-[.15em] text-muted-foreground">Atalhos de trabalho</p><h2 className="mt-1 text-lg font-bold">Acesse os módulos da granja</h2></div><span className="text-xs text-muted-foreground">Escolha uma área para continuar</span></div>
+        <div className="grid grid-cols-2 divide-x divide-y sm:grid-cols-4 sm:divide-y-0">
+          <QuickLink href="/matrizes" icon={<PiggyBank />} title="Matrizes" detail="Cadastro e reprodução" />
+          <QuickLink href="/maternidade" icon={<Baby />} title="Maternidade" detail="Partos e leitegadas" />
+          <QuickLink href="/sanidade" icon={<HeartPulse />} title="Sanidade" detail="Saúde e tratamentos" />
+          <QuickLink href="/estoque" icon={<Wheat />} title="Estoque" detail="Ração e materiais" />
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function HeroStat({ label, value, icon }: { label: string; value: number; icon: React.ReactNode }) {
+  return <div className="rounded-2xl border border-white/15 bg-white/[.08] p-4 backdrop-blur"><div className="flex items-center justify-between text-white/65"><span className="text-xs">{label}</span>{icon}</div><p className="mt-3 font-mono text-3xl font-bold">{value.toLocaleString("pt-BR")}</p></div>;
+}
+
+function Metric({ label, value, hint, icon, tone, href }: { label: string; value: number; hint: string; icon: React.ReactNode; tone: "gold" | "green" | "blue" | "red"; href: "/gestacao" | "/maternidade" | "/desmame" | "/tarefas" | "/matrizes" }) {
+  const tones = { gold: "bg-amber-50 text-amber-800", green: "bg-emerald-50 text-emerald-800", blue: "bg-sky-50 text-sky-800", red: "bg-rose-50 text-rose-800" };
+  return <Link to={href} className="group rounded-2xl border bg-card p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:p-5"><div className="flex items-start justify-between gap-2"><span className="text-xs font-semibold leading-5 text-muted-foreground">{label}</span><span className={`rounded-xl p-2 ${tones[tone]}`}>{icon}</span></div><p className="mt-3 font-mono text-3xl font-bold tracking-tight">{value.toLocaleString("pt-BR")}</p><p className="mt-1 text-[11px] text-muted-foreground">{hint}</p></Link>;
+}
+
+function QuickLink({ href, icon, title, detail }: { href: "/matrizes" | "/maternidade" | "/sanidade" | "/estoque"; icon: React.ReactNode; title: string; detail: string }) {
+  return <Link to={href} className="flex min-w-0 items-center gap-3 p-4 transition hover:bg-muted/60 sm:p-5"><span className="rounded-xl bg-emerald-50 p-2.5 text-emerald-800">{icon}</span><span className="min-w-0"><span className="block truncate text-sm font-bold">{title}</span><span className="mt-0.5 block truncate text-[11px] text-muted-foreground">{detail}</span></span></Link>;
+}
+
+function EmptyChart() {
+  return <div className="mt-5 grid h-[280px] place-items-center rounded-xl bg-muted/40 px-6 text-center"><div><Sprout className="mx-auto h-8 w-8 text-muted-foreground" /><p className="mt-2 text-sm font-semibold">Ainda não há partos registrados</p><p className="mt-1 text-xs text-muted-foreground">Assim que os dados forem cadastrados, a evolução aparecerá aqui.</p></div></div>;
 }
