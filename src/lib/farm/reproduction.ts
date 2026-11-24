@@ -5,6 +5,11 @@ export function isActiveSowStatus(status: string) {
   return ACTIVE_SOW_STATUSES.has(status);
 }
 
+/** Only empty or already-covered sows may receive another service record. */
+export function canReceiveBreeding(status: string) {
+  return status === "vazia" || status === "coberta";
+}
+
 /** Validate a coverage date before creating a reproductive event. */
 export function breedingDateError(date: string, today: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return "Informe uma data de cobertura válida.";
