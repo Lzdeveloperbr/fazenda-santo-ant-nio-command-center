@@ -1,6 +1,18 @@
 /** Pure reproductive-cycle math. All dates are ISO "YYYY-MM-DD", computed in UTC (leap years and month/year turns handled by Date). */
 export type GestationConfig = { heatPrep: number; heatStart: number; heatEnd: number; attentionStart: number; approachDay: number; intensiveDay: number; gestationDays: number };
 export const DEFAULT_CONFIG: GestationConfig = { heatPrep: 18, heatStart: 19, heatEnd: 21, attentionStart: 105, approachDay: 110, intensiveDay: 112, gestationDays: 114 };
+/** Reject impossible or fractional day settings before they affect farm alerts. */
+export function validateGestationConfig(c: GestationConfig): string | null {
+  const values = Object.values(c);
+  if (values.some((value) => !Number.isInteger(value) || value < 1 || value > 130)) {
+    return "Todos os prazos devem ser números inteiros entre 1 e 130 dias.";
+  }
+  if (!(c.heatPrep < c.heatStart && c.heatStart <= c.heatEnd && c.heatEnd < c.attentionStart && c.attentionStart <= c.approachDay && c.approachDay <= c.intensiveDay && c.intensiveDay <= c.gestationDays)) {
+    return "Os dias precisam estar em ordem crescente.";
+  }
+  return null;
+}
+
 
 const DAY = 86400000;
 const toUTC = (iso: string) => { const [y, m, d] = iso.slice(0, 10).split("-").map(Number); return Date.UTC(y!, m! - 1, d!); };

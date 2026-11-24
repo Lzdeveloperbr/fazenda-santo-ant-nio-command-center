@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { cycleDates, cycleAlert, cycleStage, daysBetween, reproductiveIndicators, farrowingWarning } from "./gestation";
+import { cycleDates, cycleAlert, cycleStage, daysBetween, reproductiveIndicators, farrowingWarning, validateGestationConfig } from "./gestation";
 
 const base = { id: "b1", sow_id: "s1", breeding_date: "2026-08-01", heat_check: "pendente", pregnancy_check: "pendente", cycle_status: "ativo" };
 
@@ -46,5 +46,17 @@ describe("indicators", () => {
   it("warns when piglet categories do not add up", () => {
     expect(farrowingWarning(12, 10, 1, 0)).not.toBeNull();
     expect(farrowingWarning(12, 10, 1, 1)).toBeNull();
+  });
+});
+
+describe("gestation configuration validation", () => {
+  it("accepts the default reproductive calendar", async () => {
+    expect(validateGestationConfig({ heatPrep: 18, heatStart: 19, heatEnd: 21, attentionStart: 105, approachDay: 110, intensiveDay: 112, gestationDays: 114 })).toBeNull();
+  });
+  it("rejects fractional, out-of-range and unordered day values", async () => {
+    const { validateGestationConfig } = await import("./gestation");
+    expect(validateGestationConfig({ heatPrep: 18.5, heatStart: 19, heatEnd: 21, attentionStart: 105, approachDay: 110, intensiveDay: 112, gestationDays: 114 })).toContain("inteiros");
+    expect(validateGestationConfig({ heatPrep: 18, heatStart: 19, heatEnd: 21, attentionStart: 105, approachDay: 110, intensiveDay: 112, gestationDays: 131 })).toContain("entre 1 e 130");
+    expect(validateGestationConfig({ heatPrep: 20, heatStart: 19, heatEnd: 21, attentionStart: 105, approachDay: 110, intensiveDay: 112, gestationDays: 114 })).toContain("ordem crescente");
   });
 });
