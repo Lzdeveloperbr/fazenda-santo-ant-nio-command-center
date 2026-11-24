@@ -4,8 +4,8 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Plus, Search, ArrowUpDown, Download, RotateCcw, FileText, Pencil, ClipboardPlus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { sowsQuery, breedingsQuery, littersQuery, SOW_STATUS, isCountedLitter, SOW_EVENT_LABEL, fmtDate, todayISO, type Sow, type Breeding, type Litter } from "@/lib/farm";
-import { isActiveSowStatus } from "@/lib/farm/reproduction";
+import { sowsQuery, breedingsQuery, littersQuery, SOW_STATUS, isCountedLitter, SOW_EVENT_LABEL, fmtDate, todayISO, addDaysISO, type Sow, type Breeding, type Litter } from "@/lib/farm";
+import { breedingDateError, isActiveSowStatus } from "@/lib/farm/reproduction";
 import { SectionTitle, Empty } from "@/components/farm/Kpi";
 import { FormDialog, SubmitRow, Field, selectCls } from "@/components/farm/FormDialog";
 import { Button } from "@/components/ui/button";
@@ -323,15 +323,44 @@ function NewBreeding({ sow, onDone }: { sow: Sow; onDone: () => void }) {
       {(close) => <form className="space-y-4" onSubmit={async (e) => {
         e.preventDefault();
         const f = new FormData(e.currentTarget);
+        const date = String(f.get("date") || "");
+        const dateError = breedingDateError(date, todayISO());
+        if (dateError) { toast.error(dateError); return; }
+        const services = Number(f.get("services_count") || 1);
+        if (!Number.isInteger(services) || services < 1) { toast.error("Informe uma quantidade inteira de serviços maior que zero."); return; }
         setBusy(true);
-        const { error } = await supabase.from("breedings").insert({ sow_id: sow.id, breeding_date: String(f.get("date")), boar: String(f.get("boar") || "") || null });
-        if (!error) await supabase.from("sows").update({ status: "coberta" }).eq("id", sow.id);
+        const { error } = await supabase.from("breedings").insert({
+          sow_id: sow.id,
+          breeding_date: date,
+          expected_farrowing: addDaysISO(date, 114),
+          boar: String(f.get("boar") || "").trim() || null,
+          breeding_type: String(f.get("breeding_type") || "inseminacao"),
+          services_count: services,
+          semen_code: String(f.get("semen_code") || "").trim() || null,
+          responsible: String(f.get("responsible") || "").trim() || null,
+          notes: String(f.get("notes") || "").trim() || null,
+        });
+        if (error) { setBusy(false); toast.error(error.message); return; }
+        const statusResult = await supabase.from("sows").update({ status: "coberta" }).eq("id", sow.id);
         setBusy(false);
-        if (error) { toast.error(error.message); return; }
-        toast.success("Cobertura registrada · parto estimado em 114 dias"); onDone(); close();
+        if (statusResult.error) {
+          toast.error("Cobertura salva, mas não foi possível atualizar a situação da matriz. Confira a ficha.");
+          onDone();
+          close();
+          return;
+        }
+        toast.success("Cobertura registrada · parto previsto para 114 dias após a data informada"); onDone(); close();
       }}>
-        <Field label="Data da cobertura"><Input name="date" type="date" required defaultValue={todayISO()} className="h-11" /></Field>
-        <Field label="Reprodutor / sêmen"><Input name="boar" className="h-11" /></Field>
+        <Field label="Data da cobertura"><Input name="date" type="date" required max={todayISO()} defaultValue={todayISO()} className="h-11" /></Field>
+        <Field label="Tipo de serviço"><select name="breeding_type" className={selectCls} defaultValue="inseminacao"><option value="inseminacao">Inseminação artificial</option><option value="monta_natural">Monta natural</option><option value="repasse">Repasse</option></select></Field>
+        <Field label="Reprodutor / sêmen"><Input name="boar" className="h-11" placeholder="Código do macho ou identificação" /></Field>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Nº de serviços"><Input name="services_count" type="number" min={1} step={1} defaultValue={1} required className="h-11" /></Field>
+          <Field label="Código da dose"><Input name="semen_code" className="h-11" /></Field>
+        </div>
+        <Field label="Responsável"><Input name="responsible" className="h-11" /></Field>
+        <Field label="Observações"><Textarea name="notes" rows={2} /></Field>
+        <p className="rounded-lg bg-muted p-3 text-xs text-muted-foreground">Previsão calculada automaticamente para 114 dias após a cobertura. Confirme o calendário com o manejo da granja.</p>
         <SubmitRow busy={busy} />
       </form>}
     </FormDialog>
