@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isActiveSowStatus, litterEventError, breedingDateError, farrowingTimeError } from "./reproduction";
+import { isActiveSowStatus, canReceiveBreeding, litterEventError, breedingDateError, farrowingTimeError } from "./reproduction";
 
 describe("situação das matrizes", () => {
   it("mantém no plantel somente as situações reprodutivas ativas", () => {
@@ -58,5 +58,16 @@ describe("validação dos horários de parto", () => {
   it("rejeita horário final anterior ao inicial e formatos inválidos", () => {
     expect(farrowingTimeError("10:30", "08:10")).toContain("anterior");
     expect(farrowingTimeError("8h", "09:00")).toContain("inicial válido");
+  });
+});
+
+
+describe("elegibilidade para cobertura", () => {
+  it("permite serviço em matriz vazia ou coberta", () => {
+    expect(canReceiveBreeding("vazia")).toBe(true);
+    expect(canReceiveBreeding("coberta")).toBe(true);
+  });
+  it("bloqueia nova cobertura em matriz gestante, lactante ou fora do plantel", () => {
+    expect(["gestante", "lactante", "descartada", "morta", "transferida"].some(canReceiveBreeding)).toBe(false);
   });
 });
