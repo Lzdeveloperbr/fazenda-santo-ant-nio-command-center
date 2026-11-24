@@ -14,6 +14,14 @@ export function breedingDateError(date: string, today: string) {
   return null;
 }
 
+/** End time must not precede the beginning of the farrowing record. */
+export function farrowingTimeError(start: string, end: string) {
+  if (start && !/^\\d{2}:\\d{2}$/.test(start)) return "Informe um horário inicial válido.";
+  if (end && !/^\\d{2}:\\d{2}$/.test(end)) return "Informe um horário final válido.";
+  if (start && end && end < start) return "O horário final não pode ser anterior ao inicial.";
+  return null;
+}
+
 export function litterEventError({
   eventType,
   quantity,
