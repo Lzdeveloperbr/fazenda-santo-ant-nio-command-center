@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Plus, Search, ArrowUpDown, Download, RotateCcw, FileText, Pencil, ClipboardPlus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { sowsQuery, breedingsQuery, littersQuery, SOW_STATUS, isCountedLitter, SOW_EVENT_LABEL, fmtDate, todayISO, addDaysISO, type Sow, type Breeding, type Litter } from "@/lib/farm";
-import { breedingDateError, farrowingTimeError, isActiveSowStatus } from "@/lib/farm/reproduction";
+import { breedingDateError, canReceiveBreeding, farrowingTimeError, isActiveSowStatus } from "@/lib/farm/reproduction";
 import { SectionTitle, Empty } from "@/components/farm/Kpi";
 import { FormDialog, SubmitRow, Field, selectCls } from "@/components/farm/FormDialog";
 import { Button } from "@/components/ui/button";
@@ -149,7 +149,7 @@ function SowActions({ s, lastB, onDone }: { s: Sow; lastB: Breeding | undefined;
   return (
     <div className="flex flex-wrap gap-2">
       <Link to="/matrizes/$sowId" params={{ sowId: s.id }}><Button size="sm" variant="outline"><FileText className="mr-1 h-3.5 w-3.5" />Ficha</Button></Link>
-      {active && <NewBreeding sow={s} onDone={onDone} />}
+      {canReceiveBreeding(s.status) && <NewBreeding sow={s} onDone={onDone} />}
       {active && lastB && lastB.pregnancy_check === "pendente" && <PregCheck sow={s} breedingId={lastB.id} onDone={onDone} />}
       {active && <NewLitter sow={s} onDone={onDone} />}
       {active && <SowEventDialog sow={s} onDone={onDone} />}
