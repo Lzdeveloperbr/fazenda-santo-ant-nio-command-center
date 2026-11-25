@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { PERIOD_LABEL, periodStart, periodStats, type PeriodKey } from "@/lib/farm/period";
 import {
   Activity, AlertTriangle, ArrowRight, Baby, CalendarClock, CheckCircle2,
   ClipboardList, HeartPulse, PiggyBank, Skull, Sprout, TrendingUp, Wheat,
@@ -10,7 +11,7 @@ import {
 } from "recharts";
 import {
   addDaysISO, breedingsQuery, fmtDate, isCountedLitter, livePiglets,
-  littersQuery, sowsQuery, tasksQuery, todayISO,
+  littersQuery, sowsQuery, tasksQuery, todayISO, litterEventsQuery, diagnosesQuery, financeQuery,
 } from "@/lib/farm";
 import { isActiveSowStatus } from "@/lib/farm/reproduction";
 
@@ -27,7 +28,16 @@ function Dashboard() {
   const breedings = useQuery(breedingsQuery);
   const litters = useQuery(littersQuery);
   const tasks = useQuery(tasksQuery);
+  const events = useQuery(litterEventsQuery);
+  const diagnoses = useQuery(diagnosesQuery);
+  const finance = useQuery(financeQuery);
   const today = todayISO();
+  const [period, setPeriod] = useState<PeriodKey>("30d");
+  const [customFrom, setCustomFrom] = useState(addDaysISO(today, -29));
+  const [customTo, setCustomTo] = useState(today);
+  const from = period === "custom" ? customFrom : periodStart(period, today, addDaysISO);
+  const to = period === "custom" ? customTo : today;
+  const ps = useMemo(() => periodStats(from, to, { breedings: breedings.data ?? [], litters: (litters.data ?? []).filter(isCountedLitter), events: events.data ?? [], diagnoses: diagnoses.data ?? [], finance: finance.data ?? [] }), [from, to, breedings.data, litters.data, events.data, diagnoses.data, finance.data]);
   const nextWeek = addDaysISO(today, 7);
   const loading = sows.isLoading || breedings.isLoading || litters.isLoading || tasks.isLoading;
   const error = sows.error || breedings.error || litters.error || tasks.error;
@@ -135,6 +145,36 @@ function Dashboard() {
         <Metric label="Matrizes no plantel" value={data.activeSows} hint="Situação ativa" icon={<TrendingUp />} tone="green" href="/matrizes" />
       </div>
 
+
+      <section className="rounded-2xl border bg-card p-4 shadow-sm sm:p-5">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div><p className="text-[11px] font-bold uppercase tracking-[.15em] text-muted-foreground">Resultados do período</p><h2 className="mt-1 text-lg font-bold">{fmtDate(from)} a {fmtDate(to)}</h2></div>
+          <div className="flex flex-wrap gap-1.5" role="group" aria-label="Período">
+            {(Object.keys(PERIOD_LABEL) as PeriodKey[]).map((k) => <button key={k} onClick={() => setPeriod(k)} aria-pressed={period === k} className={`h-9 rounded-full border px-3 text-xs font-semibold transition ${period === k ? "border-primary bg-primary text-primary-foreground" : "hover:bg-muted"}`}>{PERIOD_LABEL[k]}</button>)}
+          </div>
+        </div>
+        {period === "custom" && <div className="mt-3 flex flex-wrap gap-3 text-xs"><label className="flex items-center gap-2">De <input type="date" value={customFrom} max={customTo} onChange={(e) => setCustomFrom(e.target.value)} className="h-9 rounded-md border bg-background px-2" /></label><label className="flex items-center gap-2">Até <input type="date" value={customTo} min={customFrom} max={today} onChange={(e) => setCustomTo(e.target.value)} className="h-9 rounded-md border bg-background px-2" /></label></div>}
+        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+          <PStat label="Coberturas" value={ps.coberturas} />
+          <PStat label="Inseminações" value={ps.inseminacoes} />
+          <PStat label="Diagnósticos +" value={ps.diagPositivos} />
+          <PStat label="Diagnósticos −" value={ps.diagNegativos} />
+          <PStat label="Taxa de concepção" value={ps.taxaConcepcao == null ? "—" : ps.taxaConcepcao.toFixed(1) + "%"} />
+          <PStat label="Partos" value={ps.partos} />
+          <PStat label="Nascidos vivos" value={ps.nascidosVivos} />
+          <PStat label="Natimortos" value={ps.natimortos} />
+          <PStat label="Mumificados" value={ps.mumificados} />
+          <PStat label="Média vivos/parto" value={ps.mediaVivos == null ? "—" : ps.mediaVivos.toFixed(1)} />
+          <PStat label="Média totais/parto" value={ps.mediaTotais == null ? "—" : ps.mediaTotais.toFixed(1)} />
+          <PStat label="Mortes de leitões" value={ps.mortesLeitoes} />
+          <PStat label="Desmamados" value={ps.desmamados} />
+          <PStat label="Receitas pagas" value={brl(ps.receitas)} />
+          <PStat label="Despesas pagas" value={brl(ps.despesas)} />
+          <PStat label="Resultado (pago)" value={brl(ps.resultado)} />
+        </div>
+        <p className="mt-3 text-[11px] leading-5 text-muted-foreground">Somente registros com data dentro do período. Taxa de concepção = diagnósticos positivos ÷ (positivos + negativos). Financeiro considera apenas lançamentos pagos; pendentes ficam de fora.</p>
+      </section>
+
       <div className="grid gap-5 xl:grid-cols-[1.4fr_.8fr]">
         <section className="rounded-2xl border bg-card p-4 shadow-sm sm:p-5">
           <div className="flex items-center justify-between gap-3"><div><p className="text-[11px] font-bold uppercase tracking-[.15em] text-muted-foreground">Histórico produtivo</p><h2 className="mt-1 text-lg font-bold">Produção por mês</h2></div><Wheat className="h-5 w-5 text-muted-foreground" /></div>
@@ -204,4 +244,9 @@ function QuickLink({ href, icon, title, detail }: { href: "/matrizes" | "/matern
 
 function EmptyChart() {
   return <div className="mt-5 grid h-[280px] place-items-center rounded-xl bg-muted/40 px-6 text-center"><div><Sprout className="mx-auto h-8 w-8 text-muted-foreground" /><p className="mt-2 text-sm font-semibold">Ainda não há partos registrados</p><p className="mt-1 text-xs text-muted-foreground">Assim que os dados forem cadastrados, a evolução aparecerá aqui.</p></div></div>;
+}
+
+function brl(v: number) { return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }); }
+function PStat({ label, value }: { label: string; value: number | string }) {
+  return <div className="rounded-xl border bg-background/60 p-3"><p className="text-[11px] font-semibold text-muted-foreground">{label}</p><p className="mt-1 font-mono text-xl font-bold tabular-nums">{typeof value === "number" ? value.toLocaleString("pt-BR") : value}</p></div>;
 }
