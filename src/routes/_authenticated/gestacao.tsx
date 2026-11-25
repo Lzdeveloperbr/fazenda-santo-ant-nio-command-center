@@ -149,7 +149,29 @@ function AlertRow({ a, tag }: { a: NonNullable<ReturnType<typeof cycleAlert>>; t
 }
 
 function CycleTable({ rows, tag, boarName, today, cfg }: { rows: Breeding[]; tag: (id: string) => string; boarName: (b: Breeding) => string; today: string; cfg: GestationConfig }) {
-  return <div className="overflow-x-auto"><table className="w-full text-sm"><thead className="text-left text-xs text-muted-foreground"><tr><th className="p-2">Brinco</th><th className="p-2">Cobertura</th><th className="p-2">Reprodutor</th><th className="p-2">Dia</th><th className="p-2">Restam</th><th className="p-2">Parto previsto</th><th className="p-2">Situação</th></tr></thead><tbody>{rows.map((b) => { const day = daysBetween(b.breeding_date, today); return <tr key={b.id} className="border-t border-border"><td className="p-2"><Link to="/matrizes/$sowId" params={{ sowId: b.sow_id }} className="font-semibold hover:underline">{tag(b.sow_id)}</Link></td><td className="p-2">{fmtDate(b.breeding_date)}</td><td className="p-2">{boarName(b)}</td><td className="p-2 font-mono">{day}</td><td className="p-2 font-mono">{cfg.gestationDays - day}</td><td className="p-2">{fmtDate(cycleDates(b.breeding_date, cfg).farrowing)}</td><td className="p-2 text-xs">{cycleStage(b, today, cfg).label}</td></tr>; })}</tbody></table></div>;
+  return <div className="overflow-x-auto"><table className="w-full text-sm"><thead className="text-left text-xs text-muted-foreground"><tr><th className="p-2">Brinco</th><th className="p-2">Cobertura</th><th className="p-2">Reprodutor</th><th className="p-2">Dia</th><th className="p-2">Restam</th><th className="p-2">Parto previsto</th><th className="p-2">Situação</th><th className="p-2"><span className="sr-only">Corrigir</span></th></tr></thead><tbody>{rows.map((b) => { const day = daysBetween(b.breeding_date, today); return <tr key={b.id} className="border-t border-border"><td className="p-2"><Link to="/matrizes/$sowId" params={{ sowId: b.sow_id }} className="font-semibold hover:underline">{tag(b.sow_id)}</Link></td><td className="p-2">{fmtDate(b.breeding_date)}</td><td className="p-2">{boarName(b)}</td><td className="p-2 font-mono">{day}</td><td className="p-2 font-mono">{cfg.gestationDays - day}</td><td className="p-2">{fmtDate(cycleDates(b.breeding_date, cfg).farrowing)}</td><td className="p-2 text-xs">{cycleStage(b, today, cfg).label}</td><td className="p-2"><EditBreeding b={b} cfg={cfg} /></td></tr>; })}</tbody></table></div>;
+}
+
+function EditBreeding({ b, cfg }: { b: Breeding; cfg: GestationConfig }) {
+  const qc = useQueryClient(); const [busy, setBusy] = useState(false); const [date, setDate] = useState(b.breeding_date);
+  const preview = date ? cycleDates(date, cfg) : null;
+  return <FormDialog title="Corrigir cobertura" trigger={<Button size="sm" variant="ghost">Corrigir</Button>}>{(close) => <form className="space-y-3" onSubmit={async (e) => {
+    e.preventDefault(); const f = new FormData(e.currentTarget);
+    if (!date || date > todayISO()) return void toast.error("Informe uma data válida (não futura).");
+    const reason = String(f.get("reason") || "").trim(); if (!reason) return void toast.error("Informe o motivo da correção.");
+    setBusy(true);
+    const note = `[Correção ${fmtDate(todayISO())}] ${b.breeding_date !== date ? `data ${fmtDate(b.breeding_date)} → ${fmtDate(date)}; ` : ""}${reason}`;
+    const { error } = await supabase.from("breedings").update({ breeding_date: date, expected_farrowing: cycleDates(date, cfg).farrowing, breeding_time: String(f.get("time") || "") || null, responsible: String(f.get("responsible") || "") || null, semen_code: String(f.get("semen") || "") || null, notes: [b.notes, note].filter(Boolean).join("\n") }).eq("id", b.id);
+    setBusy(false); if (error) return void toast.error(error.message);
+    toast.success("Cobertura corrigida; datas do ciclo recalculadas"); await qc.invalidateQueries(); close();
+  }}>
+    <div className="grid grid-cols-2 gap-3"><Field label="Data da cobertura *"><Input type="date" value={date} max={todayISO()} onChange={(e) => setDate(e.target.value)} required className="h-11" /></Field><Field label="Horário"><Input name="time" type="time" defaultValue={b.breeding_time ?? ""} className="h-11" /></Field></div>
+    <div className="grid grid-cols-2 gap-3"><Field label="Responsável"><Input name="responsible" defaultValue={b.responsible ?? ""} className="h-11" /></Field><Field label="Código do sêmen"><Input name="semen" defaultValue={b.semen_code ?? ""} className="h-11" /></Field></div>
+    {preview && <div className="rounded-lg bg-muted/50 p-3 text-sm"><p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Novas datas</p><p>Observar cio: {fmtDate(preview.heatStart)} a {fmtDate(preview.heatEnd)}</p><p>Preparar maternidade: {fmtDate(preview.attention)}</p><p>Parto previsto: <strong>{fmtDate(preview.farrowing)}</strong></p></div>}
+    <Field label="Motivo da correção *"><Input name="reason" placeholder="Ex.: data anotada errada no caderno" className="h-11" required /></Field>
+    <p className="text-xs text-muted-foreground">A correção fica anotada nas observações da cobertura, com a data antiga, para manter o histórico.</p>
+    <SubmitRow busy={busy} label="Salvar correção" />
+  </form>}</FormDialog>;
 }
 
 function NewBreeding({ sows, boars, breedings, onDone }: { sows: Sow[]; boars: { id: string; code: string; name: string | null; status: string }[]; breedings: Breeding[]; onDone: () => void }) {
