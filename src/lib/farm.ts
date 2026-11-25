@@ -152,3 +152,32 @@ export const pigletsQuery = queryOptions({
   queryKey: ["piglet_identifications"],
   queryFn: () => unwrap<Piglet[]>(supabase.from("piglet_identifications").select("*").order("australian_number", { ascending: false })),
 });
+
+export type Supplier = Database["public"]["Tables"]["suppliers"]["Row"];
+export type StockItem = Database["public"]["Tables"]["stock_items"]["Row"];
+export type StockMovement = Database["public"]["Tables"]["stock_movements"]["Row"];
+export const suppliersQuery = queryOptions({
+  queryKey: ["suppliers"],
+  queryFn: () => unwrap<Supplier[]>(supabase.from("suppliers").select("*").order("name")),
+});
+export const stockItemsQuery = queryOptions({
+  queryKey: ["stock_items"],
+  queryFn: () => unwrap<StockItem[]>(supabase.from("stock_items").select("*").order("name")),
+});
+export const stockMovementsQuery = queryOptions({
+  queryKey: ["stock_movements"],
+  queryFn: () => unwrap<StockMovement[]>(supabase.from("stock_movements").select("*").order("movement_date", { ascending: false }).order("created_at", { ascending: false }).limit(1000)),
+});
+/** Mesmas chaves usadas nas telas de ração e farmácia. */
+export const feedProductsQuery = queryOptions({
+  queryKey: ["feed_products"],
+  queryFn: () => unwrap<Database["public"]["Tables"]["feed_products"]["Row"][]>(supabase.from("feed_products").select("*").order("name")),
+});
+export const medicationsQuery = queryOptions({
+  queryKey: ["farm_medications"],
+  queryFn: () => unwrap<Database["public"]["Tables"]["farm_medications"]["Row"][]>(supabase.from("farm_medications").select("*").order("name")),
+});
+export const medicationLotsQuery = queryOptions({
+  queryKey: ["farm_medication_lots"],
+  queryFn: () => unwrap<Database["public"]["Tables"]["farm_medication_lots"]["Row"][]>(supabase.from("farm_medication_lots").select("*").order("expiry_date")),
+});

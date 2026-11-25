@@ -56,12 +56,12 @@ Legenda: ✅ funciona · 🟡 parcial · ❌ não existe
 | 7 | Leitões | ✅ **Fase 3** | Prontuário individual (sexo, peso, condição, colostragem, ferro, cauda, castração, baia, morte, desmame), pendências, visão por leitegada e adoções |
 | 8 | Desmame | 🟡 | Desmame com machos/fêmeas, peso médio, destino e baia (Fase 3); idade e peso ao desmame calculados. Falta intervalo desmame-cio por matriz (Fase 5, indicadores) |
 | 9 | Sanidade | 🟡 | Registros, ocorrências, tratamentos veterinários vinculados a lote de medicamento, carência informada. Falta calendário sanitário com protocolos configuráveis |
-| 10 | Estoque e farmácia | 🟡 | Ração e farmácia com lotes, validade e movimentos. Falta estoque geral (seringas, limpeza, equipamentos), fornecedores e NF |
+| 10 | Estoque e farmácia | ✅ **Fase 4** | Estoque geral (`/almoxarifado`) com entrada, saída, devolução, transferência e ajuste de inventário (só gestão), lote, validade, NF, custo, fornecedor; saldo só por movimentação; saída acima do saldo recusada; alertas consolidados de materiais, ração e farmácia |
 | 11 | Ração e nutrição | 🟡 | Rações, movimentos, consumo por baia/lote. Faltam planos por fase e histórico por matriz |
 | 12 | Baias | 🟡 | Galpão e sala, matrizes/leitegadas vinculadas e bloqueio de lotação de matrizes (só gestão autoriza) na Fase 3. Mapa interativo por galpão ainda é o da Granja 3D |
-| 13 | Descarte e mortalidade | 🟡 | `/mortalidade`: leitões por motivo, idade, dia da semana, matriz e baia; matrizes e lotes; CSV e PDF (Fase 3). Faltam destino e valor de venda do descarte (Fase 4) |
+| 13 | Descarte e mortalidade | ✅ **Fases 3–4** | `/mortalidade` com leitões, matrizes e lotes; descarte com destino, valor de venda e lançamento opcional da receita |
 | 14 | Indicadores | 🟡 | `/desempenho` com indicadores reais. Faltam comparativos mês×mês, ano×ano e exportação |
-| 15 | Financeiro | 🟡 | Receitas/despesas, pendente/pago, custo por leitão, relatório mensal. Faltam contas a pagar/receber completas, fornecedores, centros de custo, fluxo de caixa |
+| 15 | Financeiro | ✅ **Fase 4** | Contas a pagar/receber com baixa e atraso, fluxo de caixa com realizado e previsto separados, centros de custo, custo por lote, fornecedores, documento/NF |
 | 16 | Calendário | 🟡 | Calendário reprodutivo e tarefas. Falta agenda geral dia/semana/mês unificada e "quem executou" em todas as tarefas |
 | 17 | Santo Antônio AI | 🟡 | Edge Function `vet-assistant` (organiza observações, não prescreve). Falta assistente de perguntas sobre os dados |
 | 18 | Relatórios | 🟡 | Impressão/PDF e CSV em alguns módulos. Falta central única, Excel e filtros padronizados |
@@ -111,6 +111,12 @@ Legenda: ✅ funciona · 🟡 parcial · ❌ não existe
 - Maternidade: morte exige motivo observado (lista fixa, com aviso de que não é diagnóstico), desmame com sexo/peso/destino, botão "Adoção entre matrizes".
 - Telas novas: **Leitões** e **Mortalidade e descarte**.
 - Exportação CSV padronizada (protegida contra fórmulas) e seletor de período reutilizável.
+
+## 4.3 Fase 4 — entregue
+
+- Migration `0018_estoque_fornecedores_financeiro.sql`: `suppliers`, `stock_items`, `stock_movements` (imutáveis: sem alteração nem exclusão; correção por ajuste com motivo, só Administrador/Gerente); fornecedor, NF e custo nas entradas de ração e farmácia; centro de custo, data e forma de pagamento e documento no financeiro (pendente não pode ter data de pagamento); destino e valor de venda no descarte.
+- Telas: **Estoque geral e fornecedores** e abas novas no Financeiro (contas, fluxo de caixa, custos).
+- Pendências conhecidas: o saldo bancário inicial não existe no sistema (o fluxo acumulado começa em zero); ração e medicamentos só entram no custo do lote se tiverem lançamento financeiro.
 
 ## 5. Próximas fases (ordem recomendada)
 

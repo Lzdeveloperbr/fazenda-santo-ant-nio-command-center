@@ -14,6 +14,132 @@ export type Database = {
   }
   public: {
     Tables: {
+      suppliers: {
+        Row: {
+          active: boolean
+          category: string | null
+          created_at: string
+          created_by: string | null
+          document: string | null
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+        }
+        Insert: {
+          active?: boolean
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          document?: string | null
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+        }
+        Update: {
+          active?: boolean
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          document?: string | null
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+        }
+        Relationships: []
+      }
+      stock_items: {
+        Row: {
+          active: boolean
+          category: string
+          created_at: string
+          created_by: string | null
+          current_stock: number
+          id: string
+          location: string | null
+          minimum_stock: number
+          name: string
+          notes: string | null
+          supplier_id: string | null
+          unit: string
+        }
+        Insert: {
+          active?: boolean
+          category: string
+          created_at?: string
+          created_by?: string | null
+          current_stock?: number
+          id?: string
+          location?: string | null
+          minimum_stock?: number
+          name: string
+          notes?: string | null
+          supplier_id?: string | null
+          unit: string
+        }
+        Update: {
+          active?: boolean
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          current_stock?: number
+          id?: string
+          location?: string | null
+          minimum_stock?: number
+          name?: string
+          notes?: string | null
+          supplier_id?: string | null
+          unit?: string
+        }
+        Relationships: []
+      }
+      stock_movements: {
+        Row: {
+          balance_after: number | null
+          created_at: string
+          created_by: string | null
+          expiry_date: string | null
+          from_location: string | null
+          id: string
+          invoice_number: string | null
+          item_id: string
+          lot: string | null
+          movement_date: string
+          movement_type: string
+          quantity: number
+          reason: string | null
+          responsible: string | null
+          supplier_id: string | null
+          to_location: string | null
+          unit_cost: number | null
+        }
+        Insert: {
+          balance_after?: number | null
+          created_at?: string
+          created_by?: string | null
+          expiry_date?: string | null
+          from_location?: string | null
+          id?: string
+          invoice_number?: string | null
+          item_id: string
+          lot?: string | null
+          movement_date?: string
+          movement_type: string
+          quantity: number
+          reason?: string | null
+          responsible?: string | null
+          supplier_id?: string | null
+          to_location?: string | null
+          unit_cost?: number | null
+        }
+        Update: { [key: string]: never }
+        Relationships: []
+      }
       farm_settings: {
         Row: {
           approach_day: number
@@ -593,6 +719,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           id: string
+          invoice_number: string | null
           lot_id: string | null
           medication_id: string
           movement_date: string
@@ -601,12 +728,15 @@ export type Database = {
           reason: string | null
           reference_text: string | null
           responsible: string | null
+          supplier_id: string | null
           unit: string
+          unit_cost: number | null
         }
         Insert: {
           created_at?: string
           created_by?: string | null
           id?: string
+          invoice_number?: string | null
           lot_id?: string | null
           medication_id: string
           movement_date?: string
@@ -615,12 +745,15 @@ export type Database = {
           reason?: string | null
           reference_text?: string | null
           responsible?: string | null
+          supplier_id?: string | null
           unit: string
+          unit_cost?: number | null
         }
         Update: {
           created_at?: string
           created_by?: string | null
           id?: string
+          invoice_number?: string | null
           lot_id?: string | null
           medication_id?: string
           movement_date?: string
@@ -629,7 +762,9 @@ export type Database = {
           reason?: string | null
           reference_text?: string | null
           responsible?: string | null
+          supplier_id?: string | null
           unit?: string
+          unit_cost?: number | null
         }
         Relationships: [
           {
@@ -812,6 +947,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           id: string
+          invoice_number: string | null
           movement_date: string
           movement_type: string
           notes: string | null
@@ -819,11 +955,14 @@ export type Database = {
           pen_record_id: string | null
           product_id: string
           quantity_kg: number
+          supplier_id: string | null
+          unit_cost: number | null
         }
         Insert: {
           created_at?: string
           created_by?: string | null
           id?: string
+          invoice_number?: string | null
           movement_date?: string
           movement_type: string
           notes?: string | null
@@ -831,11 +970,14 @@ export type Database = {
           pen_record_id?: string | null
           product_id: string
           quantity_kg: number
+          supplier_id?: string | null
+          unit_cost?: number | null
         }
         Update: {
           created_at?: string
           created_by?: string | null
           id?: string
+          invoice_number?: string | null
           movement_date?: string
           movement_type?: string
           notes?: string | null
@@ -843,6 +985,8 @@ export type Database = {
           pen_record_id?: string | null
           product_id?: string
           quantity_kg?: number
+          supplier_id?: string | null
+          unit_cost?: number | null
         }
         Relationships: [
           {
@@ -909,43 +1053,58 @@ export type Database = {
           amount: number
           batch_id: string | null
           category: string
+          cost_center: string | null
           counterpart: string | null
           created_at: string
           created_by: string | null
           description: string | null
+          document_number: string | null
           due_date: string | null
           entry_date: string
           entry_type: string
           id: string
+          paid_at: string | null
+          payment_method: string | null
           status: string
+          supplier_id: string | null
         }
         Insert: {
           amount: number
           batch_id?: string | null
           category: string
+          cost_center?: string | null
           counterpart?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
+          document_number?: string | null
           due_date?: string | null
           entry_date?: string
           entry_type: string
           id?: string
+          paid_at?: string | null
+          payment_method?: string | null
           status?: string
+          supplier_id?: string | null
         }
         Update: {
           amount?: number
           batch_id?: string | null
           category?: string
+          cost_center?: string | null
           counterpart?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
+          document_number?: string | null
           due_date?: string | null
           entry_date?: string
           entry_type?: string
           id?: string
+          paid_at?: string | null
+          payment_method?: string | null
           status?: string
+          supplier_id?: string | null
         }
         Relationships: [
           {
@@ -1896,28 +2055,34 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string | null
+          destination: string | null
           event_date: string
           event_type: string
           id: string
           notes: string | null
+          sale_value: number | null
           sow_id: string
         }
         Insert: {
           created_at?: string
           created_by?: string | null
+          destination?: string | null
           event_date?: string
           event_type: string
           id?: string
           notes?: string | null
+          sale_value?: number | null
           sow_id: string
         }
         Update: {
           created_at?: string
           created_by?: string | null
+          destination?: string | null
           event_date?: string
           event_type?: string
           id?: string
           notes?: string | null
+          sale_value?: number | null
           sow_id?: string
         }
         Relationships: [

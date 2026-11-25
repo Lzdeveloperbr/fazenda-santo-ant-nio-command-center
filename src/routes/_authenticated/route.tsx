@@ -1,7 +1,7 @@
 import { createFileRoute, redirect, Outlet, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, PiggyBank, Baby, ListChecks, LogOut, Menu, X, Layers3, HeartPulse, Wheat, TrendingUp, Fence, Ear, BrainCircuit, BookOpen, Box, Warehouse, ClipboardCheck, Radar, Wallet, Calculator, Search, Moon, Sun, PanelLeftClose, PanelLeftOpen, ChevronRight, LayoutGrid, HeartHandshake, Users, History, Eye, Skull } from "lucide-react";
+import { LayoutDashboard, PiggyBank, Baby, ListChecks, LogOut, Menu, X, Layers3, HeartPulse, Wheat, TrendingUp, Fence, Ear, BrainCircuit, BookOpen, Box, Warehouse, ClipboardCheck, Radar, Wallet, Calculator, Search, Moon, Sun, PanelLeftClose, PanelLeftOpen, ChevronRight, LayoutGrid, HeartHandshake, Users, History, Eye, Skull, Package } from "lucide-react";
 import { accessQuery, ROLE_INFO } from "@/lib/access";
 import { InstallAppButton } from "@/components/farm/InstallAppButton";
 import { GlobalSearchResults } from "@/components/farm/GlobalSearchResults";
@@ -39,6 +39,7 @@ const NAV=[
  {to:"/sanidade",label:"Saúde e prevenção",short:"Saúde",icon:HeartPulse,group:"Manejo e saúde"},
  {to:"/farmacia-ai",label:"Santo Antônio AI e Farmácia",short:"IA",icon:BrainCircuit,group:"Manejo e saúde"},
  {to:"/estoque",label:"Estoque de ração",short:"Estoque",icon:Wheat,group:"Manejo e saúde"},
+ {to:"/almoxarifado",label:"Estoque geral e fornecedores",short:"Almoxarifado",icon:Package,group:"Manejo e saúde"},
  {to:"/biblioteca-suinos",label:"Biblioteca técnica",short:"Biblioteca",icon:BookOpen,group:"Manejo e saúde"},
  {to:"/plantel",label:"Plantel 3D",short:"Plantel",icon:Box,group:"Visualização 3D"},
  {to:"/granja-3d",label:"Granja 3D",short:"Granja",icon:Warehouse,group:"Visualização 3D"},

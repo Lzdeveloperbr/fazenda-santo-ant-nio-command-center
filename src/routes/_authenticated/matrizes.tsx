@@ -240,15 +240,35 @@ function SowEventDialog({ sow, onDone }: { sow: Sow; onDone: () => void }) {
         const f = new FormData(e.currentTarget);
         const notes = String(f.get("notes") || "").trim();
         if (["descarte", "morte", "transferencia"].includes(eventType) && !confirm(`Confirmar ${SOW_EVENT_LABEL[eventType]?.toLowerCase()} da matriz ${sow.ear_tag}? O evento ficará no histórico e não poderá ser apagado.`)) return;
+        const destination = String(f.get("destination") || "").trim() || null;
+        const saleRaw = String(f.get("sale_value") || "").trim().replace(",", ".");
+        const saleValue = saleRaw === "" ? null : Number(saleRaw);
+        if (saleValue !== null && !(saleValue >= 0)) { toast.error("Valor de venda inválido."); return; }
+        const date = String(f.get("date"));
         setBusy(true);
-        const { error } = await supabase.from("sow_events").insert({ sow_id: sow.id, event_type: eventType, event_date: String(f.get("date")), notes: notes || null });
+        const { error } = await supabase.from("sow_events").insert({ sow_id: sow.id, event_type: eventType, event_date: date, notes: notes || null, ...(eventType === "descarte" ? { destination, sale_value: saleValue } : {}) });
+        let financeError: string | null = null;
+        if (!error && eventType === "descarte" && saleValue && f.get("to_finance") === "on") {
+          const r = await supabase.from("finance_entries").insert({ entry_type: "receita", category: "Venda de descarte", amount: saleValue, entry_date: date, status: String(f.get("received")) === "sim" ? "pago" : "pendente", paid_at: String(f.get("received")) === "sim" ? date : null, description: `Descarte da matriz ${sow.ear_tag}`, counterpart: destination, cost_center: "reproducao" });
+          financeError = r.error?.message ?? null;
+        }
         setBusy(false);
         if (error) { toast.error(error.message); return; }
-        toast.success("Evento registrado no histórico"); onDone(); close();
+        if (financeError) toast.error(`Descarte registrado, mas a receita não foi lançada: ${financeError}`);
+        else toast.success("Evento registrado no histórico");
+        onDone(); close();
       }}>
         <Field label="Tipo de evento"><select name="type" className={selectCls} value={eventType} onChange={(e) => setEventType(e.target.value)}>{["retorno_cio", "descarte", "morte", "transferencia", "observacao"].map((type) => <option key={type} value={type}>{SOW_EVENT_LABEL[type]}</option>)}</select></Field>
         <Field label="Data"><Input name="date" type="date" defaultValue={todayISO()} required className="h-11" /></Field>
         <Field label={eventType === "transferencia" ? "Destino e detalhes" : eventType === "morte" ? "Causa ou circunstância" : "Motivo / observação"}><Textarea name="notes" rows={3} required={eventType !== "retorno_cio"} /></Field>
+        {eventType === "descarte" && <div className="space-y-3 rounded-xl border border-border/70 p-3">
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Destino"><select name="destination" className={selectCls} defaultValue=""><option value="">Não informado</option>{["Frigorífico", "Venda a terceiros", "Abate na propriedade", "Outro"].map((d) => <option key={d}>{d}</option>)}</select></Field>
+            <Field label="Valor de venda (R$)"><Input name="sale_value" inputMode="decimal" placeholder="Se vendida" className="h-11" /></Field>
+          </div>
+          <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="to_finance" defaultChecked className="h-4 w-4" />Lançar o valor como receita no financeiro</label>
+          <Field label="Valor já recebido?"><select name="received" className={selectCls} defaultValue="nao"><option value="nao">Não, a receber</option><option value="sim">Sim, recebido nesta data</option></select></Field>
+        </div>}
         {eventType === "retorno_cio" && <p className="rounded-lg bg-muted p-3 text-xs leading-5 text-muted-foreground">A matriz ficará vazia e a cobertura mais recente será marcada como diagnóstico negativo.</p>}
         <SubmitRow busy={busy} label="Registrar no histórico" />
       </form>}

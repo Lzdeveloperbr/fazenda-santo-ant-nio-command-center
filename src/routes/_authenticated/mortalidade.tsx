@@ -309,7 +309,7 @@ function Mortalidade() {
                   <span className="font-mono text-xs text-muted-foreground">
                     {fmtDate(e.event_date)}
                   </span>{" "}
-                  · <strong>{tag(e.sow_id)}</strong> · {SOW_EVENT_LABEL[e.event_type]}
+                  · <strong>{tag(e.sow_id)}</strong> · {SOW_EVENT_LABEL[e.event_type]}{e.destination ? ` · ${e.destination}` : ""}{e.sale_value !== null && e.sale_value !== undefined ? ` · ${Number(e.sale_value).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}` : ""}
                   {e.notes ? <span className="text-muted-foreground"> — {e.notes}</span> : null}
                 </li>
               ))}

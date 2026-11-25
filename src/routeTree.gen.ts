@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedAlmoxarifadoRouteImport } from './routes/_authenticated/almoxarifado'
 import { Route as AuthenticatedAuditoriaRouteImport } from './routes/_authenticated/auditoria'
 import { Route as AuthenticatedBaiasRouteImport } from './routes/_authenticated/baias'
 import { Route as AuthenticatedBibliotecaSuinosRouteImport } from './routes/_authenticated/biblioteca-suinos'
@@ -52,6 +53,12 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAlmoxarifadoRoute =
+  AuthenticatedAlmoxarifadoRouteImport.update({
+    id: '/almoxarifado',
+    path: '/almoxarifado',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAuditoriaRoute = AuthenticatedAuditoriaRouteImport.update({
   id: '/auditoria',
   path: '/auditoria',
@@ -187,6 +194,7 @@ const AuthenticatedMatrizesSowIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/almoxarifado': typeof AuthenticatedAlmoxarifadoRoute
   '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/baias': typeof AuthenticatedBaiasRoute
   '/biblioteca-suinos': typeof AuthenticatedBibliotecaSuinosRoute
@@ -216,6 +224,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/almoxarifado': typeof AuthenticatedAlmoxarifadoRoute
   '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/baias': typeof AuthenticatedBaiasRoute
   '/biblioteca-suinos': typeof AuthenticatedBibliotecaSuinosRoute
@@ -247,6 +256,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/almoxarifado': typeof AuthenticatedAlmoxarifadoRoute
   '/_authenticated/auditoria': typeof AuthenticatedAuditoriaRoute
   '/_authenticated/baias': typeof AuthenticatedBaiasRoute
   '/_authenticated/biblioteca-suinos': typeof AuthenticatedBibliotecaSuinosRoute
@@ -278,6 +288,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/almoxarifado'
     | '/auditoria'
     | '/baias'
     | '/biblioteca-suinos'
@@ -307,6 +318,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/almoxarifado'
     | '/auditoria'
     | '/baias'
     | '/biblioteca-suinos'
@@ -337,6 +349,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/almoxarifado'
     | '/_authenticated/auditoria'
     | '/_authenticated/baias'
     | '/_authenticated/biblioteca-suinos'
@@ -392,6 +405,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/almoxarifado': {
+      id: '/_authenticated/almoxarifado'
+      path: '/almoxarifado'
+      fullPath: '/almoxarifado'
+      preLoaderRoute: typeof AuthenticatedAlmoxarifadoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/auditoria': {
       id: '/_authenticated/auditoria'
@@ -585,6 +605,7 @@ const AuthenticatedMatrizesRouteWithChildren =
   )
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAlmoxarifadoRoute: typeof AuthenticatedAlmoxarifadoRoute
   AuthenticatedAuditoriaRoute: typeof AuthenticatedAuditoriaRoute
   AuthenticatedBaiasRoute: typeof AuthenticatedBaiasRoute
   AuthenticatedBibliotecaSuinosRoute: typeof AuthenticatedBibliotecaSuinosRoute
@@ -612,6 +633,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAlmoxarifadoRoute: AuthenticatedAlmoxarifadoRoute,
   AuthenticatedAuditoriaRoute: AuthenticatedAuditoriaRoute,
   AuthenticatedBaiasRoute: AuthenticatedBaiasRoute,
   AuthenticatedBibliotecaSuinosRoute: AuthenticatedBibliotecaSuinosRoute,
