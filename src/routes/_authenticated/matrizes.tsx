@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Plus, Search, ArrowUpDown, Download, RotateCcw, FileText, Pencil, ClipboardPlus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { usePermissions } from "@/lib/access";
 import { sowsQuery, breedingsQuery, littersQuery, SOW_STATUS, isCountedLitter, SOW_EVENT_LABEL, fmtDate, todayISO, type Sow, type Breeding, type Litter } from "@/lib/farm";
 import { isActiveSowStatus } from "@/lib/farm/reproduction";
 import { SectionTitle, Empty } from "@/components/farm/Kpi";
@@ -203,6 +204,7 @@ const sowHistoryTables = [
 
 function DeleteSow({ sow, onDone }: { sow: Sow; onDone: () => void }) {
   const [busy, setBusy] = useState(false);
+  const perms = usePermissions();
 
   async function removeSow() {
     if (busy) return;
@@ -241,6 +243,7 @@ Esta ação só será permitida porque não existem registros de reprodução, p
     }
   }
 
+  if (!perms?.canDelete) return null;
   return (
     <Button size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10 hover:text-destructive" disabled={busy} onClick={removeSow}>
       <Trash2 className="mr-1 h-3.5 w-3.5" />{busy ? "Verificando…" : "Excluir"}

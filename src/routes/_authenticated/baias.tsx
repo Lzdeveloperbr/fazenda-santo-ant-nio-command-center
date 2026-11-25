@@ -87,7 +87,7 @@ function Baias() {
           setInviteBusy(true);
           const alphabet="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";const bytes=new Uint8Array(10);crypto.getRandomValues(bytes);const raw=Array.from(bytes,x=>alphabet[x%alphabet.length]).join("");const code="SA-"+raw.slice(0,5)+"-"+raw.slice(5);
           const {error}=await supabase.rpc("create_farm_access_code",{p_code:code});
-          setInviteBusy(false);if(error){toast.error("Não foi possível gerar o código. Verifique se a migração 0008 foi aplicada.");return;}
+          setInviteBusy(false);if(error){toast.error(error.message||"Não foi possível gerar o código.");return;}
           setInviteCode(code);toast.success("Novo código de acesso gerado. O anterior foi desativado.");
         }}>{inviteBusy?"Gerando código…":"Gerar código para funcionários"}</Button>
         {inviteCode&&<div className="mt-4 rounded-2xl border border-primary/20 bg-primary/5 p-4">

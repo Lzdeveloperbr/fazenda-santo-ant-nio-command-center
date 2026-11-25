@@ -23,6 +23,7 @@ import { Route as AuthenticatedFarmaciaAiRouteImport } from './routes/_authentic
 import { Route as AuthenticatedFinanceiroRouteImport } from './routes/_authenticated/financeiro'
 import { Route as AuthenticatedGestacaoRouteImport } from './routes/_authenticated/gestacao'
 import { Route as AuthenticatedGranja3dRouteImport } from './routes/_authenticated/granja-3d'
+import { Route as AuthenticatedHistoricoRouteImport } from './routes/_authenticated/historico'
 import { Route as AuthenticatedInteligenciaRouteImport } from './routes/_authenticated/inteligencia'
 import { Route as AuthenticatedLotesRouteImport } from './routes/_authenticated/lotes'
 import { Route as AuthenticatedMaternidadeRouteImport } from './routes/_authenticated/maternidade'
@@ -32,6 +33,7 @@ import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedPlantelRouteImport } from './routes/_authenticated/plantel'
 import { Route as AuthenticatedSanidadeRouteImport } from './routes/_authenticated/sanidade'
 import { Route as AuthenticatedTarefasRouteImport } from './routes/_authenticated/tarefas'
+import { Route as AuthenticatedUsuariosRouteImport } from './routes/_authenticated/usuarios'
 import { Route as AuthenticatedMatrizesSowIdRouteImport } from './routes/_authenticated/matrizes.$sowId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -105,6 +107,11 @@ const AuthenticatedGranja3dRoute = AuthenticatedGranja3dRouteImport.update({
   path: '/granja-3d',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedHistoricoRoute = AuthenticatedHistoricoRouteImport.update({
+  id: '/historico',
+  path: '/historico',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedInteligenciaRoute =
   AuthenticatedInteligenciaRouteImport.update({
     id: '/inteligencia',
@@ -152,6 +159,11 @@ const AuthenticatedTarefasRoute = AuthenticatedTarefasRouteImport.update({
   path: '/tarefas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedUsuariosRoute = AuthenticatedUsuariosRouteImport.update({
+  id: '/usuarios',
+  path: '/usuarios',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedMatrizesSowIdRoute =
   AuthenticatedMatrizesSowIdRouteImport.update({
     id: '/$sowId',
@@ -173,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/gestacao': typeof AuthenticatedGestacaoRoute
   '/granja-3d': typeof AuthenticatedGranja3dRoute
+  '/historico': typeof AuthenticatedHistoricoRoute
   '/inteligencia': typeof AuthenticatedInteligenciaRoute
   '/lotes': typeof AuthenticatedLotesRoute
   '/maternidade': typeof AuthenticatedMaternidadeRoute
@@ -182,6 +195,7 @@ export interface FileRoutesByFullPath {
   '/plantel': typeof AuthenticatedPlantelRoute
   '/sanidade': typeof AuthenticatedSanidadeRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
+  '/usuarios': typeof AuthenticatedUsuariosRoute
   '/matrizes/$sowId': typeof AuthenticatedMatrizesSowIdRoute
 }
 export interface FileRoutesByTo {
@@ -198,6 +212,7 @@ export interface FileRoutesByTo {
   '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/gestacao': typeof AuthenticatedGestacaoRoute
   '/granja-3d': typeof AuthenticatedGranja3dRoute
+  '/historico': typeof AuthenticatedHistoricoRoute
   '/inteligencia': typeof AuthenticatedInteligenciaRoute
   '/lotes': typeof AuthenticatedLotesRoute
   '/maternidade': typeof AuthenticatedMaternidadeRoute
@@ -207,6 +222,7 @@ export interface FileRoutesByTo {
   '/plantel': typeof AuthenticatedPlantelRoute
   '/sanidade': typeof AuthenticatedSanidadeRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
+  '/usuarios': typeof AuthenticatedUsuariosRoute
   '/matrizes/$sowId': typeof AuthenticatedMatrizesSowIdRoute
 }
 export interface FileRoutesById {
@@ -225,6 +241,7 @@ export interface FileRoutesById {
   '/_authenticated/financeiro': typeof AuthenticatedFinanceiroRoute
   '/_authenticated/gestacao': typeof AuthenticatedGestacaoRoute
   '/_authenticated/granja-3d': typeof AuthenticatedGranja3dRoute
+  '/_authenticated/historico': typeof AuthenticatedHistoricoRoute
   '/_authenticated/inteligencia': typeof AuthenticatedInteligenciaRoute
   '/_authenticated/lotes': typeof AuthenticatedLotesRoute
   '/_authenticated/maternidade': typeof AuthenticatedMaternidadeRoute
@@ -234,6 +251,7 @@ export interface FileRoutesById {
   '/_authenticated/plantel': typeof AuthenticatedPlantelRoute
   '/_authenticated/sanidade': typeof AuthenticatedSanidadeRoute
   '/_authenticated/tarefas': typeof AuthenticatedTarefasRoute
+  '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
   '/_authenticated/matrizes/$sowId': typeof AuthenticatedMatrizesSowIdRoute
 }
 export interface FileRouteTypes {
@@ -252,6 +270,7 @@ export interface FileRouteTypes {
     | '/financeiro'
     | '/gestacao'
     | '/granja-3d'
+    | '/historico'
     | '/inteligencia'
     | '/lotes'
     | '/maternidade'
@@ -261,6 +280,7 @@ export interface FileRouteTypes {
     | '/plantel'
     | '/sanidade'
     | '/tarefas'
+    | '/usuarios'
     | '/matrizes/$sowId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -277,6 +297,7 @@ export interface FileRouteTypes {
     | '/financeiro'
     | '/gestacao'
     | '/granja-3d'
+    | '/historico'
     | '/inteligencia'
     | '/lotes'
     | '/maternidade'
@@ -286,6 +307,7 @@ export interface FileRouteTypes {
     | '/plantel'
     | '/sanidade'
     | '/tarefas'
+    | '/usuarios'
     | '/matrizes/$sowId'
   id:
     | '__root__'
@@ -303,6 +325,7 @@ export interface FileRouteTypes {
     | '/_authenticated/financeiro'
     | '/_authenticated/gestacao'
     | '/_authenticated/granja-3d'
+    | '/_authenticated/historico'
     | '/_authenticated/inteligencia'
     | '/_authenticated/lotes'
     | '/_authenticated/maternidade'
@@ -312,6 +335,7 @@ export interface FileRouteTypes {
     | '/_authenticated/plantel'
     | '/_authenticated/sanidade'
     | '/_authenticated/tarefas'
+    | '/_authenticated/usuarios'
     | '/_authenticated/matrizes/$sowId'
   fileRoutesById: FileRoutesById
 }
@@ -421,6 +445,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGranja3dRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/historico': {
+      id: '/_authenticated/historico'
+      path: '/historico'
+      fullPath: '/historico'
+      preLoaderRoute: typeof AuthenticatedHistoricoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/inteligencia': {
       id: '/_authenticated/inteligencia'
       path: '/inteligencia'
@@ -484,6 +515,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTarefasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/usuarios': {
+      id: '/_authenticated/usuarios'
+      path: '/usuarios'
+      fullPath: '/usuarios'
+      preLoaderRoute: typeof AuthenticatedUsuariosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/matrizes/$sowId': {
       id: '/_authenticated/matrizes/$sowId'
       path: '/$sowId'
@@ -519,6 +557,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFinanceiroRoute: typeof AuthenticatedFinanceiroRoute
   AuthenticatedGestacaoRoute: typeof AuthenticatedGestacaoRoute
   AuthenticatedGranja3dRoute: typeof AuthenticatedGranja3dRoute
+  AuthenticatedHistoricoRoute: typeof AuthenticatedHistoricoRoute
   AuthenticatedInteligenciaRoute: typeof AuthenticatedInteligenciaRoute
   AuthenticatedLotesRoute: typeof AuthenticatedLotesRoute
   AuthenticatedMaternidadeRoute: typeof AuthenticatedMaternidadeRoute
@@ -528,6 +567,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPlantelRoute: typeof AuthenticatedPlantelRoute
   AuthenticatedSanidadeRoute: typeof AuthenticatedSanidadeRoute
   AuthenticatedTarefasRoute: typeof AuthenticatedTarefasRoute
+  AuthenticatedUsuariosRoute: typeof AuthenticatedUsuariosRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -542,6 +582,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFinanceiroRoute: AuthenticatedFinanceiroRoute,
   AuthenticatedGestacaoRoute: AuthenticatedGestacaoRoute,
   AuthenticatedGranja3dRoute: AuthenticatedGranja3dRoute,
+  AuthenticatedHistoricoRoute: AuthenticatedHistoricoRoute,
   AuthenticatedInteligenciaRoute: AuthenticatedInteligenciaRoute,
   AuthenticatedLotesRoute: AuthenticatedLotesRoute,
   AuthenticatedMaternidadeRoute: AuthenticatedMaternidadeRoute,
@@ -551,6 +592,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPlantelRoute: AuthenticatedPlantelRoute,
   AuthenticatedSanidadeRoute: AuthenticatedSanidadeRoute,
   AuthenticatedTarefasRoute: AuthenticatedTarefasRoute,
+  AuthenticatedUsuariosRoute: AuthenticatedUsuariosRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

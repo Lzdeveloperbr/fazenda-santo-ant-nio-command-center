@@ -18,6 +18,13 @@
 - [ ] Histórico fotográfico (precisa de armazenamento de fotos)
 - [ ] Controle de funcionários: mostrar quem fez cada manejo
 
+## Fase 1 do ERP (ver docs/DIAGNOSTICO_ERP.md)
+- [x] Perfis Administrador/Gerente/Veterinário/Funcionário/Consulta aplicados no banco (RLS)
+- [x] Ativação/desativação de usuários e último acesso
+- [x] Trilha de auditoria imutável com valor anterior e novo
+- [x] Busca global em matrizes, reprodutores, baias, lotes, medicamentos e tarefas
+- [ ] Aplicar migration 0015 em homologação e validar (docs/DIAGNOSTICO_ERP.md, seção 7)
+
 ## Próximas etapas
 - [ ] Produção e manejo: transferências entre lotes/baias, lotação consolidada e consumo no desempenho
 - [ ] Administração: financeiro, funcionários, custos e fluxo de caixa

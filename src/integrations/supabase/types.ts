@@ -14,6 +14,37 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string
+          actor_id: string | null
+          actor_role: string | null
+          changed_fields: string[] | null
+          id: number
+          new_data: Json | null
+          occurred_at: string
+          old_data: Json | null
+          origin: string
+          record_id: string | null
+          table_name: string
+        }
+        Insert: { [key: string]: never }
+        Update: { [key: string]: never }
+        Relationships: []
+      }
+      user_access: {
+        Row: {
+          active: boolean
+          last_seen_at: string | null
+          role: string
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+        }
+        Insert: { [key: string]: never }
+        Update: { [key: string]: never }
+        Relationships: []
+      }
       ai_health_analyses: {
         Row: {
           affected_count: number | null
@@ -2189,6 +2220,28 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      access_role: { Args: never; Returns: string | null }
+      can_delete: { Args: never; Returns: boolean }
+      can_view_audit: { Args: never; Returns: boolean }
+      can_write: { Args: never; Returns: boolean }
+      farm_users: {
+        Args: never
+        Returns: {
+          active: boolean
+          display_name: string | null
+          email: string | null
+          joined_at: string | null
+          last_seen_at: string | null
+          role: string
+          user_id: string
+        }[]
+      }
+      is_farm_admin: { Args: never; Returns: boolean }
+      set_user_access: {
+        Args: { p_active: boolean; p_role: string; p_user_id: string }
+        Returns: undefined
+      }
+      touch_last_seen: { Args: never; Returns: undefined }
       create_farm_access_code: { Args: { p_code: string }; Returns: undefined }
       delete_sow: { Args: { p_sow_id: string }; Returns: undefined }
       has_role: {

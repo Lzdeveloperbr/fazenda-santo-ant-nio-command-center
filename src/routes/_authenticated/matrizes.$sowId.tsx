@@ -6,6 +6,7 @@ import { Empty, SectionTitle } from "@/components/farm/Kpi";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { usePermissions } from "@/lib/access";
 import { FormDialog, Field, SubmitRow, selectCls } from "@/components/farm/FormDialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -185,6 +186,8 @@ function DeleteSowButton({ sow }: { sow: Sow }) {
   const navigate = useNavigate();
   const [typed, setTyped] = useState("");
   const [busy, setBusy] = useState(false);
+  const perms = usePermissions();
+  if (!perms?.canDelete) return null;
   return (
     <FormDialog title={`Excluir matriz ${sow.ear_tag}`} trigger={<Button variant="destructive">Excluir matriz</Button>}>
       {(close) => (
@@ -200,7 +203,7 @@ function DeleteSowButton({ sow }: { sow: Sow }) {
           close();
           navigate({ to: "/matrizes" });
         }}>
-          <p className="text-sm text-muted-foreground">Isto apaga para sempre a matriz e todo o histórico dela: coberturas, partos, leitegadas, eventos e registros sanitários. Não dá para desfazer. Se ela só saiu do plantel, prefira registrar descarte, morte ou transferência.</p>
+          <p className="text-sm text-muted-foreground">Isto apaga a matriz e todo o histórico dela: coberturas, partos, leitegadas, eventos e registros sanitários. Não dá para desfazer pelo aplicativo; uma cópia dos dados apagados fica no Histórico de alterações. Se ela só saiu do plantel, prefira registrar descarte, morte ou transferência.</p>
           <Field label={`Digite o brinco "${sow.ear_tag}" para confirmar`}><Input value={typed} onChange={(e) => setTyped(e.target.value)} /></Field>
           <Button type="submit" variant="destructive" disabled={busy || typed.trim() !== sow.ear_tag} className="h-11 w-full">{busy ? "Excluindo…" : "Excluir definitivamente"}</Button>
         </form>
