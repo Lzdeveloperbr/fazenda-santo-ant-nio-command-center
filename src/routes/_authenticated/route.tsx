@@ -1,7 +1,7 @@
 import { createFileRoute, redirect, Outlet, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, PiggyBank, Baby, ListChecks, LogOut, Menu, X, Layers3, HeartPulse, Wheat, TrendingUp, Fence, Ear, BrainCircuit, BookOpen, Box, Warehouse, ClipboardCheck, Radar, Wallet, Calculator, Search, Moon, Sun, PanelLeftClose, PanelLeftOpen, ChevronRight, LayoutGrid, HeartHandshake, Users, History, Eye } from "lucide-react";
+import { LayoutDashboard, PiggyBank, Baby, ListChecks, LogOut, Menu, X, Layers3, HeartPulse, Wheat, TrendingUp, Fence, Ear, BrainCircuit, BookOpen, Box, Warehouse, ClipboardCheck, Radar, Wallet, Calculator, Search, Moon, Sun, PanelLeftClose, PanelLeftOpen, ChevronRight, LayoutGrid, HeartHandshake, Users, History, Eye, Skull } from "lucide-react";
 import { accessQuery, ROLE_INFO } from "@/lib/access";
 import { InstallAppButton } from "@/components/farm/InstallAppButton";
 import { GlobalSearchResults } from "@/components/farm/GlobalSearchResults";
@@ -30,6 +30,8 @@ const NAV=[
  {to:"/matrizes",label:"Matrizes e reprodução",short:"Matrizes",icon:PiggyBank,group:"Rebanho"},
  {to:"/maternidade",label:"Maternidade",short:"Maternidade",icon:Baby,group:"Rebanho"},
  {to:"/desmame",label:"Marcação e desmame",short:"Desmame",icon:Ear,group:"Rebanho"},
+ {to:"/leitoes",label:"Leitões",short:"Leitões",icon:PiggyBank,group:"Rebanho"},
+ {to:"/mortalidade",label:"Mortalidade e descarte",short:"Mortalidade",icon:Skull,group:"Rebanho"},
  {to:"/lotes",label:"Lotes por fase",short:"Lotes",icon:Layers3,group:"Rebanho"},
  {to:"/mutirao",label:"Mutirão de Organização",short:"Mutirão",icon:ClipboardCheck,group:"Rebanho"},
  {to:"/tarefas",label:"Rotinas e manejo",short:"Manejo",icon:ListChecks,group:"Manejo e saúde"},

@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Plus, Download, Printer, ChevronLeft, ChevronRight } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
-import { boarsQuery, breedingsQuery, diagnosesQuery, gestationEventsQuery, littersQuery, sowsQuery, fmtDate, todayISO, isCountedLitter, type Breeding, type Sow } from "@/lib/farm";
+import { boarsQuery, pensQuery, breedingsQuery, diagnosesQuery, gestationEventsQuery, littersQuery, sowsQuery, fmtDate, todayISO, isCountedLitter, type Breeding, type Sow } from "@/lib/farm";
 import { addDays, cycleAlert, cycleDates, cycleStage, daysBetween, DEFAULT_CONFIG, farrowingWarning, PRIORITY_LABEL, PRIORITY_RANK, reproductiveIndicators, type GestationConfig } from "@/lib/farm/gestation";
 import { farmSettingsQuery } from "@/lib/farm/farm-settings";
 import { FarmSettingsForm } from "@/components/farm/FarmSettingsForm";
@@ -222,23 +222,27 @@ function Diagnosis({ cycles, tag, onDone }: { cycles: Breeding[]; tag: (id: stri
 
 function Farrowing({ cycles, tag, onDone, preset }: { cycles: Breeding[]; tag: (id: string) => string; onDone: () => void; preset?: string }) {
   const [busy, setBusy] = useState(false); const [n, setN] = useState({ total: 0, alive: 0, still: 0, mum: 0 }); const [ack, setAck] = useState(false);
+  const pens = useQuery(pensQuery);
   const warn = farrowingWarning(n.total, n.alive, n.still, n.mum);
   return <FormDialog title="Registrar parto" trigger={preset ? <Button size="sm">Registrar parto</Button> : <Button variant="outline" className="h-11">Registrar parto</Button>}>{(close) => <form className="space-y-3" onSubmit={async (e) => {
     e.preventDefault(); const f = new FormData(e.currentTarget); const b = cycles.find((c) => c.id === f.get("cycle")); if (!b) return void toast.error("Selecione o ciclo."); const date = String(f.get("date"));
     if (date < b.breeding_date || date > todayISO()) return void toast.error("Data de parto inválida.");
     if (warn && !ack) return void toast.error("Confirme e justifique a diferença nos números.");
     const deadAfter = Number(f.get("deadAfter") || 0); if (deadAfter > n.alive) return void toast.error("Mortos após nascimento não pode passar dos nascidos vivos.");
+    const runtsRaw = String(f.get("runts") ?? "").trim(); const runts = runtsRaw === "" ? null : Number(runtsRaw);
+    if (runts !== null && (!Number.isInteger(runts) || runts < 0 || runts > n.alive)) return void toast.error("Refugos deve ser entre 0 e o número de nascidos vivos.");
     setBusy(true); const notes = [String(f.get("notes") || ""), Number(f.get("followup") || 0) ? `Leitões encaminhados para acompanhamento: ${f.get("followup")}` : ""].filter(Boolean).join(" · ") || null;
-    const { data, error } = await supabase.from("litters").insert({ sow_id: b.sow_id, breeding_id: b.id, farrowing_date: date, born_total: n.total, born_alive: n.alive, stillborn: n.still, mummified: n.mum, start_time: String(f.get("start") || "") || null, end_time: String(f.get("end") || "") || null, responsible: String(f.get("responsible") || "") || null, complications: f.getAll("comp").map(String), farrowing_notes: notes }).select("id").single();
+    const { data, error } = await supabase.from("litters").insert({ sow_id: b.sow_id, breeding_id: b.id, farrowing_date: date, born_total: n.total, born_alive: n.alive, stillborn: n.still, mummified: n.mum, start_time: String(f.get("start") || "") || null, end_time: String(f.get("end") || "") || null, responsible: String(f.get("responsible") || "") || null, complications: f.getAll("comp").map(String), farrowing_notes: notes, runts, pen_id: String(f.get("pen_id") || "") || null }).select("id").single();
     if (!error) { await supabase.from("sows").update({ status: "lactante" }).eq("id", b.sow_id); if (deadAfter > 0 && data) await supabase.from("litter_events").insert({ litter_id: data.id, event_type: "morte", quantity: deadAfter, event_date: date, note: "Morte após nascimento (registro do parto)" }); }
     setBusy(false); if (error) return void toast.error(error.message.includes("litters_breeding_unique") ? "Este ciclo já tem parto registrado." : error.message);
     toast.success(`Parto registrado · gestação de ${daysBetween(b.breeding_date, date)} dias. Leitegada enviada à Maternidade.`); onDone(); close();
   }}>
     <Field label="Matriz / ciclo *"><select name="cycle" defaultValue={preset} className={selectCls} required><option value="">Selecione…</option>{cycles.map((c) => <option key={c.id} value={c.id}>{tag(c.sow_id)} · cobertura {fmtDate(c.breeding_date)}</option>)}</select></Field>
     <div className="grid grid-cols-3 gap-3"><Field label="Data *"><Input name="date" type="date" defaultValue={todayISO()} max={todayISO()} required className="h-11" /></Field><Field label="Início"><Input name="start" type="time" className="h-11" /></Field><Field label="Término"><Input name="end" type="time" className="h-11" /></Field></div>
-    <Field label="Responsável"><Input name="responsible" className="h-11" /></Field>
+    <div className="grid grid-cols-2 gap-3"><Field label="Responsável"><Input name="responsible" className="h-11" /></Field><Field label="Baia de maternidade"><select name="pen_id" className={selectCls} defaultValue=""><option value="">Não informada</option>{(pens.data ?? []).map((p) => <option key={p.id} value={p.id}>{p.code} · {p.sector}</option>)}</select></Field></div>
     <div className="grid grid-cols-2 gap-3">{([["total","Total nascidos"],["alive","Nascidos vivos"],["still","Natimortos"],["mum","Mumificados"]] as const).map(([k, l]) => <Field key={k} label={l}><Input type="number" min={0} value={n[k]} onChange={(e) => setN({ ...n, [k]: Number(e.target.value) })} className="h-11" /></Field>)}
       <Field label="Mortos após nascimento"><Input name="deadAfter" type="number" min={0} defaultValue={0} className="h-11" /></Field><Field label="Encaminhados p/ acompanhamento"><Input name="followup" type="number" min={0} defaultValue={0} className="h-11" /></Field></div>
+    <Field label="Refugos (leitões muito pequenos/fracos, entre os vivos)"><Input name="runts" type="number" min={0} placeholder="Não avaliado" className="h-11" /></Field>
     {warn && <label className="flex gap-2 rounded-lg border border-warn/40 bg-warn/10 p-3 text-sm"><input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} /><span>{warn} Confirmo que é uma situação especial (justifique nas observações).</span></label>}
     <fieldset className="space-y-1"><legend className="text-sm">Intercorrências</legend>{COMPLICATIONS.map((c) => <label key={c} className="flex items-center gap-2 text-sm"><input type="checkbox" name="comp" value={c} />{c}</label>)}</fieldset>
     <Field label="Observações"><Input name="notes" className="h-11" /></Field>

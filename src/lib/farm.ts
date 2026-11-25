@@ -145,3 +145,10 @@ export const gestationEventsQuery = queryOptions({
   queryKey: ["gestation_events"],
   queryFn: () => unwrap<GestationEvent[]>(supabase.from("gestation_events").select("*").order("event_date", { ascending: false })),
 });
+
+export type Piglet = Database["public"]["Tables"]["piglet_identifications"]["Row"];
+/** Leitões identificados (mesma chave e ordem usadas na tela de marcação). */
+export const pigletsQuery = queryOptions({
+  queryKey: ["piglet_identifications"],
+  queryFn: () => unwrap<Piglet[]>(supabase.from("piglet_identifications").select("*").order("australian_number", { ascending: false })),
+});

@@ -20,7 +20,7 @@ export const SEARCH_KIND_LABEL: Record<SearchKind, string> = {
 };
 
 export function normalize(text: string) {
-  return text.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+  return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 }
 
 /** 3 = identificação exata, 2 = começa com, 1 = contém; 0 = sem correspondência. */

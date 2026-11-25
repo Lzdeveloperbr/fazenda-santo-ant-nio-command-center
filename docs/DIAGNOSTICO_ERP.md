@@ -52,14 +52,14 @@ Legenda: ✅ funciona · 🟡 parcial · ❌ não existe
 | 3 | Prontuário da matriz | ✅ **Fase 2** | Ver seção 4.1. Falta histórico de mudanças de baia como evento próprio (hoje aparece no Histórico de alterações) |
 | 4 | Reprodução | 🟡 | Ciclos, cio, retorno, reprodutores, calendário, indicadores; **prazos agora configuráveis no banco (Fase 2)**. Faltam cadastro de lotes de sêmen e término de cio |
 | 5 | Gestação | ✅/🟡 | Diagnósticos, perdas, alertas derivados de datas, linha do tempo. Falta condição corporal e alimentação por matriz |
-| 6 | Maternidade | 🟡 | Partos, mortalidade, adoções, pesagens, desmame validado. Faltam hora início/fim, duração, assistência, mumificados/refugos separados, ficha de mortalidade com dia da semana/idade |
-| 7 | Leitões | 🟡 | Contagem por leitegada e identificação australiana. Falta prontuário individual completo (sexo, peso, ferro, castração por leitão) |
-| 8 | Desmame | 🟡 | `/desmame` com marcação e desmame; faltam destino, sexo, intervalo desmame-cio por matriz |
+| 6 | Maternidade | ✅ **Fase 3** | Parto com início/fim, responsável, intercorrências, mumificados, refugos e baia; ficha de mortalidade completa; indicadores com denominadores |
+| 7 | Leitões | ✅ **Fase 3** | Prontuário individual (sexo, peso, condição, colostragem, ferro, cauda, castração, baia, morte, desmame), pendências, visão por leitegada e adoções |
+| 8 | Desmame | 🟡 | Desmame com machos/fêmeas, peso médio, destino e baia (Fase 3); idade e peso ao desmame calculados. Falta intervalo desmame-cio por matriz (Fase 5, indicadores) |
 | 9 | Sanidade | 🟡 | Registros, ocorrências, tratamentos veterinários vinculados a lote de medicamento, carência informada. Falta calendário sanitário com protocolos configuráveis |
 | 10 | Estoque e farmácia | 🟡 | Ração e farmácia com lotes, validade e movimentos. Falta estoque geral (seringas, limpeza, equipamentos), fornecedores e NF |
 | 11 | Ração e nutrição | 🟡 | Rações, movimentos, consumo por baia/lote. Faltam planos por fase e histórico por matriz |
-| 12 | Baias | 🟡 | `/baias` + Granja 3D com ocupação. Falta hierarquia setor › galpão › sala › baia e bloqueio de lotação acima da capacidade em todas as entradas |
-| 13 | Descarte e mortalidade | 🟡 | Eventos de descarte/morte, mapa de calor. Faltam destino, valor de venda e relatórios por setor/baia/lote |
+| 12 | Baias | 🟡 | Galpão e sala, matrizes/leitegadas vinculadas e bloqueio de lotação de matrizes (só gestão autoriza) na Fase 3. Mapa interativo por galpão ainda é o da Granja 3D |
+| 13 | Descarte e mortalidade | 🟡 | `/mortalidade`: leitões por motivo, idade, dia da semana, matriz e baia; matrizes e lotes; CSV e PDF (Fase 3). Faltam destino e valor de venda do descarte (Fase 4) |
 | 14 | Indicadores | 🟡 | `/desempenho` com indicadores reais. Faltam comparativos mês×mês, ano×ano e exportação |
 | 15 | Financeiro | 🟡 | Receitas/despesas, pendente/pago, custo por leitão, relatório mensal. Faltam contas a pagar/receber completas, fornecedores, centros de custo, fluxo de caixa |
 | 16 | Calendário | 🟡 | Calendário reprodutivo e tarefas. Falta agenda geral dia/semana/mês unificada e "quem executou" em todas as tarefas |
@@ -103,6 +103,14 @@ Legenda: ✅ funciona · 🟡 parcial · ❌ não existe
 - Lista de matrizes: filtro "Cadastros arquivados". Arquivados saem das listas e indicadores, mas a ficha continua acessível.
 - Gestação › Configurações grava no banco para toda a granja; só Administrador/Gerente edita.
 - Testes: 15 novos de unidade + teste SQL da 0016. Telas conferidas no navegador com dados simulados.
+
+## 4.2 Fase 3 — entregue
+
+- Migration `0017_maternidade_leitoes_instalacoes.sql` (só adiciona): refugos e baia no parto; motivo, peso, responsável, leitão, sexo, destino e vínculo entre leitegadas nos eventos; manejo individual do leitão; galpão/sala nas baias; função `transfer_piglets` (adoção em uma única operação); bloqueio de lotação de matrizes acima da capacidade, exceto Administrador/Gerente.
+- O saldo da leitegada continua vindo só do livro de eventos; os novos campos apenas detalham.
+- Maternidade: morte exige motivo observado (lista fixa, com aviso de que não é diagnóstico), desmame com sexo/peso/destino, botão "Adoção entre matrizes".
+- Telas novas: **Leitões** e **Mortalidade e descarte**.
+- Exportação CSV padronizada (protegida contra fórmulas) e seletor de período reutilizável.
 
 ## 5. Próximas fases (ordem recomendada)
 
