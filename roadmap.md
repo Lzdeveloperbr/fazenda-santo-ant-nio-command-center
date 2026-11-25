@@ -15,7 +15,7 @@
 - [x] Calendário reprodutivo, central de pendências, previsão de desmames
 - [x] Mapa de calor da mortalidade, comparação de leitegadas, avaliação de descarte
 - [x] Custo por leitão, financeiro, relatório mensal para o patrão
-- [ ] Histórico fotográfico (precisa de armazenamento de fotos)
+- [x] Foto da matriz em armazenamento privado (fotos anteriores ficam guardadas ao trocar)
 - [ ] Controle de funcionários: mostrar quem fez cada manejo
 
 ## Fase 1 do ERP (ver docs/DIAGNOSTICO_ERP.md)
@@ -24,6 +24,13 @@
 - [x] Trilha de auditoria imutável com valor anterior e novo
 - [x] Busca global em matrizes, reprodutores, baias, lotes, medicamentos e tarefas
 - [ ] Aplicar migration 0015 em homologação e validar (docs/DIAGNOSTICO_ERP.md, seção 7)
+
+## Fase 2 do ERP
+- [x] Prontuário completo da matriz (genealogia, origem, baia, lote, peso, foto, QR Code, linha do tempo)
+- [x] Situação atual derivada com 15 estados e motivo
+- [x] Arquivamento (exclusão lógica) com motivo, só Administrador/Gerente
+- [x] Prazos reprodutivos no banco, iguais para todos os aparelhos
+- [ ] Aplicar migration 0016 em homologação e validar
 
 ## Próximas etapas
 - [ ] Produção e manejo: transferências entre lotes/baias, lotação consolidada e consumo no desempenho

@@ -49,8 +49,8 @@ Legenda: ✅ funciona · 🟡 parcial · ❌ não existe
 |---|---|---|---|
 | 1 | Preservar projeto | ✅ | Análise feita; mudanças incrementais e não destrutivas |
 | 2 | Dashboard | 🟡 | `/painel` com indicadores reais e filtros de período; `/inteligencia` com pendências. Faltam vários indicadores financeiros/estoque no painel e alertas de ferro/vacina por leitão |
-| 3 | Prontuário da matriz | 🟡 | Ficha `/matrizes/$sowId` com histórico, PDF por impressão, 3D. Faltam linhagem, origem, pai/mãe, entrada, baia/lote vinculados, peso, foto, QR Code e as 15 situações (hoje 7) |
-| 4 | Reprodução | 🟡 | Ciclos, cio, retorno, reprodutores, calendário, indicadores. Faltam lote/doses de sêmen estruturados, término de cio e parâmetros configuráveis por granja (hoje fixos no código) |
+| 3 | Prontuário da matriz | ✅ **Fase 2** | Ver seção 4.1. Falta histórico de mudanças de baia como evento próprio (hoje aparece no Histórico de alterações) |
+| 4 | Reprodução | 🟡 | Ciclos, cio, retorno, reprodutores, calendário, indicadores; **prazos agora configuráveis no banco (Fase 2)**. Faltam cadastro de lotes de sêmen e término de cio |
 | 5 | Gestação | ✅/🟡 | Diagnósticos, perdas, alertas derivados de datas, linha do tempo. Falta condição corporal e alimentação por matriz |
 | 6 | Maternidade | 🟡 | Partos, mortalidade, adoções, pesagens, desmame validado. Faltam hora início/fim, duração, assistência, mumificados/refugos separados, ficha de mortalidade com dia da semana/idade |
 | 7 | Leitões | 🟡 | Contagem por leitegada e identificação australiana. Falta prontuário individual completo (sexo, peso, ferro, castração por leitão) |
@@ -88,11 +88,27 @@ Legenda: ✅ funciona · 🟡 parcial · ❌ não existe
 - Busca global com dados reais.
 - Testes: 8 novos testes de unidade + teste SQL de RLS/auditoria em PostgreSQL real (`tests/db/run.sh`).
 
+## 4.1 Fase 2 — entregue
+
+**Prontuário da matriz e parâmetros da granja (seções 3 e 4):**
+
+- Migration `0016_prontuario_matriz_parametros.sql` (não destrutiva, só adiciona):
+  - Novos campos opcionais em `sows`: linhagem, origem, pai, mãe, entrada na granja, baia (vínculo com `farm_pens`), lote/grupo, peso com data, categoria (leitoa / em preparação / matriz), condição sanitária (observação / tratamento / recuperação), foto e arquivamento com motivo.
+  - Regras no banco: entrada não antes do nascimento, peso entre 0 e 500 kg sempre com data, valores de categoria/condição válidos, arquivar exige motivo e perfil Administrador/Gerente (registra quem arquivou).
+  - `farm_settings` (linha única): prazos reprodutivos da granja. Antes ficavam no `localStorage` de cada aparelho, então cada celular podia mostrar alertas diferentes. Diagnóstico, transferência para maternidade e idade de desmame ficam **vazios até o responsável técnico configurar**.
+  - Bucket privado `sow-photos` (até 5 MB, JPG/PNG/WebP).
+- **Situação atual com 15 estados derivados dos registros** (leitoa, em preparação, cio identificado, inseminada, gestante, vazia, transferida, pré-parto, em maternidade, em lactação, desmamada, descartada, morta + condição em tratamento/recuperação/observação), sempre com o motivo exibido. A coluna `status` continua sendo mantida pelos gatilhos existentes, sem conflito.
+- Ficha da matriz: foto (câmera no celular), **QR Code que abre a ficha**, todos os campos novos, idade, ordem de parto, editar, arquivar/reativar e **linha do tempo completa** com filtros (coberturas, diagnósticos, ocorrências de gestação, partos, eventos de leitegada, desmames, vacinas, medicamentos e ocorrências).
+- Formulário único de cadastro/edição com validação igual à do banco.
+- Lista de matrizes: filtro "Cadastros arquivados". Arquivados saem das listas e indicadores, mas a ficha continua acessível.
+- Gestação › Configurações grava no banco para toda a granja; só Administrador/Gerente edita.
+- Testes: 15 novos de unidade + teste SQL da 0016. Telas conferidas no navegador com dados simulados.
+
 ## 5. Próximas fases (ordem recomendada)
 
 Cada fase: migration revisada + teste SQL, telas, testes de unidade, build, e registro neste documento.
 
-1. **Fase 2 — Prontuário da matriz e cadastros base:** novos campos em `sows` (linhagem, origem, pai/mãe, entrada, baia, lote, peso, foto, QR Code), situações ampliadas com mapeamento das atuais, hierarquia de instalações e parâmetros da granja configuráveis (`farm_settings`: dias de diagnóstico, gestação, desmame).
+1. ~~Fase 2 — Prontuário da matriz e parâmetros~~ (entregue). Pendente dela: hierarquia setor › galpão › sala › baia e bloqueio de lotação, que seguem para a Fase 3.
 2. **Fase 3 — Maternidade e leitões detalhados:** dados de parto (hora, duração, assistência, mumificados, refugos), ficha de mortalidade completa, prontuário individual de leitão, desmame com destino e sexo.
 3. **Fase 4 — Estoque geral, fornecedores e financeiro:** estoque multi-categoria com bloqueio de saída acima do saldo, fornecedores, NF, contas a pagar/receber, centros de custo e fluxo de caixa.
 4. **Fase 5 — Agenda unificada, calendário sanitário e relatórios:** agenda dia/semana/mês, protocolos sanitários configuráveis (validados por veterinário), central de relatórios com PDF/Excel/CSV.
@@ -113,3 +129,5 @@ Cada fase: migration revisada + teste SQL, telas, testes de unidade, build, e re
 5. Desativar o usuário de teste e confirmar que ele não vê dados.
 6. Editar uma matriz e conferir o registro no Histórico com valor anterior e novo.
 7. Publicar a Edge Function `vet-assistant` **depois** da migration (ela usa `can_write()`).
+8. Aplicar `0016_prontuario_matriz_parametros.sql`. Em Gestação › Configurações, conferir os prazos e preencher diagnóstico, transferência e desmame se o responsável técnico definir. Atenção: prazos que alguém tenha mudado antes no próprio aparelho não são copiados automaticamente; confira e salve uma vez.
+9. Abrir uma matriz, editar os novos campos, enviar uma foto pelo celular e ler o QR Code com a câmera.

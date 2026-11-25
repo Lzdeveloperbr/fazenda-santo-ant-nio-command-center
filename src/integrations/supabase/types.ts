@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      farm_settings: {
+        Row: {
+          approach_day: number
+          attention_start_day: number
+          diagnosis_day: number | null
+          farm_name: string
+          gestation_days: number
+          heat_end_day: number
+          heat_prep_day: number
+          heat_start_day: number
+          id: boolean
+          intensive_day: number
+          maternity_transfer_day: number | null
+          updated_at: string
+          updated_by: string | null
+          weaning_age_days: number | null
+        }
+        Insert: { [key: string]: never }
+        Update: {
+          approach_day?: number
+          attention_start_day?: number
+          diagnosis_day?: number | null
+          farm_name?: string
+          gestation_days?: number
+          heat_end_day?: number
+          heat_prep_day?: number
+          heat_start_day?: number
+          intensive_day?: number
+          maternity_transfer_day?: number | null
+          weaning_age_days?: number | null
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -1824,34 +1857,79 @@ export type Database = {
       }
       sows: {
         Row: {
+          archived_at: string | null
+          archived_by: string | null
+          archived_reason: string | null
           birth_date: string | null
           breed: string | null
+          category: string | null
+          condition: string | null
           created_at: string
+          dam: string | null
           ear_tag: string
+          entry_date: string | null
+          group_label: string | null
           id: string
+          lineage: string | null
           name: string | null
           notes: string | null
+          origin: string | null
+          pen_id: string | null
+          photo_path: string | null
+          sire: string | null
           status: string
+          weight_date: string | null
+          weight_kg: number | null
         }
         Insert: {
+          archived_at?: string | null
+          archived_by?: string | null
+          archived_reason?: string | null
           birth_date?: string | null
           breed?: string | null
+          category?: string | null
+          condition?: string | null
           created_at?: string
+          dam?: string | null
           ear_tag: string
+          entry_date?: string | null
+          group_label?: string | null
           id?: string
+          lineage?: string | null
           name?: string | null
           notes?: string | null
+          origin?: string | null
+          pen_id?: string | null
+          photo_path?: string | null
+          sire?: string | null
           status?: string
+          weight_date?: string | null
+          weight_kg?: number | null
         }
         Update: {
+          archived_at?: string | null
+          archived_by?: string | null
+          archived_reason?: string | null
           birth_date?: string | null
           breed?: string | null
+          category?: string | null
+          condition?: string | null
           created_at?: string
+          dam?: string | null
           ear_tag?: string
+          entry_date?: string | null
+          group_label?: string | null
           id?: string
+          lineage?: string | null
           name?: string | null
           notes?: string | null
+          origin?: string | null
+          pen_id?: string | null
+          photo_path?: string | null
+          sire?: string | null
           status?: string
+          weight_date?: string | null
+          weight_kg?: number | null
         }
         Relationships: []
       }
@@ -2222,6 +2300,7 @@ export type Database = {
     Functions: {
       access_role: { Args: never; Returns: string | null }
       can_delete: { Args: never; Returns: boolean }
+      can_manage_farm: { Args: never; Returns: boolean }
       can_view_audit: { Args: never; Returns: boolean }
       can_write: { Args: never; Returns: boolean }
       farm_users: {

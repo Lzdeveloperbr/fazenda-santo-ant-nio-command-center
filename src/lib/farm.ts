@@ -69,9 +69,20 @@ async function unwrap<T>(p: PromiseLike<{ data: T | null; error: { message: stri
   return (data ?? []) as T;
 }
 
+/** Todas as matrizes, inclusive cadastros arquivados (exclusão lógica). */
+export const allSowsQuery = queryOptions({
+  queryKey: ["sows", "all"],
+  queryFn: () => unwrap<Sow[]>(supabase.from("sows").select("*").order("ear_tag")),
+});
+
+/**
+ * Matrizes do plantel: sem cadastros arquivados (duplicados/errados), que
+ * ficam fora de listas e indicadores mas continuam acessíveis na ficha.
+ * Filtro no cliente para funcionar também antes da migration 0016.
+ */
 export const sowsQuery = queryOptions({
   queryKey: ["sows"],
-  queryFn: () => unwrap<Sow[]>(supabase.from("sows").select("*").order("ear_tag")),
+  queryFn: async () => (await unwrap<Sow[]>(supabase.from("sows").select("*").order("ear_tag"))).filter((s) => !s.archived_at),
 });
 export const breedingsQuery = queryOptions({
   queryKey: ["breedings"],

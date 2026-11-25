@@ -1,12 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Plus, Download, Printer, ChevronLeft, ChevronRight } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { boarsQuery, breedingsQuery, diagnosesQuery, gestationEventsQuery, littersQuery, sowsQuery, fmtDate, todayISO, isCountedLitter, type Breeding, type Sow } from "@/lib/farm";
-import { addDays, cycleAlert, cycleDates, cycleStage, daysBetween, DEFAULT_CONFIG, farrowingWarning, PRIORITY_LABEL, PRIORITY_RANK, reproductiveIndicators, validateGestationConfig, type GestationConfig } from "@/lib/farm/gestation";
+import { addDays, cycleAlert, cycleDates, cycleStage, daysBetween, DEFAULT_CONFIG, farrowingWarning, PRIORITY_LABEL, PRIORITY_RANK, reproductiveIndicators, type GestationConfig } from "@/lib/farm/gestation";
+import { farmSettingsQuery } from "@/lib/farm/farm-settings";
+import { FarmSettingsForm } from "@/components/farm/FarmSettingsForm";
 import { Empty, SectionTitle } from "@/components/farm/Kpi";
 import { FormDialog, Field, SubmitRow, selectCls } from "@/components/farm/FormDialog";
 import { Button } from "@/components/ui/button";
@@ -33,22 +35,9 @@ const COMPLICATIONS = ["Parto normal", "Parto prolongado", "Assistência necess�
 const PRIO_TONE: Record<string, string> = { urgente: "bg-destructive/15 text-destructive", importante: "bg-warn/15 text-warn", atencao: "bg-info/15 text-info", info: "bg-muted text-muted-foreground" };
 const ACTIVE_SOW = ["vazia", "coberta", "gestante"];
 
-function useConfig() {
-  const [cfg, setCfg] = useState<GestationConfig>(DEFAULT_CONFIG);
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem("fsa-gestacao-cfg");
-      if (!stored) return;
-      const parsed = { ...DEFAULT_CONFIG, ...JSON.parse(stored) } as GestationConfig;
-      if (validateGestationConfig(parsed) === null) setCfg(parsed);
-    } catch { /* Configuração inválida: mantém os prazos padrão. */ }
-  }, []);
-  const save = (c: GestationConfig) => {
-    if (validateGestationConfig(c) !== null) return;
-    setCfg(c);
-    localStorage.setItem("fsa-gestacao-cfg", JSON.stringify(c));
-  };
-  return [cfg, save] as const;
+/** Prazos da granja (banco); padrão do sistema enquanto carrega ou sem a migration 0016. */
+function useConfig(): GestationConfig {
+  return useQuery(farmSettingsQuery).data?.gestation ?? DEFAULT_CONFIG;
 }
 function csv(name: string, header: string[], rows: (string | number | null | undefined)[][]) {
   const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
@@ -61,7 +50,7 @@ const num = (v: number | null, d = 1) => (v == null ? "—" : v.toFixed(d));
 function Gestacao() {
   const qc = useQueryClient();
   const sows = useQuery(sowsQuery), breedings = useQuery(breedingsQuery), litters = useQuery(littersQuery), boars = useQuery(boarsQuery), diags = useQuery(diagnosesQuery), occs = useQuery(gestationEventsQuery);
-  const [cfg, saveCfg] = useConfig();
+  const cfg = useConfig();
   const [search, setSearch] = useState("");
   const today = todayISO();
   const refresh = () => ["breedings", "sows", "litters", "boars", "pregnancy_diagnoses", "gestation_events", "sow_events", "litter_events"].forEach((k) => qc.invalidateQueries({ queryKey: [k] }));
@@ -134,12 +123,7 @@ function Gestacao() {
 
       <TabsContent value="indicadores"><Indicators S={S} B={B} L={L} D={D} O={O} tag={tag} boarName={boarName} cfg={cfg} /></TabsContent>
 
-      <TabsContent value="config"><section className="panel max-w-xl p-5"><SectionTitle kicker="Neste aparelho" title="Configurações reprodutivas" />
-        <form className="grid grid-cols-2 gap-3" onSubmit={(e) => { e.preventDefault(); const f = new FormData(e.currentTarget); const c = Object.fromEntries(Object.keys(DEFAULT_CONFIG).map((k) => [k, Number(f.get(k))])) as GestationConfig; const validationError = validateGestationConfig(c); if (validationError) { toast.error(validationError); return; } saveCfg(c); toast.success("Configurações salvas"); }}>
-          {([["heatPrep","Preparar observação de cio (dia)"],["heatStart","Início da janela de cio"],["heatEnd","Fim da janela de cio"],["attentionStart","Início da janela de atenção ao parto"],["approachDay","Alerta de proximidade"],["intensiveDay","Preparação intensificada"],["gestationDays","Duração de referência da gestação"]] as const).map(([k, l]) => <Field key={k} label={l}><Input name={k} type="number" min={1} max={130} defaultValue={cfg[k]} className="h-11" /></Field>)}
-          <div className="col-span-2 flex gap-2"><Button type="submit" className="h-11 flex-1">Salvar</Button><Button type="button" variant="outline" className="h-11" onClick={() => { saveCfg(DEFAULT_CONFIG); toast.success("Padrão restaurado"); }}>Restaurar padrão</Button></div>
-        </form>
-      </section></TabsContent>
+      <TabsContent value="config"><FarmSettingsForm /></TabsContent>
     </Tabs>
   </div>;
 }
