@@ -6,6 +6,7 @@ import { accessQuery, ROLE_INFO } from "@/lib/access";
 import { InstallAppButton } from "@/components/farm/InstallAppButton";
 import { GlobalSearchResults } from "@/components/farm/GlobalSearchResults";
 import { RemindersBell } from "@/components/farm/RemindersBell";
+import { Splash } from "@/components/farm/motion";
 import { SyncStatus, useOnline } from "@/components/farm/OfflineSync";
 import { supabase } from "@/integrations/supabase/client";
 import { Wordmark, LogoMark } from "@/components/farm/Logo";
@@ -82,7 +83,7 @@ function Shell(){
 
  const navList=(mini:boolean)=>GROUPS.map(group=><div key={group} className="mb-5">
   {mini?<div className="mx-auto mb-2 h-px w-6 bg-sidebar-border"/>:<p className="mb-1.5 px-3 text-[.62rem] font-bold uppercase tracking-[.16em] text-sidebar-foreground/45">{group}</p>}
-  <nav className="space-y-0.5">{nav.filter(n=>n.group===group).map(n=>{const on=path.startsWith(n.to);const link=<Link key={n.to} to={n.to} aria-current={on?"page":undefined} className={`group relative flex items-center gap-3 rounded-lg py-2.5 text-[.84rem] transition-colors ${mini?"justify-center px-0":"px-3"} ${on?"bg-sidebar-accent font-semibold text-sidebar-foreground":"text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"}`}>{on&&<span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r bg-sidebar-primary"/>}<n.icon className={`h-[18px] w-[18px] shrink-0 ${on?"text-sidebar-primary":""}`}/>{!mini&&<span className="min-w-0 flex-1 truncate">{n.label}</span>}</Link>;
+  <nav className="space-y-0.5">{nav.filter(n=>n.group===group).map(n=>{const on=path.startsWith(n.to);const link=<Link key={n.to} to={n.to} aria-current={on?"page":undefined} className={`group relative flex items-center gap-3 rounded-lg py-2.5 text-[.84rem] transition-colors ${mini?"justify-center px-0":"px-3"} ${on?"nav-on font-semibold text-sidebar-foreground":"text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground hover:translate-x-0.5"}`}>{on&&<span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r bg-sidebar-primary"/>}<n.icon className={`h-[18px] w-[18px] shrink-0 ${on?"text-sidebar-primary":""}`}/>{!mini&&<span className="min-w-0 flex-1 truncate">{n.label}</span>}</Link>;
    return mini?<Tooltip key={n.to}><TooltipTrigger asChild>{link}</TooltipTrigger><TooltipContent side="right">{n.label}</TooltipContent></Tooltip>:link;})}</nav>
  </div>);
 
@@ -92,20 +93,20 @@ function Shell(){
  </div>;
 
  const iconBtn="items-center h-10 w-10 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition-colors hover:bg-muted hover:text-foreground";
- return <TooltipProvider delayDuration={200}><div className={`min-h-screen bg-background transition-[padding] duration-300 ${collapsed?"md:pl-[76px]":"md:pl-[264px]"}`}>
-  <aside className={`fixed inset-y-0 left-0 z-30 hidden flex-col overflow-y-auto bg-sidebar py-5 transition-[width] duration-300 md:flex ${collapsed?"w-[76px] px-3":"w-[264px] px-3"}`}>
-   <div className={`mb-7 flex items-center ${collapsed?"justify-center":"justify-between px-2"}`}>{collapsed?<LogoMark className="h-10 w-10"/>:<Wordmark/>}</div>
+ return <TooltipProvider delayDuration={200}><Splash><div className="text-center text-white"><LogoMark className="mx-auto h-24 w-24 drop-shadow-[0_16px_40px_rgba(0,0,0,.45)]" animated/><p className="mt-5 text-xl font-extrabold tracking-tight">Fazenda Santo Antônio</p><p className="mt-1 text-[.62rem] font-bold uppercase tracking-[.26em] text-[#E3C77F]">Preparando a granja</p><div className="mx-auto mt-6 h-1 w-40 overflow-hidden rounded-full bg-white/15"><div className="splash-bar h-full w-full bg-[#E3C77F]"/></div></div></Splash><div className={`min-h-screen bg-background transition-[padding] duration-300 ${collapsed?"md:pl-[76px]":"md:pl-[264px]"}`}>
+  <aside className={`sidebar-surface fixed inset-y-0 left-0 z-30 hidden flex-col overflow-y-auto bg-sidebar py-5 transition-[width] duration-300 md:flex ${collapsed?"w-[76px] px-3":"w-[264px] px-3"}`}>
+   <div className={`mb-7 flex items-center ${collapsed?"justify-center":"justify-between px-2"}`}>{collapsed?<LogoMark className="h-10 w-10" animated/>:<Wordmark animated/>}</div>
    {navList(collapsed)}
    {userBox(collapsed)}
   </aside>
   {mobileOpen&&<button aria-label="Fechar menu" className="fixed inset-0 z-40 cursor-default bg-foreground/40 backdrop-blur-[2px] md:hidden" onClick={()=>setMobileOpen(false)}/>}
-  <aside className={`fixed inset-y-0 left-0 z-50 flex w-[min(86vw,300px)] flex-col overflow-y-auto bg-sidebar px-3 py-5 shadow-2xl transition-transform duration-300 md:hidden ${mobileOpen?"translate-x-0":"-translate-x-full"}`} aria-hidden={!mobileOpen}>
+  <aside className={`sidebar-surface fixed inset-y-0 left-0 z-50 flex w-[min(86vw,300px)] flex-col overflow-y-auto bg-sidebar px-3 py-5 shadow-2xl transition-transform duration-300 md:hidden ${mobileOpen?"translate-x-0":"-translate-x-full"}`} aria-hidden={!mobileOpen}>
    <div className="mb-6 flex items-center justify-between px-2"><Wordmark/><button onClick={()=>setMobileOpen(false)} className="rounded-lg p-2 text-sidebar-foreground/70 hover:bg-sidebar-accent" aria-label="Fechar menu"><X className="h-5 w-5"/></button></div>
    {navList(false)}
    {userBox(false)}
   </aside>
 
-  <header className="sticky top-0 z-20 border-b border-border bg-background/85 backdrop-blur-xl">
+  <header className="sticky top-0 z-20 border-b border-border/70 bg-background/75 shadow-[0_8px_30px_-28px_rgba(0,0,0,.5)] backdrop-blur-xl backdrop-saturate-150">
    <div className="mx-auto flex h-16 max-w-[1600px] items-center gap-3 px-4 md:px-8">
     <button onClick={toggleCollapse} className={`${iconBtn} hidden md:inline-flex`} aria-label={collapsed?"Expandir menu":"Recolher menu"}>{collapsed?<PanelLeftOpen className="h-[18px] w-[18px]"/>:<PanelLeftClose className="h-[18px] w-[18px]"/>}</button>
     <div className="flex min-w-0 items-center gap-2 md:hidden"><LogoMark className="h-8 w-8 shrink-0"/><span className="truncate text-sm font-bold">{active?.short??"Santo Antônio"}</span></div>

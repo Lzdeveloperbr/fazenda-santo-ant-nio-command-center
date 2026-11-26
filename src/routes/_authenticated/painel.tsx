@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { PERIOD_LABEL, periodStart, periodStats, type PeriodKey } from "@/lib/farm/period";
 import { DashboardCommand } from "@/components/farm/DashboardCommand";
+import { Landscape3D } from "@/components/farm/Landscape3D";
+import { CountUp } from "@/components/farm/motion";
 import {
   Activity, AlertTriangle, ArrowRight, Baby, CalendarClock, CheckCircle2,
   ClipboardList, HeartPulse, PiggyBank, Skull, Sprout, TrendingUp, Wheat,
@@ -111,17 +113,18 @@ function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <section className="relative overflow-hidden rounded-[26px] bg-[#173D2B] p-6 text-white shadow-xl sm:p-8">
-        <div className="pointer-events-none absolute -right-16 -top-28 h-80 w-80 rounded-full border border-white/10" />
-        <div className="pointer-events-none absolute -right-2 -top-14 h-56 w-56 rounded-full border border-white/10" />
+      <section className="brand-aurora relative min-h-[320px] overflow-hidden rounded-[28px] p-6 text-white shadow-[0_30px_80px_-40px_rgba(10,40,26,.9)] sm:p-8">
+        <Landscape3D className="absolute inset-0 opacity-95" sows={(sows.data ?? []).filter((s) => !["morta", "descartada", "transferida"].includes(s.status)).map((s) => ({ id: s.id, status: s.status }))} />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#06190f]/90 via-[#06190f]/55 to-[#06190f]/10" />
         <div className="relative grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-[#D8BD79]/30 bg-white/5 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[.16em] text-[#E7D49E]">
               <Activity className="h-3.5 w-3.5" /> Fazenda Santo Antônio · Operação
             </div>
-            <h1 className="mt-5 text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl">Central de comando<br /><span className="text-[#DCC58A]">da suinocultura.</span></h1>
+            <h1 className="mt-5 text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl">Central de comando<br /><span className="text-brand-gradient">da suinocultura.</span></h1>
             <p className="mt-3 max-w-xl text-sm leading-6 text-white/70">Uma visão clara do plantel, dos próximos manejos e dos resultados registrados. Os números abaixo vêm dos dados da granja.</p>
             <p className="mt-5 text-xs font-medium capitalize text-white/55">{new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}</p>
+            <p className="mt-1 text-[11px] text-white/45">Na paisagem, cada porco representa uma matriz ativa cadastrada (cor pela situação).</p>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:min-w-[300px]">
             <HeroStat label="Matrizes ativas" value={data.activeSows} icon={<PiggyBank className="h-4 w-4" />} />
@@ -233,12 +236,12 @@ function Dashboard() {
 }
 
 function HeroStat({ label, value, icon }: { label: string; value: number; icon: React.ReactNode }) {
-  return <div className="rounded-2xl border border-white/15 bg-white/[.08] p-4 backdrop-blur"><div className="flex items-center justify-between text-white/65"><span className="text-xs">{label}</span>{icon}</div><p className="mt-3 font-mono text-3xl font-bold">{value.toLocaleString("pt-BR")}</p></div>;
+  return <div className="rounded-2xl border border-white/15 bg-white/[.1] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,.15)] backdrop-blur-md"><div className="flex items-center justify-between text-white/65"><span className="text-xs">{label}</span>{icon}</div><p className="mt-3 font-mono text-3xl font-bold"><CountUp value={value} /></p></div>;
 }
 
 function Metric({ label, value, hint, icon, tone, href }: { label: string; value: number; hint: string; icon: React.ReactNode; tone: "gold" | "green" | "blue" | "red"; href: "/gestacao" | "/maternidade" | "/desmame" | "/tarefas" | "/matrizes" }) {
   const tones = { gold: "bg-amber-50 text-amber-800", green: "bg-emerald-50 text-emerald-800", blue: "bg-sky-50 text-sky-800", red: "bg-rose-50 text-rose-800" };
-  return <Link to={href} className="group rounded-2xl border bg-card p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:p-5"><div className="flex items-start justify-between gap-2"><span className="text-xs font-semibold leading-5 text-muted-foreground">{label}</span><span className={`rounded-xl p-2 ${tones[tone]}`}>{icon}</span></div><p className="mt-3 font-mono text-3xl font-bold tracking-tight">{value.toLocaleString("pt-BR")}</p><p className="mt-1 text-[11px] text-muted-foreground">{hint}</p></Link>;
+  return <Link to={href} className="group kpi-enter rounded-2xl border bg-card p-4 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-[0_18px_40px_-24px_color-mix(in_oklab,var(--primary)_45%,transparent)] sm:p-5"><div className="flex items-start justify-between gap-2"><span className="text-xs font-semibold leading-5 text-muted-foreground">{label}</span><span className={`rounded-xl p-2 ${tones[tone]}`}>{icon}</span></div><p className="mt-3 font-mono text-3xl font-bold tracking-tight"><CountUp value={value} /></p><p className="mt-1 text-[11px] text-muted-foreground">{hint}</p></Link>;
 }
 
 function QuickLink({ href, icon, title, detail }: { href: "/matrizes" | "/maternidade" | "/sanidade" | "/estoque"; icon: React.ReactNode; title: string; detail: string }) {
