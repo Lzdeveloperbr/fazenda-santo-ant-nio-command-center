@@ -14,6 +14,26 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_questions: {
+        Row: {
+          answer: string | null
+          created_at: string
+          created_by: string
+          id: string
+          mode: string
+          question: string
+        }
+        Insert: {
+          answer?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          mode: string
+          question: string
+        }
+        Update: { [key: string]: never }
+        Relationships: []
+      }
       health_protocols: {
         Row: {
           active: boolean

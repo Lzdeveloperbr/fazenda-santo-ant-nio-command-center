@@ -1,6 +1,6 @@
 # Diagnóstico e plano de evolução para ERP — Fazenda Santo Antônio
 
-**Data do levantamento:** 25/11/2026 · **Base:** branch `claude/ja-tem-acesso-075ixl`, commit `863bb7a` + Fase 1 deste documento.
+**Data do levantamento:** 25/11/2026 (atualizado em 26/11/2026 com as Fases 1 a 6) · **Base:** branch `claude/ja-tem-acesso-075ixl`.
 
 Este documento compara o pedido "Projeto Master" (24 seções) com o que **existe e funciona no código hoje**, e define a ordem de entrega. Tela existente não conta como funcionalidade concluída: só está marcado como pronto o que tem gravação real no banco, regra validada e teste.
 
@@ -63,10 +63,10 @@ Legenda: ✅ funciona · 🟡 parcial · ❌ não existe
 | 14 | Indicadores | ✅ **Fase 5** | Relatório de indicadores com período atual × anterior × ano anterior e base de cálculo; matriz × média do plantel; GMD e conversão por lote quando há dados; exportação |
 | 15 | Financeiro | ✅ **Fase 4** | Contas a pagar/receber com baixa e atraso, fluxo de caixa com realizado e previsto separados, centros de custo, custo por lote, fornecedores, documento/NF |
 | 16 | Calendário | ✅ **Fase 5** | `/agenda` dia/semana/mês com previsões marcadas, protocolos, vacinas, tratamentos, desmames, contas, validades e tarefas; conclusão registra quem executou; sino de lembretes no topo |
-| 17 | Santo Antônio AI | 🟡 | Edge Function `vet-assistant` (organiza observações, não prescreve). Falta assistente de perguntas sobre os dados |
+| 17 | Santo Antônio AI | ✅ **Fase 6** | `/assistente`: perguntas frequentes calculadas direto dos registros; perguntas livres pela IA (Edge Function `farm-assistant`) usando só o resumo dos dados que o usuário pode ver; resumo do dia, tendências e possíveis falhas de registro; perguntas registradas |
 | 18 | Relatórios | ✅ **Fase 5** | `/relatorios` com os 18 relatórios, filtros de período/matriz/lote/usuário, PDF com identidade da fazenda, Excel (.xlsx), CSV e impressão |
 | 19 | Usuários e permissões | ✅ **Fase 1** | Ver seção 4 |
-| 20 | PWA | 🟡 | Manifest, ícones, service worker de cache estático, botão instalar. Falta modo offline com fila de sincronização |
+| 20 | PWA | ✅ **Fase 6** | Manifest "Fazenda Santo Antônio" com ícones PNG (Android, maskable, iPhone) e atalhos; service worker com páginas offline; fila de registros sem conexão com idempotência, indicador de sincronização e revisão de recusas |
 | 21 | Design | 🟡 | Sidebar, tema claro/escuro, cards. Ajustes contínuos por módulo |
 | 22 | Busca global | ✅ **Fase 1** | Ctrl+K busca matrizes, reprodutores, baias, lotes, medicamentos e tarefas reais |
 | 23 | Auditoria | ✅ **Fase 1** | Ver seção 4 |
@@ -124,15 +124,19 @@ Legenda: ✅ funciona · 🟡 parcial · ❌ não existe
 - Telas: **Agenda da granja**, **Central de relatórios** e complemento do **Painel**; sino de lembretes.
 - Excel gerado no próprio navegador (`fflate`), validado com leitor de planilhas; texto nunca vira fórmula.
 
-## 5. Próximas fases (ordem recomendada)
+## 4.5 Fase 6 — entregue
 
-Cada fase: migration revisada + teste SQL, telas, testes de unidade, build, e registro neste documento.
+- Migration `0020_assistente_perguntas.sql`: registro das perguntas (quem, quando, resposta local ou IA); qualquer membro ativo pergunta, ninguém altera.
+- Edge Function `farm-assistant` (mesma chave `OPENAI_API_KEY` da `vet-assistant`; sem a chave, só as respostas calculadas funcionam). Limite de 30 perguntas por hora por usuário.
+- Offline: funcionam sem conexão (com o app aberto) os eventos da Maternidade (morte, pesagem, adoção de entrada/saída, observação) e o Caderno de baia. Desmame exige conexão. Cada registro recebe um id no aparelho; reenvio não duplica. Recusas do servidor ficam para revisão, nunca são apagadas sozinhas.
 
-1. ~~Fase 2 — Prontuário da matriz e parâmetros~~ (entregue). Pendente dela: hierarquia setor › galpão › sala › baia e bloqueio de lotação, que seguem para a Fase 3.
-2. **Fase 3 — Maternidade e leitões detalhados:** dados de parto (hora, duração, assistência, mumificados, refugos), ficha de mortalidade completa, prontuário individual de leitão, desmame com destino e sexo.
-3. **Fase 4 — Estoque geral, fornecedores e financeiro:** estoque multi-categoria com bloqueio de saída acima do saldo, fornecedores, NF, contas a pagar/receber, centros de custo e fluxo de caixa.
-4. **Fase 5 — Agenda unificada, calendário sanitário e relatórios:** agenda dia/semana/mês, protocolos sanitários configuráveis (validados por veterinário), central de relatórios com PDF/Excel/CSV.
-5. **Fase 6 — Santo Antônio AI de dados e PWA offline:** perguntas sobre os dados respeitando permissões; fila offline com chave de idempotência e indicação clara de "salvo só no aparelho".
+## 5. Limitações conhecidas (honestas)
+
+- **Abrir o app do zero sem internet** mostra o aviso de sem conexão: o aparelho não guarda cópia do banco (decisão de privacidade). A fila offline serve para quedas de conexão com o app já aberto.
+- **Telas autenticadas não foram testadas contra o banco real**: foram conferidas no navegador com dados simulados, e as regras do banco foram testadas num PostgreSQL local com as mesmas migrations. É preciso aplicar as migrations 0015–0020 em homologação e seguir a seção 7.
+- **Lint completo** ainda acusa os avisos de formatação/`any` que já existiam; os arquivos novos passam no lint, salvo divergências de formatação entre o prettier e o plugin do eslint.
+- **Taxa anual de mortalidade/descarte de matrizes** depende do plantel médio histórico, que o sistema ainda não guarda; aparecem as contagens.
+- **Multi-granja** não implementado (ver decisão abaixo).
 
 ## 6. Decisões que dependem do proprietário
 
@@ -143,11 +147,11 @@ Cada fase: migration revisada + teste SQL, telas, testes de unidade, build, e re
 ## 7. Como validar a Fase 1 em homologação
 
 1. Backup do banco.
-2. Aplicar `0015_perfis_acesso_auditoria.sql` pelo fluxo oficial (Lovable/Supabase).
+2. Aplicar, em ordem, `0015` a `0020` pelo fluxo oficial (Lovable/Supabase). Antes, rodar `tests/db/run.sh` num PostgreSQL local descartável.
 3. Entrar como um dos fundadores: menu Gestão deve mostrar **Equipe e permissões** e **Histórico de alterações**.
 4. Mudar um funcionário de teste para **Consulta** e confirmar que ele vê os dados, vê o aviso e não consegue salvar.
 5. Desativar o usuário de teste e confirmar que ele não vê dados.
 6. Editar uma matriz e conferir o registro no Histórico com valor anterior e novo.
-7. Publicar a Edge Function `vet-assistant` **depois** da migration (ela usa `can_write()`).
+7. Publicar as Edge Functions `vet-assistant` e `farm-assistant` **depois** das migrations (usam `can_write()` / `access_role()`).
 8. Aplicar `0016_prontuario_matriz_parametros.sql`. Em Gestação › Configurações, conferir os prazos e preencher diagnóstico, transferência e desmame se o responsável técnico definir. Atenção: prazos que alguém tenha mudado antes no próprio aparelho não são copiados automaticamente; confira e salve uma vez.
 9. Abrir uma matriz, editar os novos campos, enviar uma foto pelo celular e ler o QR Code com a câmera.

@@ -12,6 +12,7 @@ import { litterEventError } from "@/lib/farm/reproduction";
 import { SectionTitle, Empty } from "@/components/farm/Kpi";
 import { FormDialog, SubmitRow, Field, selectCls } from "@/components/farm/FormDialog";
 import { MORTALITY_CAUSES, weaningSexError } from "@/lib/farm/maternity";
+import { OUTCOME_MESSAGE, useOfflineSave } from "@/components/farm/OfflineSync";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -148,6 +149,7 @@ function ArchiveLitter({ l, tag, onDone }: { l: Litter; tag: string; onDone: () 
 
 function EventAction({ a, l, tag, live, onDone }: { a: (typeof ACTIONS)[number]; l: Litter; tag: string; live: number; onDone: () => void }) {
   const [busy, setBusy] = useState(false);
+  const saveOffline = useOfflineSave();
   return (
     <FormDialog title={`${a.label} · ${tag}`} trigger={<Button size="sm" variant={a.type === "morte" ? "destructive" : "outline"} className="h-10">{a.label}</Button>}>
       {(close) => <form className="space-y-4" onSubmit={async (e) => {
@@ -167,12 +169,22 @@ function EventAction({ a, l, tag, live, onDone }: { a: (typeof ACTIONS)[number];
             : a.qty ? { responsible: opt("responsible") } : {};
         if (a.type === "morte" && !details.cause) { toast.error("Informe o motivo observado."); return; }
         if (a.type === "desmame") { const sexErr = weaningSexError(qty, num("males"), num("females")); if (sexErr) { toast.error(sexErr); return; } }
+        const row: Record<string, unknown> & { event_type: string; litter_id: string } = { litter_id: l.id, event_type: a.type, quantity: qty, value, note: String(f.get("note") || "") || null, event_date: String(f.get("date")), ...details };
         setBusy(true);
-        const { error } = await supabase.from("litter_events").insert({ litter_id: l.id, event_type: a.type, quantity: qty, value, note: String(f.get("note") || "") || null, event_date: String(f.get("date")), ...details });
-        if (!error && a.type === "desmame") await supabase.from("sows").update({ status: "vazia" }).eq("id", l.sow_id);
+        if (a.type === "desmame") {
+          // Desmame encerra a leitegada e muda a matriz: exige confirmação do servidor na hora.
+          if (!navigator.onLine) { setBusy(false); toast.error("O desmame precisa de conexão com a internet para ser confirmado."); return; }
+          const { error } = await supabase.from("litter_events").insert(row as never);
+          if (!error) await supabase.from("sows").update({ status: "vazia" }).eq("id", l.sow_id);
+          setBusy(false);
+          if (error) { toast.error(error.message); return; }
+          toast.success("Desmame salvo no servidor."); onDone(); close(); return;
+        }
+        const outcome = await saveOffline("litter_events", row, `${a.label} · ${tag} · ${String(f.get("date")).split("-").reverse().join("/")}`);
         setBusy(false);
-        if (error) { toast.error(error.message); return; }
-        toast.success("Registrado"); onDone(); close();
+        if (outcome.state === "erro") { toast.error(outcome.message); return; }
+        if (outcome.state === "na_fila") toast.warning(OUTCOME_MESSAGE.na_fila); else toast.success(OUTCOME_MESSAGE.salvo);
+        onDone(); close();
       }}>
         <Field label="Data"><Input name="date" type="date" defaultValue={todayISO()} required className="h-11" /></Field>
         {a.qty && <Field label="Quantidade de leitões"><Input name="qty" type="number" min={1} step={1} inputMode="numeric" defaultValue={a.type === "desmame" ? live : undefined} required className="h-11" /></Field>}

@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedAlmoxarifadoRouteImport } from './routes/_authenticated/almoxarifado'
+import { Route as AuthenticatedAssistenteRouteImport } from './routes/_authenticated/assistente'
 import { Route as AuthenticatedAuditoriaRouteImport } from './routes/_authenticated/auditoria'
 import { Route as AuthenticatedBaiasRouteImport } from './routes/_authenticated/baias'
 import { Route as AuthenticatedBibliotecaSuinosRouteImport } from './routes/_authenticated/biblioteca-suinos'
@@ -66,6 +67,11 @@ const AuthenticatedAlmoxarifadoRoute =
     path: '/almoxarifado',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAssistenteRoute = AuthenticatedAssistenteRouteImport.update({
+  id: '/assistente',
+  path: '/assistente',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAuditoriaRoute = AuthenticatedAuditoriaRouteImport.update({
   id: '/auditoria',
   path: '/auditoria',
@@ -208,6 +214,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/almoxarifado': typeof AuthenticatedAlmoxarifadoRoute
+  '/assistente': typeof AuthenticatedAssistenteRoute
   '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/baias': typeof AuthenticatedBaiasRoute
   '/biblioteca-suinos': typeof AuthenticatedBibliotecaSuinosRoute
@@ -240,6 +247,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/almoxarifado': typeof AuthenticatedAlmoxarifadoRoute
+  '/assistente': typeof AuthenticatedAssistenteRoute
   '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/baias': typeof AuthenticatedBaiasRoute
   '/biblioteca-suinos': typeof AuthenticatedBibliotecaSuinosRoute
@@ -274,6 +282,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/almoxarifado': typeof AuthenticatedAlmoxarifadoRoute
+  '/_authenticated/assistente': typeof AuthenticatedAssistenteRoute
   '/_authenticated/auditoria': typeof AuthenticatedAuditoriaRoute
   '/_authenticated/baias': typeof AuthenticatedBaiasRoute
   '/_authenticated/biblioteca-suinos': typeof AuthenticatedBibliotecaSuinosRoute
@@ -308,6 +317,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/agenda'
     | '/almoxarifado'
+    | '/assistente'
     | '/auditoria'
     | '/baias'
     | '/biblioteca-suinos'
@@ -340,6 +350,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/agenda'
     | '/almoxarifado'
+    | '/assistente'
     | '/auditoria'
     | '/baias'
     | '/biblioteca-suinos'
@@ -373,6 +384,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/agenda'
     | '/_authenticated/almoxarifado'
+    | '/_authenticated/assistente'
     | '/_authenticated/auditoria'
     | '/_authenticated/baias'
     | '/_authenticated/biblioteca-suinos'
@@ -442,6 +454,13 @@ declare module '@tanstack/react-router' {
       path: '/almoxarifado'
       fullPath: '/almoxarifado'
       preLoaderRoute: typeof AuthenticatedAlmoxarifadoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/assistente': {
+      id: '/_authenticated/assistente'
+      path: '/assistente'
+      fullPath: '/assistente'
+      preLoaderRoute: typeof AuthenticatedAssistenteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/auditoria': {
@@ -645,6 +664,7 @@ const AuthenticatedMatrizesRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
   AuthenticatedAlmoxarifadoRoute: typeof AuthenticatedAlmoxarifadoRoute
+  AuthenticatedAssistenteRoute: typeof AuthenticatedAssistenteRoute
   AuthenticatedAuditoriaRoute: typeof AuthenticatedAuditoriaRoute
   AuthenticatedBaiasRoute: typeof AuthenticatedBaiasRoute
   AuthenticatedBibliotecaSuinosRoute: typeof AuthenticatedBibliotecaSuinosRoute
@@ -675,6 +695,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
   AuthenticatedAlmoxarifadoRoute: AuthenticatedAlmoxarifadoRoute,
+  AuthenticatedAssistenteRoute: AuthenticatedAssistenteRoute,
   AuthenticatedAuditoriaRoute: AuthenticatedAuditoriaRoute,
   AuthenticatedBaiasRoute: AuthenticatedBaiasRoute,
   AuthenticatedBibliotecaSuinosRoute: AuthenticatedBibliotecaSuinosRoute,
