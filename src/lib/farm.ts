@@ -366,3 +366,10 @@ export const farmQuery = queryOptions({
   queryKey: ["farm"],
   queryFn: async () => (await unwrap<Farm[]>(supabase.from("farms").select("*").limit(1)))[0] ?? null,
 });
+
+export type Favorite = Database["public"]["Tables"]["user_favorites"]["Row"];
+/** Favoritos do próprio usuário (RLS: cada um vê só os seus). */
+export const favoritesQuery = queryOptions({
+  queryKey: ["user_favorites"],
+  queryFn: () => unwrap<Favorite[]>(supabase.from("user_favorites").select("*").order("created_at")),
+});

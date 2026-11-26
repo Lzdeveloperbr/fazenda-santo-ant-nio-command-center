@@ -6,6 +6,7 @@ import { accessQuery, ROLE_INFO } from "@/lib/access";
 import { InstallAppButton } from "@/components/farm/InstallAppButton";
 import { GlobalSearchResults } from "@/components/farm/GlobalSearchResults";
 import { RemindersBell } from "@/components/farm/RemindersBell";
+import { FavoriteButton } from "@/components/farm/Favorites";
 import { SyncStatus, useOnline } from "@/components/farm/OfflineSync";
 import { supabase } from "@/integrations/supabase/client";
 import { Wordmark, LogoMark } from "@/components/farm/Logo";
@@ -123,6 +124,7 @@ function Shell(){
      <button onClick={()=>setSearchOpen(true)} className="hidden h-10 items-center gap-2 rounded-lg border border-border bg-card px-3 text-sm text-muted-foreground hover:bg-muted lg:flex lg:w-64"><Search className="h-4 w-4"/><span className="flex-1 text-left">Buscar na granja…</span><kbd className="rounded border border-border bg-muted px-1.5 font-mono text-[.65rem]">Ctrl K</kbd></button>
      <button onClick={()=>setSearchOpen(true)} className={`${iconBtn} inline-flex lg:hidden`} aria-label="Buscar"><Search className="h-[18px] w-[18px]"/></button>
      <SyncStatus/>
+     {role&&active&&active.to!=="/painel"&&<FavoriteButton path={active.to} label={active.label} className={iconBtn}/>}
      {role&&<RemindersBell className={iconBtn}/>}
      <InstallAppButton />
      <button onClick={toggle} className={`${iconBtn} inline-flex`} aria-label={theme==="dark"?"Usar tema claro":"Usar tema escuro"}>{theme==="dark"?<Sun className="h-[18px] w-[18px]"/>:<Moon className="h-[18px] w-[18px]"/>}</button>

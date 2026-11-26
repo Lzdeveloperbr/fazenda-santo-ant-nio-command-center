@@ -154,6 +154,7 @@ Legenda: ✅ funciona · 🟡 parcial · ❌ não existe
 - **Etiquetas QR Code** imprimíveis para baias e matrizes. O QR da baia abre Baias já filtrado.
 - **Importar matrizes** por CSV, com conferência linha a linha antes de gravar (brinco repetido, datas impossíveis, peso, fórmulas de planilha) e gravação de uma vez só.
 - **Central de ajuda** com busca.
+- **Favoritos** (estrela no topo de cada tela, cada usuário vê só os seus) e **ações rápidas por perfil** no painel (Consulta não recebe ações de gravação).
 - **Calculadoras**: 35 ferramentas; novas: idade gestacional, taxa de concepção, nascidos vivos por matriz, custo por leitão desmamado, capacidade de alojamento, ponto de reposição de estoque, projeção de produção. Cada uma mostra a fórmula e valida os campos.
 
 ## 4.10 Restauração de uma cópia de segurança
@@ -172,7 +173,7 @@ A cópia nunca é aplicada sozinha pelo app, para não sobrescrever dados atuais
 - **Telas autenticadas não foram testadas contra o banco real**: foram conferidas no navegador com dados simulados, e as regras do banco foram testadas num PostgreSQL local com as mesmas migrations. É preciso aplicar as migrations 0015–0024 em homologação e seguir a seção 7.
 - **Lint completo** ainda acusa os avisos de formatação/`any` que já existiam; os arquivos novos passam no lint, salvo divergências de formatação entre o prettier e o plugin do eslint.
 - **Taxa anual de mortalidade/descarte de matrizes** depende do plantel médio histórico, que o sistema ainda não guarda; aparecem as contagens.
-- **Favoritos, ações rápidas por perfil, filtros avançados salvos e duplicação controlada de registros** ainda não têm tela (a tabela `user_favorites` já existe, com segurança).
+- **Filtros avançados salvos e duplicação controlada de registros** ainda não têm tela.
 - **Importação** aceita CSV; arquivos .xlsx precisam ser salvos como CSV antes.
 
 ## 6. Decisões que dependem do proprietário

@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { PERIOD_LABEL, periodStart, periodStats, type PeriodKey } from "@/lib/farm/period";
 import { DashboardCommand } from "@/components/farm/DashboardCommand";
+import { QuickPanel } from "@/components/farm/Favorites";
 import { CountUp } from "@/components/farm/motion";
 import {
   Activity, AlertTriangle, ArrowRight, Baby, CalendarClock, CheckCircle2,
@@ -215,6 +216,8 @@ function Dashboard() {
           <Link to="/tarefas" className="mt-3 flex items-center justify-between rounded-xl border px-3 py-2.5 text-sm font-semibold transition hover:bg-muted"><span>Ver rotina completa</span><ArrowRight className="h-4 w-4" /></Link>
         </section>
       </div>
+
+      <QuickPanel />
 
       <DashboardCommand from={from} to={to} today={today} />
 
