@@ -38,6 +38,7 @@ import { Route as AuthenticatedMutiraoRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
 import { Route as AuthenticatedPlantelRouteImport } from './routes/_authenticated/plantel'
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
+import { Route as AuthenticatedRotinaRouteImport } from './routes/_authenticated/rotina'
 import { Route as AuthenticatedSanidadeRouteImport } from './routes/_authenticated/sanidade'
 import { Route as AuthenticatedTarefasRouteImport } from './routes/_authenticated/tarefas'
 import { Route as AuthenticatedUsuariosRouteImport } from './routes/_authenticated/usuarios'
@@ -194,6 +195,11 @@ const AuthenticatedRelatoriosRoute = AuthenticatedRelatoriosRouteImport.update({
   path: '/relatorios',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedRotinaRoute = AuthenticatedRotinaRouteImport.update({
+  id: '/rotina',
+  path: '/rotina',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSanidadeRoute = AuthenticatedSanidadeRouteImport.update({
   id: '/sanidade',
   path: '/sanidade',
@@ -245,6 +251,7 @@ export interface FileRoutesByFullPath {
   '/painel': typeof AuthenticatedPainelRoute
   '/plantel': typeof AuthenticatedPlantelRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
+  '/rotina': typeof AuthenticatedRotinaRoute
   '/sanidade': typeof AuthenticatedSanidadeRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
@@ -279,6 +286,7 @@ export interface FileRoutesByTo {
   '/painel': typeof AuthenticatedPainelRoute
   '/plantel': typeof AuthenticatedPlantelRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
+  '/rotina': typeof AuthenticatedRotinaRoute
   '/sanidade': typeof AuthenticatedSanidadeRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
@@ -315,6 +323,7 @@ export interface FileRoutesById {
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
   '/_authenticated/plantel': typeof AuthenticatedPlantelRoute
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
+  '/_authenticated/rotina': typeof AuthenticatedRotinaRoute
   '/_authenticated/sanidade': typeof AuthenticatedSanidadeRoute
   '/_authenticated/tarefas': typeof AuthenticatedTarefasRoute
   '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
@@ -351,6 +360,7 @@ export interface FileRouteTypes {
     | '/painel'
     | '/plantel'
     | '/relatorios'
+    | '/rotina'
     | '/sanidade'
     | '/tarefas'
     | '/usuarios'
@@ -385,6 +395,7 @@ export interface FileRouteTypes {
     | '/painel'
     | '/plantel'
     | '/relatorios'
+    | '/rotina'
     | '/sanidade'
     | '/tarefas'
     | '/usuarios'
@@ -420,6 +431,7 @@ export interface FileRouteTypes {
     | '/_authenticated/painel'
     | '/_authenticated/plantel'
     | '/_authenticated/relatorios'
+    | '/_authenticated/rotina'
     | '/_authenticated/sanidade'
     | '/_authenticated/tarefas'
     | '/_authenticated/usuarios'
@@ -637,6 +649,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRelatoriosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/rotina': {
+      id: '/_authenticated/rotina'
+      path: '/rotina'
+      fullPath: '/rotina'
+      preLoaderRoute: typeof AuthenticatedRotinaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/sanidade': {
       id: '/_authenticated/sanidade'
       path: '/sanidade'
@@ -708,6 +727,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
   AuthenticatedPlantelRoute: typeof AuthenticatedPlantelRoute
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
+  AuthenticatedRotinaRoute: typeof AuthenticatedRotinaRoute
   AuthenticatedSanidadeRoute: typeof AuthenticatedSanidadeRoute
   AuthenticatedTarefasRoute: typeof AuthenticatedTarefasRoute
   AuthenticatedUsuariosRoute: typeof AuthenticatedUsuariosRoute
@@ -740,6 +760,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
   AuthenticatedPlantelRoute: AuthenticatedPlantelRoute,
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
+  AuthenticatedRotinaRoute: AuthenticatedRotinaRoute,
   AuthenticatedSanidadeRoute: AuthenticatedSanidadeRoute,
   AuthenticatedTarefasRoute: AuthenticatedTarefasRoute,
   AuthenticatedUsuariosRoute: AuthenticatedUsuariosRoute,

@@ -169,6 +169,13 @@
       "when": 1796400000000,
       "tag": "0023_fluxos_guiados_extras",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1796500000000,
+      "tag": "0024_problemas_permissoes",
+      "breakpoints": true
     }
   ]
 }

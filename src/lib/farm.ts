@@ -45,7 +45,6 @@ export const PRIORITY: Record<string, { label: string; tone: string }> = {
   baixa: { label: "Baixa", tone: "text-info" },
 };
 
-
 export function todayISO() {
   const d = new Date();
   return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
@@ -82,31 +81,68 @@ export const allSowsQuery = queryOptions({
  */
 export const sowsQuery = queryOptions({
   queryKey: ["sows"],
-  queryFn: async () => (await unwrap<Sow[]>(supabase.from("sows").select("*").order("ear_tag"))).filter((s) => !s.archived_at),
+  queryFn: async () =>
+    (await unwrap<Sow[]>(supabase.from("sows").select("*").order("ear_tag"))).filter(
+      (s) => !s.archived_at,
+    ),
 });
 export const breedingsQuery = queryOptions({
   queryKey: ["breedings"],
-  queryFn: () => unwrap<Breeding[]>(supabase.from("breedings").select("*").order("breeding_date", { ascending: false }).order("created_at", { ascending: false })),
+  queryFn: () =>
+    unwrap<Breeding[]>(
+      supabase
+        .from("breedings")
+        .select("*")
+        .order("breeding_date", { ascending: false })
+        .order("created_at", { ascending: false }),
+    ),
 });
 export const littersQuery = queryOptions({
   queryKey: ["litters"],
-  queryFn: () => unwrap<Litter[]>(supabase.from("litters").select("*").order("farrowing_date", { ascending: false }).order("created_at", { ascending: false })),
+  queryFn: () =>
+    unwrap<Litter[]>(
+      supabase
+        .from("litters")
+        .select("*")
+        .order("farrowing_date", { ascending: false })
+        .order("created_at", { ascending: false }),
+    ),
 });
 export const litterEventsQuery = queryOptions({
   queryKey: ["litter_events"],
-  queryFn: () => unwrap<LitterEvent[]>(supabase.from("litter_events").select("*").order("event_date", { ascending: false }).order("created_at", { ascending: false })),
+  queryFn: () =>
+    unwrap<LitterEvent[]>(
+      supabase
+        .from("litter_events")
+        .select("*")
+        .order("event_date", { ascending: false })
+        .order("created_at", { ascending: false }),
+    ),
 });
 export const sowEventsQuery = queryOptions({
   queryKey: ["sow_events"],
-  queryFn: () => unwrap<SowEvent[]>(supabase.from("sow_events").select("*").order("event_date", { ascending: false }).order("created_at", { ascending: false })),
+  queryFn: () =>
+    unwrap<SowEvent[]>(
+      supabase
+        .from("sow_events")
+        .select("*")
+        .order("event_date", { ascending: false })
+        .order("created_at", { ascending: false }),
+    ),
 });
 export const tasksQuery = queryOptions({
   queryKey: ["tasks"],
-  queryFn: () => unwrap<Task[]>(supabase.from("tasks").select("*").order("due_date", { ascending: true, nullsFirst: false })),
+  queryFn: () =>
+    unwrap<Task[]>(
+      supabase.from("tasks").select("*").order("due_date", { ascending: true, nullsFirst: false }),
+    ),
 });
 export const profilesQuery = queryOptions({
   queryKey: ["profiles"],
-  queryFn: () => unwrap<{ id: string; display_name: string }[]>(supabase.from("profiles").select("id, display_name")),
+  queryFn: () =>
+    unwrap<{ id: string; display_name: string }[]>(
+      supabase.from("profiles").select("id, display_name"),
+    ),
 });
 
 export type FinanceEntry = Database["public"]["Tables"]["finance_entries"]["Row"];
@@ -115,19 +151,41 @@ export type Pen = Database["public"]["Tables"]["farm_pens"]["Row"];
 export type PenRecord = Database["public"]["Tables"]["pen_records"]["Row"];
 export const financeQuery = queryOptions({
   queryKey: ["finance_entries"],
-  queryFn: () => unwrap<FinanceEntry[]>(supabase.from("finance_entries").select("*").order("entry_date", { ascending: false }).order("created_at", { ascending: false })),
+  queryFn: () =>
+    unwrap<FinanceEntry[]>(
+      supabase
+        .from("finance_entries")
+        .select("*")
+        .order("entry_date", { ascending: false })
+        .order("created_at", { ascending: false }),
+    ),
 });
 export const inventoryQuery = queryOptions({
   queryKey: ["inventory_checks"],
-  queryFn: () => unwrap<InventoryCheck[]>(supabase.from("inventory_checks").select("*").order("check_date", { ascending: false }).order("created_at", { ascending: false })),
+  queryFn: () =>
+    unwrap<InventoryCheck[]>(
+      supabase
+        .from("inventory_checks")
+        .select("*")
+        .order("check_date", { ascending: false })
+        .order("created_at", { ascending: false }),
+    ),
 });
 export const pensQuery = queryOptions({
   queryKey: ["farm_pens"],
-  queryFn: () => unwrap<Pen[]>(supabase.from("farm_pens").select("*").order("sector").order("code")),
+  queryFn: () =>
+    unwrap<Pen[]>(supabase.from("farm_pens").select("*").order("sector").order("code")),
 });
 export const penRecordsQuery = queryOptions({
   queryKey: ["pen_records", "plain"],
-  queryFn: () => unwrap<PenRecord[]>(supabase.from("pen_records").select("*").order("event_date", { ascending: false }).order("created_at", { ascending: false })),
+  queryFn: () =>
+    unwrap<PenRecord[]>(
+      supabase
+        .from("pen_records")
+        .select("*")
+        .order("event_date", { ascending: false })
+        .order("created_at", { ascending: false }),
+    ),
 });
 
 export type Boar = Database["public"]["Tables"]["boars"]["Row"];
@@ -139,18 +197,34 @@ export const boarsQuery = queryOptions({
 });
 export const diagnosesQuery = queryOptions({
   queryKey: ["pregnancy_diagnoses"],
-  queryFn: () => unwrap<PregnancyDiagnosis[]>(supabase.from("pregnancy_diagnoses").select("*").order("diagnosis_date", { ascending: false }).order("created_at", { ascending: false })),
+  queryFn: () =>
+    unwrap<PregnancyDiagnosis[]>(
+      supabase
+        .from("pregnancy_diagnoses")
+        .select("*")
+        .order("diagnosis_date", { ascending: false })
+        .order("created_at", { ascending: false }),
+    ),
 });
 export const gestationEventsQuery = queryOptions({
   queryKey: ["gestation_events"],
-  queryFn: () => unwrap<GestationEvent[]>(supabase.from("gestation_events").select("*").order("event_date", { ascending: false })),
+  queryFn: () =>
+    unwrap<GestationEvent[]>(
+      supabase.from("gestation_events").select("*").order("event_date", { ascending: false }),
+    ),
 });
 
 export type Piglet = Database["public"]["Tables"]["piglet_identifications"]["Row"];
 /** Leitões identificados (mesma chave e ordem usadas na tela de marcação). */
 export const pigletsQuery = queryOptions({
   queryKey: ["piglet_identifications"],
-  queryFn: () => unwrap<Piglet[]>(supabase.from("piglet_identifications").select("*").order("australian_number", { ascending: false })),
+  queryFn: () =>
+    unwrap<Piglet[]>(
+      supabase
+        .from("piglet_identifications")
+        .select("*")
+        .order("australian_number", { ascending: false }),
+    ),
 });
 
 export type Supplier = Database["public"]["Tables"]["suppliers"]["Row"];
@@ -166,26 +240,44 @@ export const stockItemsQuery = queryOptions({
 });
 export const stockMovementsQuery = queryOptions({
   queryKey: ["stock_movements"],
-  queryFn: () => unwrap<StockMovement[]>(supabase.from("stock_movements").select("*").order("movement_date", { ascending: false }).order("created_at", { ascending: false }).limit(1000)),
+  queryFn: () =>
+    unwrap<StockMovement[]>(
+      supabase
+        .from("stock_movements")
+        .select("*")
+        .order("movement_date", { ascending: false })
+        .order("created_at", { ascending: false })
+        .limit(1000),
+    ),
 });
 /** Mesmas chaves usadas nas telas de ração e farmácia. */
 export const feedProductsQuery = queryOptions({
   queryKey: ["feed_products"],
-  queryFn: () => unwrap<Database["public"]["Tables"]["feed_products"]["Row"][]>(supabase.from("feed_products").select("*").order("name")),
+  queryFn: () =>
+    unwrap<Database["public"]["Tables"]["feed_products"]["Row"][]>(
+      supabase.from("feed_products").select("*").order("name"),
+    ),
 });
 export const medicationsQuery = queryOptions({
   queryKey: ["farm_medications"],
-  queryFn: () => unwrap<Database["public"]["Tables"]["farm_medications"]["Row"][]>(supabase.from("farm_medications").select("*").order("name")),
+  queryFn: () =>
+    unwrap<Database["public"]["Tables"]["farm_medications"]["Row"][]>(
+      supabase.from("farm_medications").select("*").order("name"),
+    ),
 });
 export const medicationLotsQuery = queryOptions({
   queryKey: ["farm_medication_lots"],
-  queryFn: () => unwrap<Database["public"]["Tables"]["farm_medication_lots"]["Row"][]>(supabase.from("farm_medication_lots").select("*").order("expiry_date")),
+  queryFn: () =>
+    unwrap<Database["public"]["Tables"]["farm_medication_lots"]["Row"][]>(
+      supabase.from("farm_medication_lots").select("*").order("expiry_date"),
+    ),
 });
 
 export type HealthProtocol = Database["public"]["Tables"]["health_protocols"]["Row"];
 export const healthProtocolsQuery = queryOptions({
   queryKey: ["health_protocols"],
-  queryFn: () => unwrap<HealthProtocol[]>(supabase.from("health_protocols").select("*").order("name")),
+  queryFn: () =>
+    unwrap<HealthProtocol[]>(supabase.from("health_protocols").select("*").order("name")),
 });
 
 export type SemenBatch = Database["public"]["Tables"]["semen_batches"]["Row"];
@@ -194,17 +286,76 @@ export type SowCondition = Database["public"]["Tables"]["sow_condition_records"]
 export type FeedPlan = Database["public"]["Tables"]["feed_plans"]["Row"];
 export const semenBatchesQuery = queryOptions({
   queryKey: ["semen_batches"],
-  queryFn: () => unwrap<SemenBatch[]>(supabase.from("semen_batches").select("*").order("received_date", { ascending: false })),
+  queryFn: () =>
+    unwrap<SemenBatch[]>(
+      supabase.from("semen_batches").select("*").order("received_date", { ascending: false }),
+    ),
 });
 export const heatDetectionsQuery = queryOptions({
   queryKey: ["heat_detections"],
-  queryFn: () => unwrap<HeatDetection[]>(supabase.from("heat_detections").select("*").order("started_at", { ascending: false }).limit(1000)),
+  queryFn: () =>
+    unwrap<HeatDetection[]>(
+      supabase
+        .from("heat_detections")
+        .select("*")
+        .order("started_at", { ascending: false })
+        .limit(1000),
+    ),
 });
 export const sowConditionQuery = queryOptions({
   queryKey: ["sow_condition_records"],
-  queryFn: () => unwrap<SowCondition[]>(supabase.from("sow_condition_records").select("*").order("record_date", { ascending: false })),
+  queryFn: () =>
+    unwrap<SowCondition[]>(
+      supabase.from("sow_condition_records").select("*").order("record_date", { ascending: false }),
+    ),
 });
 export const feedPlansQuery = queryOptions({
   queryKey: ["feed_plans"],
-  queryFn: () => unwrap<FeedPlan[]>(supabase.from("feed_plans").select("*").order("category").order("day_from")),
+  queryFn: () =>
+    unwrap<FeedPlan[]>(supabase.from("feed_plans").select("*").order("category").order("day_from")),
 });
+
+export type IssueReport = Database["public"]["Tables"]["issue_reports"]["Row"];
+export type ShiftHandover = Database["public"]["Tables"]["shift_handovers"]["Row"];
+export const issueReportsQuery = queryOptions({
+  queryKey: ["issue_reports"],
+  queryFn: () =>
+    unwrap<IssueReport[]>(
+      supabase
+        .from("issue_reports")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(300),
+    ),
+});
+export const shiftHandoversQuery = queryOptions({
+  queryKey: ["shift_handovers"],
+  queryFn: () =>
+    unwrap<ShiftHandover[]>(
+      supabase
+        .from("shift_handovers")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(200),
+    ),
+});
+/** Registros de auditoria de um dia (RLS: só administrador/gerente da mesma granja). */
+export const dailyActivityQuery = (day: string) =>
+  queryOptions({
+    queryKey: ["audit-day", day],
+    queryFn: () => {
+      const start = new Date(`${day}T00:00:00`);
+      const end = new Date(start.getTime() + 86_400_000);
+      return unwrap<
+        { actor_id: string | null; table_name: string; action: string; occurred_at: string }[]
+      >(
+        supabase
+          .from("audit_logs")
+          .select("actor_id, table_name, action, occurred_at")
+          .gte("occurred_at", start.toISOString())
+          .lt("occurred_at", end.toISOString())
+          .order("occurred_at")
+          .limit(5000),
+      );
+    },
+  });

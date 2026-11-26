@@ -1,7 +1,7 @@
 import { createFileRoute, redirect, Outlet, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, PiggyBank, Baby, ListChecks, LogOut, Menu, X, Layers3, HeartPulse, Wheat, TrendingUp, Fence, Ear, BrainCircuit, BookOpen, Box, Warehouse, ClipboardCheck, Radar, Wallet, Calculator, Search, Moon, Sun, PanelLeftClose, PanelLeftOpen, ChevronRight, LayoutGrid, HeartHandshake, Users, History, Eye, Skull, Package, CalendarDays, FileBarChart, Sparkles, Route as RouteIcon } from "lucide-react";
+import { ClipboardList, LayoutDashboard, PiggyBank, Baby, ListChecks, LogOut, Menu, X, Layers3, HeartPulse, Wheat, TrendingUp, Fence, Ear, BrainCircuit, BookOpen, Box, Warehouse, ClipboardCheck, Radar, Wallet, Calculator, Search, Moon, Sun, PanelLeftClose, PanelLeftOpen, ChevronRight, LayoutGrid, HeartHandshake, Users, History, Eye, Skull, Package, CalendarDays, FileBarChart, Sparkles, Route as RouteIcon } from "lucide-react";
 import { accessQuery, ROLE_INFO } from "@/lib/access";
 import { InstallAppButton } from "@/components/farm/InstallAppButton";
 import { GlobalSearchResults } from "@/components/farm/GlobalSearchResults";
@@ -29,6 +29,7 @@ const GROUPS=["Gestão","Ferramentas","Gestação e reprodução","Rebanho","Man
 const NAV=[
  {to:"/painel",label:"Visão geral",short:"Início",icon:LayoutDashboard,group:"Gestão"},
  {to:"/agenda",label:"Agenda da granja",short:"Agenda",icon:CalendarDays,group:"Gestão"},
+ {to:"/rotina",label:"Rotina da equipe",short:"Rotina",icon:ClipboardList,group:"Gestão"},
  {to:"/assistente",label:"Santo Antônio AI · Perguntas",short:"Perguntas",icon:Sparkles,group:"Gestão"},
  {to:"/inteligencia",label:"Pendências e previsões",short:"Pendências",icon:Radar,group:"Gestão"},
  {to:"/auditoria",label:"Auditoria e qualidade",short:"Auditoria",icon:ClipboardCheck,group:"Gestão"},
