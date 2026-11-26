@@ -15,8 +15,29 @@
 - [x] Calendário reprodutivo, central de pendências, previsão de desmames
 - [x] Mapa de calor da mortalidade, comparação de leitegadas, avaliação de descarte
 - [x] Custo por leitão, financeiro, relatório mensal para o patrão
-- [ ] Histórico fotográfico (precisa de armazenamento de fotos)
+- [x] Foto da matriz em armazenamento privado (fotos anteriores ficam guardadas ao trocar)
 - [ ] Controle de funcionários: mostrar quem fez cada manejo
+
+## Fase 1 do ERP (ver docs/DIAGNOSTICO_ERP.md)
+- [x] Perfis Administrador/Gerente/Veterinário/Funcionário/Consulta aplicados no banco (RLS)
+- [x] Ativação/desativação de usuários e último acesso
+- [x] Trilha de auditoria imutável com valor anterior e novo
+- [x] Busca global em matrizes, reprodutores, baias, lotes, medicamentos e tarefas
+- [ ] Aplicar migration 0015 em homologação e validar (docs/DIAGNOSTICO_ERP.md, seção 7)
+
+## Fase 2 do ERP
+- [x] Prontuário completo da matriz (genealogia, origem, baia, lote, peso, foto, QR Code, linha do tempo)
+- [x] Situação atual derivada com 15 estados e motivo
+- [x] Arquivamento (exclusão lógica) com motivo, só Administrador/Gerente
+- [x] Prazos reprodutivos no banco, iguais para todos os aparelhos
+- [ ] Aplicar migration 0016 em homologação e validar
+
+## Fases 3 a 6 do ERP (ver docs/DIAGNOSTICO_ERP.md)
+- [x] Fase 3: maternidade detalhada, leitões, mortalidade, baias com lotação
+- [x] Fase 4: estoque geral, fornecedores, financeiro com contas e fluxo de caixa
+- [x] Fase 5: agenda, protocolos sanitários validados, 18 relatórios, indicadores comparativos, painel completo
+- [x] Fase 6: Santo Antônio AI de dados, PWA com ícones e modo offline com fila
+- [ ] Aplicar migrations 0015–0020 em homologação e validar com usuários reais
 
 ## Próximas etapas
 - [ ] Produção e manejo: transferências entre lotes/baias, lotação consolidada e consumo no desempenho

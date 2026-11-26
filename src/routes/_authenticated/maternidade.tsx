@@ -7,10 +7,12 @@ import { ClipboardList, History, Stethoscope, AlertTriangle, AlertCircle, Info, 
 import { litterAlerts, daysSince, type LitterAlert } from "@/lib/farm/litter-alerts";
 const LitterDiagnosisScene = lazy(() => import("@/components/farm3d/LitterDiagnosisScene"));
 import { supabase } from "@/integrations/supabase/client";
-import { sowsQuery, littersQuery, litterEventsQuery, livePiglets, fmtDate, todayISO, LITTER_EVENT_LABEL, type Litter, type LitterEvent } from "@/lib/farm";
+import { sowsQuery, littersQuery, litterEventsQuery, pensQuery, pigletsQuery, livePiglets, fmtDate, todayISO, LITTER_EVENT_LABEL, type Litter, type LitterEvent } from "@/lib/farm";
 import { litterEventError } from "@/lib/farm/reproduction";
 import { SectionTitle, Empty } from "@/components/farm/Kpi";
-import { FormDialog, SubmitRow, Field } from "@/components/farm/FormDialog";
+import { FormDialog, SubmitRow, Field, selectCls } from "@/components/farm/FormDialog";
+import { MORTALITY_CAUSES, weaningSexError } from "@/lib/farm/maternity";
+import { OUTCOME_MESSAGE, useOfflineSave } from "@/components/farm/OfflineSync";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -84,7 +86,7 @@ function Maternidade() {
       {litters.isLoading ? <p className="label-tech animate-pulse-soft">Carregando…</p> : active.length === 0 ? (
         <Empty>Nenhuma leitegada na maternidade. Registre um parto em <Link to="/matrizes" className="text-info underline">Matrizes</Link>.</Empty>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{active.map((l, i) => <LitterCard key={l.id} l={l} tag={tag(l.sow_id)} events={(events.data ?? []).filter((event) => event.litter_id === l.id)} delay={i * 40} onDone={refresh} />)}</div>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{active.map((l, i) => <LitterCard key={l.id} l={l} tag={tag(l.sow_id)} others={active.filter((o) => o.id !== l.id).map((o) => ({ id: o.id, label: tag(o.sow_id) }))} events={(events.data ?? []).filter((event) => event.litter_id === l.id)} delay={i * 40} onDone={refresh} />)}</div>
       )}
 
       {recentWeaned.length > 0 && <section><p className="label-tech mb-3">Desmamadas recentemente</p><div className="panel divide-y">{recentWeaned.map((l) => <div key={l.id} className="flex justify-between gap-3 px-4 py-3 text-sm"><span className="font-mono">{tag(l.sow_id)}</span><span className="text-right text-muted-foreground">{l.weaned ?? 0} desmamados · {fmtDate(l.weaning_date)}</span></div>)}</div></section>}
@@ -96,7 +98,7 @@ function Stat({ label, v, tone = "" }: { label: string; v: number; tone?: string
   return <div className="panel p-3"><p className="label-tech !text-[0.6rem]">{label}</p><p className={`mt-1 font-mono text-2xl ${tone}`}>{v}</p></div>;
 }
 
-function LitterCard({ l, tag, events, delay, onDone }: { l: Litter; tag: string; events: LitterEvent[]; delay: number; onDone: () => void }) {
+function LitterCard({ l, tag, others, events, delay, onDone }: { l: Litter; tag: string; others: { id: string; label: string }[]; events: LitterEvent[]; delay: number; onDone: () => void }) {
   const live = livePiglets(l);
   const days = Math.floor((Date.now() - new Date(l.farrowing_date + "T12:00:00").getTime()) / 86400000);
   return (
@@ -106,7 +108,7 @@ function LitterCard({ l, tag, events, delay, onDone }: { l: Litter; tag: string;
       <dl className="mt-3 grid grid-cols-4 gap-2 border-t pt-3 font-mono text-xs"><div><dt className="text-muted-foreground">Vivos</dt><dd>{l.born_alive}</dd></div><div><dt className="text-muted-foreground">Mortes</dt><dd>{l.deaths}</dd></div><div><dt className="text-muted-foreground">Transf.</dt><dd>{l.transfers_in - l.transfers_out >= 0 ? "+" : ""}{l.transfers_in - l.transfers_out}</dd></div><div><dt className="text-muted-foreground">Peso</dt><dd>{l.avg_weight ? `${l.avg_weight}kg` : "—"}</dd></div></dl>
       <p className="mt-2 font-mono text-[0.7rem] text-muted-foreground">Parto {fmtDate(l.farrowing_date)} · {days} dias</p>
       <div className="mt-2 flex flex-wrap gap-1.5">{litterAlerts(l, live).map((al) => <span key={al.id} className={`rounded-full border px-2 py-0.5 text-[0.68rem] font-semibold ${LEVEL[al.level].chip}`}>{al.title}</span>)}</div>
-      <div className="mt-3 grid grid-cols-2 gap-2">{ACTIONS.map((a) => <EventAction key={a.type} a={a} l={l} tag={tag} live={live} onDone={onDone} />)}<LitterHistory tag={tag} events={events} /><ArchiveLitter l={l} tag={tag} onDone={onDone} /></div>
+      <div className="mt-3 grid grid-cols-2 gap-2">{ACTIONS.map((a) => <EventAction key={a.type} a={a} l={l} tag={tag} live={live} onDone={onDone} />)}<AdoptionAction l={l} tag={tag} live={live} others={others} onDone={onDone} /><LitterHistory tag={tag} events={events} /><ArchiveLitter l={l} tag={tag} onDone={onDone} /></div>
     </div>
   );
 }
@@ -147,6 +149,7 @@ function ArchiveLitter({ l, tag, onDone }: { l: Litter; tag: string; onDone: () 
 
 function EventAction({ a, l, tag, live, onDone }: { a: (typeof ACTIONS)[number]; l: Litter; tag: string; live: number; onDone: () => void }) {
   const [busy, setBusy] = useState(false);
+  const saveOffline = useOfflineSave();
   return (
     <FormDialog title={`${a.label} · ${tag}`} trigger={<Button size="sm" variant={a.type === "morte" ? "destructive" : "outline"} className="h-10">{a.label}</Button>}>
       {(close) => <form className="space-y-4" onSubmit={async (e) => {
@@ -157,19 +160,105 @@ function EventAction({ a, l, tag, live, onDone }: { a: (typeof ACTIONS)[number];
         const ruleError = litterEventError({ eventType: a.type, quantity: qty, live, value });
         if (ruleError) { toast.error(ruleError); return; }
         if (a.confirm && !confirm(`Confirmar ${a.label.toLowerCase()} de ${qty} leitão(ões) na matriz ${tag}?`)) return;
+        const opt = (k: string) => { const v = String(f.get(k) ?? "").trim(); return v === "" ? null : v; };
+        const num = (k: string) => { const v = opt(k); return v === null ? null : Number(v.replace(",", ".")); };
+        const details = a.type === "morte"
+          ? { cause: opt("cause"), weight_kg: num("weight_kg"), responsible: opt("responsible"), piglet_id: opt("piglet_id") }
+          : a.type === "desmame"
+            ? { males: num("males"), females: num("females"), weight_kg: num("weight_kg"), destination: opt("destination"), destination_pen_id: opt("destination_pen_id"), responsible: opt("responsible") }
+            : a.qty ? { responsible: opt("responsible") } : {};
+        if (a.type === "morte" && !details.cause) { toast.error("Informe o motivo observado."); return; }
+        if (a.type === "desmame") { const sexErr = weaningSexError(qty, num("males"), num("females")); if (sexErr) { toast.error(sexErr); return; } }
+        const row: Record<string, unknown> & { event_type: string; litter_id: string } = { litter_id: l.id, event_type: a.type, quantity: qty, value, note: String(f.get("note") || "") || null, event_date: String(f.get("date")), ...details };
         setBusy(true);
-        const { error } = await supabase.from("litter_events").insert({ litter_id: l.id, event_type: a.type, quantity: qty, value, note: String(f.get("note") || "") || null, event_date: String(f.get("date")) });
-        if (!error && a.type === "desmame") await supabase.from("sows").update({ status: "vazia" }).eq("id", l.sow_id);
+        if (a.type === "desmame") {
+          // Desmame encerra a leitegada e muda a matriz: exige confirmação do servidor na hora.
+          if (!navigator.onLine) { setBusy(false); toast.error("O desmame precisa de conexão com a internet para ser confirmado."); return; }
+          const { error } = await supabase.from("litter_events").insert(row as never);
+          if (!error) await supabase.from("sows").update({ status: "vazia" }).eq("id", l.sow_id);
+          setBusy(false);
+          if (error) { toast.error(error.message); return; }
+          toast.success("Desmame salvo no servidor."); onDone(); close(); return;
+        }
+        const outcome = await saveOffline("litter_events", row, `${a.label} · ${tag} · ${String(f.get("date")).split("-").reverse().join("/")}`);
         setBusy(false);
-        if (error) { toast.error(error.message); return; }
-        toast.success("Registrado"); onDone(); close();
+        if (outcome.state === "erro") { toast.error(outcome.message); return; }
+        if (outcome.state === "na_fila") toast.warning(OUTCOME_MESSAGE.na_fila); else toast.success(OUTCOME_MESSAGE.salvo);
+        onDone(); close();
       }}>
         <Field label="Data"><Input name="date" type="date" defaultValue={todayISO()} required className="h-11" /></Field>
         {a.qty && <Field label="Quantidade de leitões"><Input name="qty" type="number" min={1} step={1} inputMode="numeric" defaultValue={a.type === "desmame" ? live : undefined} required className="h-11" /></Field>}
         {a.type === "desmame" && <p className="rounded-lg bg-muted p-3 text-xs leading-5 text-muted-foreground">O desmame encerra a leitegada e precisa incluir todos os {live} leitões vivos registrados.</p>}
+        {a.type === "morte" && <MortalityFields litterId={l.id} />}
+        {a.type === "desmame" && <WeaningFields />}
+        {a.qty && a.type !== "morte" && a.type !== "desmame" && <Field label="Responsável"><Input name="responsible" className="h-11" /></Field>}
         {a.value && <Field label="Peso médio (kg)"><Input name="value" type="number" step="0.01" min={0.01} inputMode="decimal" required className="h-11" /></Field>}
         <Field label="Observação"><Textarea name="note" rows={2} required={a.type === "observacao"} /></Field>
         <SubmitRow busy={busy} label="Confirmar" />
+      </form>}
+    </FormDialog>
+  );
+}
+
+function MortalityFields({ litterId }: { litterId: string }) {
+  const piglets = useQuery(pigletsQuery);
+  const alive = (piglets.data ?? []).filter((p) => p.litter_id === litterId && (p.status ?? "ativo") === "ativo");
+  return <>
+    <Field label="Motivo observado *">
+      <select name="cause" className={selectCls} required defaultValue=""><option value="" disabled>Selecione…</option>{MORTALITY_CAUSES.map((c) => <option key={c} value={c}>{c}</option>)}</select>
+    </Field>
+    <p className="-mt-2 text-xs text-muted-foreground">É o que a equipe observou, não um diagnóstico. Suspeita de doença deve ser avaliada pelo veterinário.</p>
+    <div className="grid grid-cols-2 gap-3">
+      <Field label="Peso (kg)"><Input name="weight_kg" inputMode="decimal" placeholder="Se pesado" className="h-11" /></Field>
+      <Field label="Responsável"><Input name="responsible" className="h-11" /></Field>
+    </div>
+    {alive.length > 0 && <Field label="Leitão identificado (opcional)">
+      <select name="piglet_id" className={selectCls} defaultValue=""><option value="">Não identificado</option>{alive.map((p) => <option key={p.id} value={p.id}>Nº {p.piglet_number} · marca {p.australian_number}</option>)}</select>
+    </Field>}
+  </>;
+}
+
+function WeaningFields() {
+  const pens = useQuery(pensQuery);
+  return <>
+    <div className="grid grid-cols-3 gap-3">
+      <Field label="Machos"><Input name="males" type="number" min={0} inputMode="numeric" className="h-11" /></Field>
+      <Field label="Fêmeas"><Input name="females" type="number" min={0} inputMode="numeric" className="h-11" /></Field>
+      <Field label="Peso médio (kg)"><Input name="weight_kg" inputMode="decimal" className="h-11" /></Field>
+    </div>
+    <div className="grid grid-cols-2 gap-3">
+      <Field label="Destino"><select name="destination" className={selectCls} defaultValue=""><option value="">Não informado</option>{["Creche da granja", "Venda", "Outra granja", "Outro"].map((d) => <option key={d} value={d}>{d}</option>)}</select></Field>
+      <Field label="Baia de destino"><select name="destination_pen_id" className={selectCls} defaultValue=""><option value="">Não informada</option>{(pens.data ?? []).map((p) => <option key={p.id} value={p.id}>{p.code} · {p.sector}</option>)}</select></Field>
+    </div>
+    <Field label="Responsável"><Input name="responsible" className="h-11" /></Field>
+  </>;
+}
+
+function AdoptionAction({ l, tag, live, others, onDone }: { l: Litter; tag: string; live: number; others: { id: string; label: string }[]; onDone: () => void }) {
+  const [busy, setBusy] = useState(false);
+  if (others.length === 0 || live <= 0) return null;
+  return (
+    <FormDialog title={`Adoção para outra matriz · ${tag}`} trigger={<Button size="sm" variant="outline" className="h-10">Adoção entre matrizes</Button>}>
+      {(close) => <form className="space-y-4" onSubmit={async (e) => {
+        e.preventDefault();
+        const f = new FormData(e.currentTarget);
+        const qty = Number(f.get("qty") || 0);
+        if (!Number.isInteger(qty) || qty < 1 || qty > live) { toast.error(`Informe de 1 a ${live} leitões.`); return; }
+        setBusy(true);
+        const { error } = await supabase.rpc("transfer_piglets", { p_from: l.id, p_to: String(f.get("to")), p_quantity: qty, p_date: String(f.get("date")), p_reason: String(f.get("reason") || ""), p_responsible: String(f.get("responsible") || "") });
+        setBusy(false);
+        if (error) { toast.error(error.message); return; }
+        toast.success("Adoção registrada nas duas leitegadas."); onDone(); close();
+      }}>
+        <p className="rounded-lg bg-muted p-3 text-xs leading-5 text-muted-foreground">Registra a saída desta leitegada e a entrada na receptora numa única operação: se uma falhar, nenhuma é gravada.</p>
+        <Field label="Matriz receptora *"><select name="to" className={selectCls} required defaultValue=""><option value="" disabled>Selecione…</option>{others.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}</select></Field>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label={`Quantidade (máx. ${live})`}><Input name="qty" type="number" min={1} max={live} required className="h-11" /></Field>
+          <Field label="Data"><Input name="date" type="date" defaultValue={todayISO()} max={todayISO()} required className="h-11" /></Field>
+        </div>
+        <Field label="Motivo"><Input name="reason" placeholder="Ex.: equalização de leitegada" className="h-11" /></Field>
+        <Field label="Responsável"><Input name="responsible" className="h-11" /></Field>
+        <SubmitRow busy={busy} label="Registrar adoção" />
       </form>}
     </FormDialog>
   );

@@ -12,6 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
+import { Route as AuthenticatedAlmoxarifadoRouteImport } from './routes/_authenticated/almoxarifado'
+import { Route as AuthenticatedAssistenteRouteImport } from './routes/_authenticated/assistente'
 import { Route as AuthenticatedAuditoriaRouteImport } from './routes/_authenticated/auditoria'
 import { Route as AuthenticatedBaiasRouteImport } from './routes/_authenticated/baias'
 import { Route as AuthenticatedBibliotecaSuinosRouteImport } from './routes/_authenticated/biblioteca-suinos'
@@ -23,15 +26,20 @@ import { Route as AuthenticatedFarmaciaAiRouteImport } from './routes/_authentic
 import { Route as AuthenticatedFinanceiroRouteImport } from './routes/_authenticated/financeiro'
 import { Route as AuthenticatedGestacaoRouteImport } from './routes/_authenticated/gestacao'
 import { Route as AuthenticatedGranja3dRouteImport } from './routes/_authenticated/granja-3d'
+import { Route as AuthenticatedHistoricoRouteImport } from './routes/_authenticated/historico'
 import { Route as AuthenticatedInteligenciaRouteImport } from './routes/_authenticated/inteligencia'
+import { Route as AuthenticatedLeitoesRouteImport } from './routes/_authenticated/leitoes'
 import { Route as AuthenticatedLotesRouteImport } from './routes/_authenticated/lotes'
 import { Route as AuthenticatedMaternidadeRouteImport } from './routes/_authenticated/maternidade'
 import { Route as AuthenticatedMatrizesRouteImport } from './routes/_authenticated/matrizes'
+import { Route as AuthenticatedMortalidadeRouteImport } from './routes/_authenticated/mortalidade'
 import { Route as AuthenticatedMutiraoRouteImport } from './routes/_authenticated/mutirao'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
 import { Route as AuthenticatedPlantelRouteImport } from './routes/_authenticated/plantel'
+import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
 import { Route as AuthenticatedSanidadeRouteImport } from './routes/_authenticated/sanidade'
 import { Route as AuthenticatedTarefasRouteImport } from './routes/_authenticated/tarefas'
+import { Route as AuthenticatedUsuariosRouteImport } from './routes/_authenticated/usuarios'
 import { Route as AuthenticatedMatrizesSowIdRouteImport } from './routes/_authenticated/matrizes.$sowId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -47,6 +55,22 @@ const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAgendaRoute = AuthenticatedAgendaRouteImport.update({
+  id: '/agenda',
+  path: '/agenda',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAlmoxarifadoRoute =
+  AuthenticatedAlmoxarifadoRouteImport.update({
+    id: '/almoxarifado',
+    path: '/almoxarifado',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAssistenteRoute = AuthenticatedAssistenteRouteImport.update({
+  id: '/assistente',
+  path: '/assistente',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAuditoriaRoute = AuthenticatedAuditoriaRouteImport.update({
   id: '/auditoria',
@@ -105,12 +129,22 @@ const AuthenticatedGranja3dRoute = AuthenticatedGranja3dRouteImport.update({
   path: '/granja-3d',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedHistoricoRoute = AuthenticatedHistoricoRouteImport.update({
+  id: '/historico',
+  path: '/historico',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedInteligenciaRoute =
   AuthenticatedInteligenciaRouteImport.update({
     id: '/inteligencia',
     path: '/inteligencia',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedLeitoesRoute = AuthenticatedLeitoesRouteImport.update({
+  id: '/leitoes',
+  path: '/leitoes',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedLotesRoute = AuthenticatedLotesRouteImport.update({
   id: '/lotes',
   path: '/lotes',
@@ -127,6 +161,12 @@ const AuthenticatedMatrizesRoute = AuthenticatedMatrizesRouteImport.update({
   path: '/matrizes',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMortalidadeRoute =
+  AuthenticatedMortalidadeRouteImport.update({
+    id: '/mortalidade',
+    path: '/mortalidade',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedMutiraoRoute = AuthenticatedMutiraoRouteImport.update({
   id: '/mutirao',
   path: '/mutirao',
@@ -142,6 +182,11 @@ const AuthenticatedPlantelRoute = AuthenticatedPlantelRouteImport.update({
   path: '/plantel',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedRelatoriosRoute = AuthenticatedRelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSanidadeRoute = AuthenticatedSanidadeRouteImport.update({
   id: '/sanidade',
   path: '/sanidade',
@@ -150,6 +195,11 @@ const AuthenticatedSanidadeRoute = AuthenticatedSanidadeRouteImport.update({
 const AuthenticatedTarefasRoute = AuthenticatedTarefasRouteImport.update({
   id: '/tarefas',
   path: '/tarefas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedUsuariosRoute = AuthenticatedUsuariosRouteImport.update({
+  id: '/usuarios',
+  path: '/usuarios',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedMatrizesSowIdRoute =
@@ -162,6 +212,9 @@ const AuthenticatedMatrizesSowIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/agenda': typeof AuthenticatedAgendaRoute
+  '/almoxarifado': typeof AuthenticatedAlmoxarifadoRoute
+  '/assistente': typeof AuthenticatedAssistenteRoute
   '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/baias': typeof AuthenticatedBaiasRoute
   '/biblioteca-suinos': typeof AuthenticatedBibliotecaSuinosRoute
@@ -173,20 +226,28 @@ export interface FileRoutesByFullPath {
   '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/gestacao': typeof AuthenticatedGestacaoRoute
   '/granja-3d': typeof AuthenticatedGranja3dRoute
+  '/historico': typeof AuthenticatedHistoricoRoute
   '/inteligencia': typeof AuthenticatedInteligenciaRoute
+  '/leitoes': typeof AuthenticatedLeitoesRoute
   '/lotes': typeof AuthenticatedLotesRoute
   '/maternidade': typeof AuthenticatedMaternidadeRoute
   '/matrizes': typeof AuthenticatedMatrizesRouteWithChildren
+  '/mortalidade': typeof AuthenticatedMortalidadeRoute
   '/mutirao': typeof AuthenticatedMutiraoRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/plantel': typeof AuthenticatedPlantelRoute
+  '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/sanidade': typeof AuthenticatedSanidadeRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
+  '/usuarios': typeof AuthenticatedUsuariosRoute
   '/matrizes/$sowId': typeof AuthenticatedMatrizesSowIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/agenda': typeof AuthenticatedAgendaRoute
+  '/almoxarifado': typeof AuthenticatedAlmoxarifadoRoute
+  '/assistente': typeof AuthenticatedAssistenteRoute
   '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/baias': typeof AuthenticatedBaiasRoute
   '/biblioteca-suinos': typeof AuthenticatedBibliotecaSuinosRoute
@@ -198,15 +259,20 @@ export interface FileRoutesByTo {
   '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/gestacao': typeof AuthenticatedGestacaoRoute
   '/granja-3d': typeof AuthenticatedGranja3dRoute
+  '/historico': typeof AuthenticatedHistoricoRoute
   '/inteligencia': typeof AuthenticatedInteligenciaRoute
+  '/leitoes': typeof AuthenticatedLeitoesRoute
   '/lotes': typeof AuthenticatedLotesRoute
   '/maternidade': typeof AuthenticatedMaternidadeRoute
   '/matrizes': typeof AuthenticatedMatrizesRouteWithChildren
+  '/mortalidade': typeof AuthenticatedMortalidadeRoute
   '/mutirao': typeof AuthenticatedMutiraoRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/plantel': typeof AuthenticatedPlantelRoute
+  '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/sanidade': typeof AuthenticatedSanidadeRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
+  '/usuarios': typeof AuthenticatedUsuariosRoute
   '/matrizes/$sowId': typeof AuthenticatedMatrizesSowIdRoute
 }
 export interface FileRoutesById {
@@ -214,6 +280,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
+  '/_authenticated/almoxarifado': typeof AuthenticatedAlmoxarifadoRoute
+  '/_authenticated/assistente': typeof AuthenticatedAssistenteRoute
   '/_authenticated/auditoria': typeof AuthenticatedAuditoriaRoute
   '/_authenticated/baias': typeof AuthenticatedBaiasRoute
   '/_authenticated/biblioteca-suinos': typeof AuthenticatedBibliotecaSuinosRoute
@@ -225,15 +294,20 @@ export interface FileRoutesById {
   '/_authenticated/financeiro': typeof AuthenticatedFinanceiroRoute
   '/_authenticated/gestacao': typeof AuthenticatedGestacaoRoute
   '/_authenticated/granja-3d': typeof AuthenticatedGranja3dRoute
+  '/_authenticated/historico': typeof AuthenticatedHistoricoRoute
   '/_authenticated/inteligencia': typeof AuthenticatedInteligenciaRoute
+  '/_authenticated/leitoes': typeof AuthenticatedLeitoesRoute
   '/_authenticated/lotes': typeof AuthenticatedLotesRoute
   '/_authenticated/maternidade': typeof AuthenticatedMaternidadeRoute
   '/_authenticated/matrizes': typeof AuthenticatedMatrizesRouteWithChildren
+  '/_authenticated/mortalidade': typeof AuthenticatedMortalidadeRoute
   '/_authenticated/mutirao': typeof AuthenticatedMutiraoRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
   '/_authenticated/plantel': typeof AuthenticatedPlantelRoute
+  '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/sanidade': typeof AuthenticatedSanidadeRoute
   '/_authenticated/tarefas': typeof AuthenticatedTarefasRoute
+  '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
   '/_authenticated/matrizes/$sowId': typeof AuthenticatedMatrizesSowIdRoute
 }
 export interface FileRouteTypes {
@@ -241,6 +315,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/agenda'
+    | '/almoxarifado'
+    | '/assistente'
     | '/auditoria'
     | '/baias'
     | '/biblioteca-suinos'
@@ -252,20 +329,28 @@ export interface FileRouteTypes {
     | '/financeiro'
     | '/gestacao'
     | '/granja-3d'
+    | '/historico'
     | '/inteligencia'
+    | '/leitoes'
     | '/lotes'
     | '/maternidade'
     | '/matrizes'
+    | '/mortalidade'
     | '/mutirao'
     | '/painel'
     | '/plantel'
+    | '/relatorios'
     | '/sanidade'
     | '/tarefas'
+    | '/usuarios'
     | '/matrizes/$sowId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/agenda'
+    | '/almoxarifado'
+    | '/assistente'
     | '/auditoria'
     | '/baias'
     | '/biblioteca-suinos'
@@ -277,21 +362,29 @@ export interface FileRouteTypes {
     | '/financeiro'
     | '/gestacao'
     | '/granja-3d'
+    | '/historico'
     | '/inteligencia'
+    | '/leitoes'
     | '/lotes'
     | '/maternidade'
     | '/matrizes'
+    | '/mortalidade'
     | '/mutirao'
     | '/painel'
     | '/plantel'
+    | '/relatorios'
     | '/sanidade'
     | '/tarefas'
+    | '/usuarios'
     | '/matrizes/$sowId'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/agenda'
+    | '/_authenticated/almoxarifado'
+    | '/_authenticated/assistente'
     | '/_authenticated/auditoria'
     | '/_authenticated/baias'
     | '/_authenticated/biblioteca-suinos'
@@ -303,15 +396,20 @@ export interface FileRouteTypes {
     | '/_authenticated/financeiro'
     | '/_authenticated/gestacao'
     | '/_authenticated/granja-3d'
+    | '/_authenticated/historico'
     | '/_authenticated/inteligencia'
+    | '/_authenticated/leitoes'
     | '/_authenticated/lotes'
     | '/_authenticated/maternidade'
     | '/_authenticated/matrizes'
+    | '/_authenticated/mortalidade'
     | '/_authenticated/mutirao'
     | '/_authenticated/painel'
     | '/_authenticated/plantel'
+    | '/_authenticated/relatorios'
     | '/_authenticated/sanidade'
     | '/_authenticated/tarefas'
+    | '/_authenticated/usuarios'
     | '/_authenticated/matrizes/$sowId'
   fileRoutesById: FileRoutesById
 }
@@ -343,6 +441,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/agenda': {
+      id: '/_authenticated/agenda'
+      path: '/agenda'
+      fullPath: '/agenda'
+      preLoaderRoute: typeof AuthenticatedAgendaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/almoxarifado': {
+      id: '/_authenticated/almoxarifado'
+      path: '/almoxarifado'
+      fullPath: '/almoxarifado'
+      preLoaderRoute: typeof AuthenticatedAlmoxarifadoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/assistente': {
+      id: '/_authenticated/assistente'
+      path: '/assistente'
+      fullPath: '/assistente'
+      preLoaderRoute: typeof AuthenticatedAssistenteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/auditoria': {
       id: '/_authenticated/auditoria'
@@ -421,11 +540,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGranja3dRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/historico': {
+      id: '/_authenticated/historico'
+      path: '/historico'
+      fullPath: '/historico'
+      preLoaderRoute: typeof AuthenticatedHistoricoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/inteligencia': {
       id: '/_authenticated/inteligencia'
       path: '/inteligencia'
       fullPath: '/inteligencia'
       preLoaderRoute: typeof AuthenticatedInteligenciaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/leitoes': {
+      id: '/_authenticated/leitoes'
+      path: '/leitoes'
+      fullPath: '/leitoes'
+      preLoaderRoute: typeof AuthenticatedLeitoesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/lotes': {
@@ -449,6 +582,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMatrizesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/mortalidade': {
+      id: '/_authenticated/mortalidade'
+      path: '/mortalidade'
+      fullPath: '/mortalidade'
+      preLoaderRoute: typeof AuthenticatedMortalidadeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/mutirao': {
       id: '/_authenticated/mutirao'
       path: '/mutirao'
@@ -470,6 +610,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPlantelRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/relatorios': {
+      id: '/_authenticated/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof AuthenticatedRelatoriosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/sanidade': {
       id: '/_authenticated/sanidade'
       path: '/sanidade'
@@ -482,6 +629,13 @@ declare module '@tanstack/react-router' {
       path: '/tarefas'
       fullPath: '/tarefas'
       preLoaderRoute: typeof AuthenticatedTarefasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/usuarios': {
+      id: '/_authenticated/usuarios'
+      path: '/usuarios'
+      fullPath: '/usuarios'
+      preLoaderRoute: typeof AuthenticatedUsuariosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/matrizes/$sowId': {
@@ -508,6 +662,9 @@ const AuthenticatedMatrizesRouteWithChildren =
   )
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
+  AuthenticatedAlmoxarifadoRoute: typeof AuthenticatedAlmoxarifadoRoute
+  AuthenticatedAssistenteRoute: typeof AuthenticatedAssistenteRoute
   AuthenticatedAuditoriaRoute: typeof AuthenticatedAuditoriaRoute
   AuthenticatedBaiasRoute: typeof AuthenticatedBaiasRoute
   AuthenticatedBibliotecaSuinosRoute: typeof AuthenticatedBibliotecaSuinosRoute
@@ -519,18 +676,26 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFinanceiroRoute: typeof AuthenticatedFinanceiroRoute
   AuthenticatedGestacaoRoute: typeof AuthenticatedGestacaoRoute
   AuthenticatedGranja3dRoute: typeof AuthenticatedGranja3dRoute
+  AuthenticatedHistoricoRoute: typeof AuthenticatedHistoricoRoute
   AuthenticatedInteligenciaRoute: typeof AuthenticatedInteligenciaRoute
+  AuthenticatedLeitoesRoute: typeof AuthenticatedLeitoesRoute
   AuthenticatedLotesRoute: typeof AuthenticatedLotesRoute
   AuthenticatedMaternidadeRoute: typeof AuthenticatedMaternidadeRoute
   AuthenticatedMatrizesRoute: typeof AuthenticatedMatrizesRouteWithChildren
+  AuthenticatedMortalidadeRoute: typeof AuthenticatedMortalidadeRoute
   AuthenticatedMutiraoRoute: typeof AuthenticatedMutiraoRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
   AuthenticatedPlantelRoute: typeof AuthenticatedPlantelRoute
+  AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
   AuthenticatedSanidadeRoute: typeof AuthenticatedSanidadeRoute
   AuthenticatedTarefasRoute: typeof AuthenticatedTarefasRoute
+  AuthenticatedUsuariosRoute: typeof AuthenticatedUsuariosRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
+  AuthenticatedAlmoxarifadoRoute: AuthenticatedAlmoxarifadoRoute,
+  AuthenticatedAssistenteRoute: AuthenticatedAssistenteRoute,
   AuthenticatedAuditoriaRoute: AuthenticatedAuditoriaRoute,
   AuthenticatedBaiasRoute: AuthenticatedBaiasRoute,
   AuthenticatedBibliotecaSuinosRoute: AuthenticatedBibliotecaSuinosRoute,
@@ -542,15 +707,20 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFinanceiroRoute: AuthenticatedFinanceiroRoute,
   AuthenticatedGestacaoRoute: AuthenticatedGestacaoRoute,
   AuthenticatedGranja3dRoute: AuthenticatedGranja3dRoute,
+  AuthenticatedHistoricoRoute: AuthenticatedHistoricoRoute,
   AuthenticatedInteligenciaRoute: AuthenticatedInteligenciaRoute,
+  AuthenticatedLeitoesRoute: AuthenticatedLeitoesRoute,
   AuthenticatedLotesRoute: AuthenticatedLotesRoute,
   AuthenticatedMaternidadeRoute: AuthenticatedMaternidadeRoute,
   AuthenticatedMatrizesRoute: AuthenticatedMatrizesRouteWithChildren,
+  AuthenticatedMortalidadeRoute: AuthenticatedMortalidadeRoute,
   AuthenticatedMutiraoRoute: AuthenticatedMutiraoRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
   AuthenticatedPlantelRoute: AuthenticatedPlantelRoute,
+  AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedSanidadeRoute: AuthenticatedSanidadeRoute,
   AuthenticatedTarefasRoute: AuthenticatedTarefasRoute,
+  AuthenticatedUsuariosRoute: AuthenticatedUsuariosRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

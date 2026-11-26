@@ -109,17 +109,14 @@ Deno.serve(async (req) => {
 
     // A função também pode ser chamada diretamente fora da interface. Exija
     // associação ativa à granja antes de consultar dados ou consumir a API de IA.
-    const { data: membership, error: membershipError } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .eq("role", "member")
-      .maybeSingle();
+    // can_write() exige membro ativo com perfil que grava (migration 0015);
+    // usuários desativados ou de consulta não consomem a API de IA.
+    const { data: canWrite, error: membershipError } = await supabase.rpc("can_write");
     if (membershipError) {
       console.error("Membership check failed", membershipError);
       return new Response(JSON.stringify({ error: "Não foi possível validar o acesso à fazenda." }), { status: 500, headers: { ...cors, "Content-Type": "application/json" } });
     }
-    if (!membership) {
+    if (canWrite !== true) {
       return new Response(JSON.stringify({ error: "Acesso não autorizado à fazenda." }), { status: 403, headers: { ...cors, "Content-Type": "application/json" } });
     }
     const windowStart = new Date(Date.now() - 60 * 60 * 1000).toISOString();

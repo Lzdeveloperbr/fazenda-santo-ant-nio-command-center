@@ -13,6 +13,8 @@ Este roteiro deve ser concluído no ambiente real antes de divulgar o sistema co
 - [ ] Confirmar que dados da granja não ficam acessíveis a usuários não autorizados.
 - [ ] Aplicar em homologação a migration `0013_restringe_codigo_acesso_granja.sql`; confirmar que authenticated não consegue ler `farm_access_codes` e que o cadastro com código válido/inválido continua funcionando.
 - [ ] Confirmar que a Edge Function `vet-assistant` rejeita usuário autenticado sem papel `member` antes de consultar dados ou consumir a API de IA.
+- [ ] Aplicar `0015_perfis_acesso_auditoria.sql` e seguir a validação da seção 7 de `docs/DIAGNOSTICO_ERP.md` (perfis, desativação, auditoria). Publicar a Edge Function `vet-assistant` só depois dela.
+- [ ] Rodar `tests/db/run.sh` contra um PostgreSQL local descartável antes de cada migration nova.
 - [ ] Revisar `farm_access_codes`: hashes de códigos de acesso não devem ser legíveis por usuários comuns; validar a correção em homologação antes de aplicar migration.
 - [ ] Confirmar que o frontend usa somente a chave publicável; nunca colocar `service_role` ou segredo no navegador.
 - [ ] Verificar regras de exclusão e vínculos antes de remover matrizes, leitegadas, lotes ou registros.

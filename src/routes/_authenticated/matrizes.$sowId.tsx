@@ -1,11 +1,17 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Printer, PiggyBank, CalendarDays, Baby, Scale, Syringe, Pill, ShieldCheck, CalendarClock } from "lucide-react";
-import { breedingsQuery, litterEventsQuery, littersQuery, LITTER_EVENT_LABEL, SOW_EVENT_LABEL, SOW_STATUS, sowEventsQuery, sowsQuery, fmtDate, livePiglets, todayISO, isCountedLitter } from "@/lib/farm";
+import { ArrowLeft, Pencil, Printer, PiggyBank, CalendarDays, Baby, Scale, Syringe, Pill, ShieldCheck, CalendarClock } from "lucide-react";
+import { allSowsQuery, breedingsQuery, litterEventsQuery, littersQuery, LITTER_EVENT_LABEL, pensQuery, SOW_EVENT_LABEL, SOW_STATUS, sowEventsQuery, fmtDate, livePiglets, todayISO, isCountedLitter } from "@/lib/farm";
+import { farmSettingsQuery, DEFAULT_FARM_SETTINGS } from "@/lib/farm/farm-settings";
+import { parityOf, SOW_CATEGORY_LABEL, sowSituation } from "@/lib/farm/sow-profile";
+import { daysBetween } from "@/lib/farm/gestation";
+import { SowFormDialog } from "@/components/farm/SowForm";
+import { ArchiveSowButton, SowPhoto, SowQrCode, SowTimeline } from "@/components/farm/SowRecordExtras";
 import { Empty, SectionTitle } from "@/components/farm/Kpi";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { usePermissions } from "@/lib/access";
 import { FormDialog, Field, SubmitRow, selectCls } from "@/components/farm/FormDialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -30,7 +36,10 @@ export const Route = createFileRoute("/_authenticated/matrizes/$sowId")({
 
 function SowRecord() {
   const { sowId } = Route.useParams();
-  const sows = useQuery(sowsQuery);
+  const qc = useQueryClient();
+  const sows = useQuery(allSowsQuery);
+  const pens = useQuery(pensQuery);
+  const settings = useQuery(farmSettingsQuery);
   const breedings = useQuery(breedingsQuery);
   const litters = useQuery(littersQuery);
   const sowEvents = useQuery(sowEventsQuery);
@@ -49,28 +58,54 @@ function SowRecord() {
   const totalWeaned = countedLitters.reduce((sum, litter) => sum + (litter.weaned ?? 0), 0);
   const totalDeaths = countedLitters.reduce((sum, litter) => sum + litter.deaths, 0);
   const averageAlive = countedLitters.length ? (totalAlive / countedLitters.length).toFixed(1) : "—";
+  const today = todayISO();
+  const cfg = settings.data ?? DEFAULT_FARM_SETTINGS;
+  const situation = sowSituation(sow, sowBreedings, sowLitters, { attentionStart: cfg.gestation.attentionStart, gestationDays: cfg.gestation.gestationDays, maternityTransferDay: cfg.maternityTransferDay }, today);
+  const pen = pens.data?.find((p) => p.id === sow.pen_id);
+  const ageMonths = sow.birth_date ? Math.floor(daysBetween(sow.birth_date, today) / 30.44) : null;
+  const info: [string, string][] = [
+    ["Raça / genética", sow.breed || "—"],
+    ["Linhagem", sow.lineage || "—"],
+    ["Categoria", sow.category ? SOW_CATEGORY_LABEL[sow.category] ?? sow.category : "—"],
+    ["Nascimento", sow.birth_date ? `${fmtDate(sow.birth_date)}${ageMonths !== null ? ` (${ageMonths} meses)` : ""}` : "—"],
+    ["Entrada na granja", fmtDate(sow.entry_date)],
+    ["Origem", sow.origin || "—"],
+    ["Pai", sow.sire || "—"],
+    ["Mãe", sow.dam || "—"],
+    ["Ordem de parto", String(parityOf(sowLitters))],
+    ["Baia", pen ? `${pen.code} · ${pen.sector}` : "—"],
+    ["Lote / grupo", sow.group_label || "—"],
+    ["Peso", sow.weight_kg !== null && sow.weight_kg !== undefined ? `${String(sow.weight_kg).replace(".", ",")} kg em ${fmtDate(sow.weight_date)}` : "—"],
+    ["Situação gravada", SOW_STATUS[sow.status]?.label ?? sow.status],
+    ["Cadastro", fmtDate(sow.created_at)],
+  ];
 
   return (
     <div className="sow-record space-y-6">
       <style>{`@media print { @page { size: A4 portrait; margin: 12mm; } body * { visibility: hidden !important; } .sow-record, .sow-record * { visibility: visible !important; } .sow-record { position: absolute !important; inset: 0 !important; width: 100% !important; } .sow-record .panel { box-shadow: none !important; break-inside: avoid; } .no-print { display: none !important; } }`}</style>
       <div className="no-print flex flex-wrap items-center justify-between gap-3">
         <Link to="/matrizes"><Button variant="outline"><ArrowLeft className="mr-2 h-4 w-4" />Voltar às matrizes</Button></Link>
-        <div className="flex flex-wrap gap-2"><DeleteSowButton sow={sow} /><Button onClick={() => window.print()}><Printer className="mr-2 h-4 w-4" />Imprimir / salvar PDF</Button></div>
+        <div className="flex flex-wrap gap-2"><SowFormDialog sow={sow} onDone={() => void qc.invalidateQueries({ queryKey: ["sows"] })} trigger={<Button variant="outline"><Pencil className="mr-2 h-4 w-4" />Editar cadastro</Button>} /><ArchiveSowButton sow={sow} /><DeleteSowButton sow={sow} /><Button onClick={() => window.print()}><Printer className="mr-2 h-4 w-4" />Imprimir / salvar PDF</Button></div>
       </div>
 
       <section className="panel p-5 sm:p-6">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
+        {sow.archived_at && <p className="mb-4 rounded-lg border border-warn/40 bg-warn/10 p-3 text-sm">Cadastro arquivado em {fmtDate(sow.archived_at)}: {sow.archived_reason}. Fora das listas e indicadores; histórico preservado.</p>}
+        <div className="flex flex-wrap items-start gap-4">
+          <SowPhoto sow={sow} />
+          <div className="min-w-0 flex-1">
             <p className="label-tech">Ficha individual da matriz</p>
             <h1 className="mt-2 font-mono text-3xl font-bold">{sow.ear_tag}</h1>
             <p className="mt-1 text-lg">{sow.name || "Sem nome cadastrado"}</p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-primary/10 px-3 py-1.5 text-sm font-semibold text-primary">{situation.label}</span>
+              {situation.condition && <span className="rounded-full bg-warn/15 px-3 py-1.5 text-sm font-semibold text-warn">{situation.condition}</span>}
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">{situation.reason}</p>
           </div>
-          <span className={`rounded-full bg-muted px-3 py-1.5 text-sm font-semibold ${SOW_STATUS[sow.status]?.tone}`}>{SOW_STATUS[sow.status]?.label ?? sow.status}</span>
+          <SowQrCode sow={sow} />
         </div>
-        <dl className="mt-5 grid gap-3 border-t pt-5 text-sm sm:grid-cols-3">
-          <div><dt className="text-muted-foreground">Raça / genética</dt><dd className="mt-1 font-semibold">{sow.breed || "—"}</dd></div>
-          <div><dt className="text-muted-foreground">Nascimento</dt><dd className="mt-1 font-semibold">{fmtDate(sow.birth_date)}</dd></div>
-          <div><dt className="text-muted-foreground">Cadastro</dt><dd className="mt-1 font-semibold">{fmtDate(sow.created_at)}</dd></div>
+        <dl className="mt-5 grid gap-3 border-t pt-5 text-sm sm:grid-cols-3 lg:grid-cols-4">
+          {info.map(([label, value]) => <div key={label}><dt className="text-muted-foreground">{label}</dt><dd className="mt-1 font-semibold">{value}</dd></div>)}
         </dl>
         <div className="no-print mt-5"><Suspense fallback={<div className="h-64 rounded-xl bg-muted/60" />}><PigViewer status={sow.status} piglets={(() => { const cur = sowLitters.find((l) => l.status === "maternidade"); return cur ? livePiglets(cur) : 0; })()} /></Suspense><p className="mt-2 text-xs text-muted-foreground">Representação ilustrativa da categoria — gire com o dedo e aproxime com pinça. Não é uma imagem do animal real. Os leitões ao redor mostram a quantidade viva registrada na leitegada atual.</p></div>
         {sow.notes && <p className="mt-4 whitespace-pre-wrap rounded-xl bg-muted/50 p-3 text-sm leading-6">{sow.notes}</p>}
@@ -117,6 +152,8 @@ function SowRecord() {
       </section>
 
       <AnimalHealthSection sow={sow} litters={countedLitters} />
+
+      <SowTimeline sow={sow} breedings={sowBreedings} litters={sowLitters} litterEvents={litterEvents.data ?? []} sowEvents={events} />
 
       <section className="panel p-4 sm:p-5">
         <SectionTitle kicker="Ocorrências e movimentação" title="Histórico da matriz" />
@@ -185,6 +222,8 @@ function DeleteSowButton({ sow }: { sow: Sow }) {
   const navigate = useNavigate();
   const [typed, setTyped] = useState("");
   const [busy, setBusy] = useState(false);
+  const perms = usePermissions();
+  if (!perms?.canDelete) return null;
   return (
     <FormDialog title={`Excluir matriz ${sow.ear_tag}`} trigger={<Button variant="destructive">Excluir matriz</Button>}>
       {(close) => (
@@ -200,7 +239,7 @@ function DeleteSowButton({ sow }: { sow: Sow }) {
           close();
           navigate({ to: "/matrizes" });
         }}>
-          <p className="text-sm text-muted-foreground">Isto apaga para sempre a matriz e todo o histórico dela: coberturas, partos, leitegadas, eventos e registros sanitários. Não dá para desfazer. Se ela só saiu do plantel, prefira registrar descarte, morte ou transferência.</p>
+          <p className="text-sm text-muted-foreground">Isto apaga a matriz e todo o histórico dela: coberturas, partos, leitegadas, eventos e registros sanitários. Não dá para desfazer pelo aplicativo; uma cópia dos dados apagados fica no Histórico de alterações. Se ela só saiu do plantel, prefira registrar descarte, morte ou transferência.</p>
           <Field label={`Digite o brinco "${sow.ear_tag}" para confirmar`}><Input value={typed} onChange={(e) => setTyped(e.target.value)} /></Field>
           <Button type="submit" variant="destructive" disabled={busy || typed.trim() !== sow.ear_tag} className="h-11 w-full">{busy ? "Excluindo…" : "Excluir definitivamente"}</Button>
         </form>

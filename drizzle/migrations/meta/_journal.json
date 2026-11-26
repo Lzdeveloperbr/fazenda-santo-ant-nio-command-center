@@ -106,6 +106,48 @@
       "when": 1795511212816,
       "tag": "0014_delete_sow_function",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1795600000000,
+      "tag": "0015_perfis_acesso_auditoria",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1795700000000,
+      "tag": "0016_prontuario_matriz_parametros",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1795800000000,
+      "tag": "0017_maternidade_leitoes_instalacoes",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1795900000000,
+      "tag": "0018_estoque_fornecedores_financeiro",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1796000000000,
+      "tag": "0019_agenda_protocolos_sanitarios",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1796100000000,
+      "tag": "0020_assistente_perguntas",
+      "breakpoints": true
     }
   ]
 }

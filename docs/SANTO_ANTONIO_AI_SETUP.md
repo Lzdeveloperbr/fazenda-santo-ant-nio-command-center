@@ -11,6 +11,13 @@ A interface, o esquema de dados e a função de backend estão no repositório. 
 7. O livro de movimentações é somente de inclusão para preservar auditoria; correções devem ser feitas por novo lançamento de ajuste.
 8. Registrar tratamentos somente transcrevendo prescrição veterinária; o sistema acompanha status e datas de carência informadas, sem calcular dose.
 
+## Perguntas sobre os dados (Fase 6)
+
+- Tela **Santo Antônio AI · Perguntas** (`/assistente`).
+- Perguntas frequentes (gestantes, partos da semana, atrasos, nascimentos, mortalidade, melhor matriz, estoque, desmames, ração, tarefas) são calculadas no aparelho a partir dos registros: funcionam mesmo sem a chave da IA.
+- Perguntas livres usam a Edge Function `farm-assistant` (deploy com esse nome), que reaproveita `OPENAI_API_KEY` e `OPENAI_MODEL`. O app envia apenas um resumo dos dados que o usuário já pode ler; a função confere sessão e perfil (`access_role`), limita a 30 perguntas por hora e registra em `ai_questions` (migration 0020).
+- A IA é instruída a responder só com o resumo, dizer quando faltam registros, tratar previsões como estimativa e nunca diagnosticar ou prescrever.
+
 ## O que está implementado
 
 - Cadastro de medicamentos e informações de bula/uso transcritas.

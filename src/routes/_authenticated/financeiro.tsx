@@ -7,6 +7,9 @@ import { financeQuery, litterEventsQuery, littersQuery, fmtDate, todayISO, type 
 import { costPerWeaned, deathsByMonth, financeSummary } from "@/lib/farm/insights";
 import { supabase } from "@/integrations/supabase/client";
 import { Empty, SectionTitle } from "@/components/farm/Kpi";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { COST_CENTERS, FINANCE_CATEGORIES } from "@/lib/farm/finance";
+import { CashFlowTab, CostsTab, EntryLinks, OpenAccountsTab } from "@/components/farm/FinanceTabs";
 import { FormDialog, Field, SubmitRow, selectCls } from "@/components/farm/FormDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,10 +26,9 @@ export const Route = createFileRoute("/_authenticated/financeiro")({
   component: Financeiro,
 });
 
-const CATS = { receita: ["Venda de leitões", "Venda de terminados", "Venda de descarte", "Outras receitas"], despesa: ["Ração", "Medicamentos e vacinas", "Mão de obra", "Energia e água", "Manutenção", "Genética / sêmen", "Transporte", "Outras despesas"] };
 const brl = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-function Financeiro() {
+function MonthReport() {
   const entries = useQuery(financeQuery), litters = useQuery(littersQuery), events = useQuery(litterEventsQuery);
   const [month, setMonth] = useState(() => todayISO().slice(0, 7));
   const inMonth = useMemo(() => (entries.data ?? []).filter((e) => e.entry_date.startsWith(month)), [entries.data, month]);
@@ -81,13 +83,14 @@ function EntryDialog() {
   return <FormDialog title="Novo lançamento" trigger={<Button size="sm"><Plus className="mr-1 h-4 w-4" />Novo lançamento</Button>}>{(close) =>
     <form className="space-y-4" onSubmit={async (e) => { e.preventDefault(); const f = new FormData(e.currentTarget); const amount = Number(String(f.get("amount")).replace(",", "."));
       if (!(amount > 0)) return void toast.error("Informe um valor maior que zero."); setBusy(true);
-      const { error } = await supabase.from("finance_entries").insert({ entry_type: type, category: String(f.get("cat")), description: String(f.get("desc") || "") || null, counterpart: String(f.get("who") || "") || null, amount, entry_date: String(f.get("date")), status: String(f.get("status")), due_date: String(f.get("due") || "") || null });
+      const { error } = await supabase.from("finance_entries").insert({ entry_type: type, category: String(f.get("cat")), description: String(f.get("desc") || "") || null, counterpart: String(f.get("who") || "") || null, amount, entry_date: String(f.get("date")), status: String(f.get("status")), due_date: String(f.get("due") || "") || null, paid_at: String(f.get("status")) === "pago" ? String(f.get("date")) : null, cost_center: String(f.get("center") || "") || null, supplier_id: String(f.get("supplier") || "") || null, document_number: String(f.get("doc") || "") || null, batch_id: String(f.get("batch") || "") || null });
       setBusy(false); if (error) return void toast.error(error.message); toast.success("Lançamento salvo."); qc.invalidateQueries({ queryKey: ["finance_entries"] }); close(); }}>
       <div className="grid grid-cols-2 gap-2">{(["despesa", "receita"] as const).map((t) => <Button key={t} type="button" variant={type === t ? "default" : "outline"} onClick={() => setType(t)}>{t === "despesa" ? "Despesa" : "Receita"}</Button>)}</div>
-      <Field label="Categoria"><select name="cat" className={selectCls}>{CATS[type].map((c) => <option key={c}>{c}</option>)}</select></Field>
+      <div className="grid grid-cols-2 gap-3"><Field label="Categoria"><select name="cat" className={selectCls}>{FINANCE_CATEGORIES[type].map((c) => <option key={c}>{c}</option>)}</select></Field><Field label="Centro de custo"><select name="center" className={selectCls} defaultValue=""><option value="">Não classificado</option>{Object.entries(COST_CENTERS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></Field></div>
+      <EntryLinks />
       <div className="grid grid-cols-2 gap-3"><Field label="Valor (R$)"><Input name="amount" inputMode="decimal" required className="h-11" placeholder="0,00" /></Field><Field label="Data"><Input name="date" type="date" defaultValue={todayISO()} required className="h-11" /></Field></div>
       <div className="grid grid-cols-2 gap-3"><Field label="Situação"><select name="status" className={selectCls}><option value="pago">{type === "receita" ? "Recebido" : "Pago"}</option><option value="pendente">Pendente</option></select></Field><Field label="Vencimento"><Input name="due" type="date" className="h-11" /></Field></div>
-      <Field label={type === "receita" ? "Cliente" : "Fornecedor"}><Input name="who" className="h-11" /></Field>
+      <div className="grid grid-cols-2 gap-3"><Field label={type === "receita" ? "Cliente" : "Fornecedor (texto livre)"}><Input name="who" className="h-11" /></Field><Field label="Documento / NF"><Input name="doc" className="h-11" /></Field></div>
       <Field label="Descrição"><Input name="desc" className="h-11" /></Field>
       <SubmitRow busy={busy} label="Salvar lançamento" />
     </form>}</FormDialog>;
@@ -144,5 +147,22 @@ function Stat({ label, value, hint, tone }: { label: string; value: string; hint
       <p className={`mt-1 font-mono text-lg font-semibold ${tone ?? ""}`}>{value}</p>
       {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
     </div>
+  );
+}
+
+function Financeiro() {
+  return (
+    <Tabs defaultValue="mes" className="space-y-4">
+      <TabsList className="no-print flex h-auto flex-wrap">
+        <TabsTrigger value="mes">Mês e relatório</TabsTrigger>
+        <TabsTrigger value="contas">Contas a pagar e receber</TabsTrigger>
+        <TabsTrigger value="caixa">Fluxo de caixa</TabsTrigger>
+        <TabsTrigger value="custos">Custos</TabsTrigger>
+      </TabsList>
+      <TabsContent value="mes"><MonthReport /></TabsContent>
+      <TabsContent value="contas"><OpenAccountsTab /></TabsContent>
+      <TabsContent value="caixa"><CashFlowTab /></TabsContent>
+      <TabsContent value="custos"><CostsTab /></TabsContent>
+    </Tabs>
   );
 }

@@ -14,6 +14,276 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_questions: {
+        Row: {
+          answer: string | null
+          created_at: string
+          created_by: string
+          id: string
+          mode: string
+          question: string
+        }
+        Insert: {
+          answer?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          mode: string
+          question: string
+        }
+        Update: { [key: string]: never }
+        Relationships: []
+      }
+      health_protocols: {
+        Row: {
+          active: boolean
+          anchor: string
+          created_at: string
+          created_by: string | null
+          dose_instructions: string | null
+          id: string
+          kind: string
+          name: string
+          notes: string | null
+          offset_days: number
+          product: string | null
+          repeat_every_days: number | null
+          target: string
+          updated_at: string
+          validated_at: string | null
+          validated_by: string | null
+          validated_by_name: string | null
+        }
+        Insert: {
+          active?: boolean
+          anchor: string
+          created_at?: string
+          created_by?: string | null
+          dose_instructions?: string | null
+          id?: string
+          kind: string
+          name: string
+          notes?: string | null
+          offset_days: number
+          product?: string | null
+          repeat_every_days?: number | null
+          target: string
+          updated_at?: string
+          validated_at?: string | null
+          validated_by?: string | null
+          validated_by_name?: string | null
+        }
+        Update: {
+          active?: boolean
+          anchor?: string
+          created_at?: string
+          created_by?: string | null
+          dose_instructions?: string | null
+          id?: string
+          kind?: string
+          name?: string
+          notes?: string | null
+          offset_days?: number
+          product?: string | null
+          repeat_every_days?: number | null
+          target?: string
+          updated_at?: string
+          validated_at?: string | null
+          validated_by?: string | null
+          validated_by_name?: string | null
+        }
+        Relationships: []
+      }
+      suppliers: {
+        Row: {
+          active: boolean
+          category: string | null
+          created_at: string
+          created_by: string | null
+          document: string | null
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+        }
+        Insert: {
+          active?: boolean
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          document?: string | null
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+        }
+        Update: {
+          active?: boolean
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          document?: string | null
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+        }
+        Relationships: []
+      }
+      stock_items: {
+        Row: {
+          active: boolean
+          category: string
+          created_at: string
+          created_by: string | null
+          current_stock: number
+          id: string
+          location: string | null
+          minimum_stock: number
+          name: string
+          notes: string | null
+          supplier_id: string | null
+          unit: string
+        }
+        Insert: {
+          active?: boolean
+          category: string
+          created_at?: string
+          created_by?: string | null
+          current_stock?: number
+          id?: string
+          location?: string | null
+          minimum_stock?: number
+          name: string
+          notes?: string | null
+          supplier_id?: string | null
+          unit: string
+        }
+        Update: {
+          active?: boolean
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          current_stock?: number
+          id?: string
+          location?: string | null
+          minimum_stock?: number
+          name?: string
+          notes?: string | null
+          supplier_id?: string | null
+          unit?: string
+        }
+        Relationships: []
+      }
+      stock_movements: {
+        Row: {
+          balance_after: number | null
+          created_at: string
+          created_by: string | null
+          expiry_date: string | null
+          from_location: string | null
+          id: string
+          invoice_number: string | null
+          item_id: string
+          lot: string | null
+          movement_date: string
+          movement_type: string
+          quantity: number
+          reason: string | null
+          responsible: string | null
+          supplier_id: string | null
+          to_location: string | null
+          unit_cost: number | null
+        }
+        Insert: {
+          balance_after?: number | null
+          created_at?: string
+          created_by?: string | null
+          expiry_date?: string | null
+          from_location?: string | null
+          id?: string
+          invoice_number?: string | null
+          item_id: string
+          lot?: string | null
+          movement_date?: string
+          movement_type: string
+          quantity: number
+          reason?: string | null
+          responsible?: string | null
+          supplier_id?: string | null
+          to_location?: string | null
+          unit_cost?: number | null
+        }
+        Update: { [key: string]: never }
+        Relationships: []
+      }
+      farm_settings: {
+        Row: {
+          approach_day: number
+          attention_start_day: number
+          diagnosis_day: number | null
+          farm_name: string
+          gestation_days: number
+          heat_end_day: number
+          heat_prep_day: number
+          heat_start_day: number
+          id: boolean
+          intensive_day: number
+          maternity_transfer_day: number | null
+          updated_at: string
+          updated_by: string | null
+          weaning_age_days: number | null
+        }
+        Insert: { [key: string]: never }
+        Update: {
+          approach_day?: number
+          attention_start_day?: number
+          diagnosis_day?: number | null
+          farm_name?: string
+          gestation_days?: number
+          heat_end_day?: number
+          heat_prep_day?: number
+          heat_start_day?: number
+          intensive_day?: number
+          maternity_transfer_day?: number | null
+          weaning_age_days?: number | null
+        }
+        Relationships: []
+      }
+      audit_logs: {
+        Row: {
+          action: string
+          actor_id: string | null
+          actor_role: string | null
+          changed_fields: string[] | null
+          id: number
+          new_data: Json | null
+          occurred_at: string
+          old_data: Json | null
+          origin: string
+          record_id: string | null
+          table_name: string
+        }
+        Insert: { [key: string]: never }
+        Update: { [key: string]: never }
+        Relationships: []
+      }
+      user_access: {
+        Row: {
+          active: boolean
+          last_seen_at: string | null
+          role: string
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+        }
+        Insert: { [key: string]: never }
+        Update: { [key: string]: never }
+        Relationships: []
+      }
       ai_health_analyses: {
         Row: {
           affected_count: number | null
@@ -529,6 +799,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           id: string
+          invoice_number: string | null
           lot_id: string | null
           medication_id: string
           movement_date: string
@@ -537,12 +808,15 @@ export type Database = {
           reason: string | null
           reference_text: string | null
           responsible: string | null
+          supplier_id: string | null
           unit: string
+          unit_cost: number | null
         }
         Insert: {
           created_at?: string
           created_by?: string | null
           id?: string
+          invoice_number?: string | null
           lot_id?: string | null
           medication_id: string
           movement_date?: string
@@ -551,12 +825,15 @@ export type Database = {
           reason?: string | null
           reference_text?: string | null
           responsible?: string | null
+          supplier_id?: string | null
           unit: string
+          unit_cost?: number | null
         }
         Update: {
           created_at?: string
           created_by?: string | null
           id?: string
+          invoice_number?: string | null
           lot_id?: string | null
           medication_id?: string
           movement_date?: string
@@ -565,7 +842,9 @@ export type Database = {
           reason?: string | null
           reference_text?: string | null
           responsible?: string | null
+          supplier_id?: string | null
           unit?: string
+          unit_cost?: number | null
         }
         Relationships: [
           {
@@ -661,29 +940,38 @@ export type Database = {
       }
       farm_pens: {
         Row: {
+          animal_type: string | null
+          building: string | null
           capacity: number
           code: string
           created_at: string
           id: string
           notes: string | null
+          room: string | null
           sector: string
           status: string
         }
         Insert: {
+          animal_type?: string | null
+          building?: string | null
           capacity: number
           code: string
           created_at?: string
           id?: string
           notes?: string | null
+          room?: string | null
           sector: string
           status?: string
         }
         Update: {
+          animal_type?: string | null
+          building?: string | null
           capacity?: number
           code?: string
           created_at?: string
           id?: string
           notes?: string | null
+          room?: string | null
           sector?: string
           status?: string
         }
@@ -739,6 +1027,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           id: string
+          invoice_number: string | null
           movement_date: string
           movement_type: string
           notes: string | null
@@ -746,11 +1035,14 @@ export type Database = {
           pen_record_id: string | null
           product_id: string
           quantity_kg: number
+          supplier_id: string | null
+          unit_cost: number | null
         }
         Insert: {
           created_at?: string
           created_by?: string | null
           id?: string
+          invoice_number?: string | null
           movement_date?: string
           movement_type: string
           notes?: string | null
@@ -758,11 +1050,14 @@ export type Database = {
           pen_record_id?: string | null
           product_id: string
           quantity_kg: number
+          supplier_id?: string | null
+          unit_cost?: number | null
         }
         Update: {
           created_at?: string
           created_by?: string | null
           id?: string
+          invoice_number?: string | null
           movement_date?: string
           movement_type?: string
           notes?: string | null
@@ -770,6 +1065,8 @@ export type Database = {
           pen_record_id?: string | null
           product_id?: string
           quantity_kg?: number
+          supplier_id?: string | null
+          unit_cost?: number | null
         }
         Relationships: [
           {
@@ -836,43 +1133,58 @@ export type Database = {
           amount: number
           batch_id: string | null
           category: string
+          cost_center: string | null
           counterpart: string | null
           created_at: string
           created_by: string | null
           description: string | null
+          document_number: string | null
           due_date: string | null
           entry_date: string
           entry_type: string
           id: string
+          paid_at: string | null
+          payment_method: string | null
           status: string
+          supplier_id: string | null
         }
         Insert: {
           amount: number
           batch_id?: string | null
           category: string
+          cost_center?: string | null
           counterpart?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
+          document_number?: string | null
           due_date?: string | null
           entry_date?: string
           entry_type: string
           id?: string
+          paid_at?: string | null
+          payment_method?: string | null
           status?: string
+          supplier_id?: string | null
         }
         Update: {
           amount?: number
           batch_id?: string | null
           category?: string
+          cost_center?: string | null
           counterpart?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
+          document_number?: string | null
           due_date?: string | null
           entry_date?: string
           entry_type?: string
           id?: string
+          paid_at?: string | null
+          payment_method?: string | null
           status?: string
+          supplier_id?: string | null
         }
         Relationships: [
           {
@@ -1226,37 +1538,64 @@ export type Database = {
       }
       litter_events: {
         Row: {
+          cause: string | null
           created_at: string
           created_by: string | null
+          destination: string | null
+          destination_pen_id: string | null
           event_date: string
           event_type: string
+          females: number | null
           id: string
           litter_id: string
+          males: number | null
           note: string | null
+          piglet_id: string | null
           quantity: number
+          related_litter_id: string | null
+          responsible: string | null
           value: number | null
+          weight_kg: number | null
         }
         Insert: {
+          cause?: string | null
           created_at?: string
           created_by?: string | null
+          destination?: string | null
+          destination_pen_id?: string | null
           event_date?: string
           event_type: string
+          females?: number | null
           id?: string
           litter_id: string
+          males?: number | null
           note?: string | null
+          piglet_id?: string | null
           quantity?: number
+          related_litter_id?: string | null
+          responsible?: string | null
           value?: number | null
+          weight_kg?: number | null
         }
         Update: {
+          cause?: string | null
           created_at?: string
           created_by?: string | null
+          destination?: string | null
+          destination_pen_id?: string | null
           event_date?: string
           event_type?: string
+          females?: number | null
           id?: string
           litter_id?: string
+          males?: number | null
           note?: string | null
+          piglet_id?: string | null
           quantity?: number
+          related_litter_id?: string | null
+          responsible?: string | null
           value?: number | null
+          weight_kg?: number | null
         }
         Relationships: [
           {
@@ -1283,7 +1622,9 @@ export type Database = {
           farrowing_notes: string | null
           id: string
           mummified: number
+          pen_id: string | null
           responsible: string | null
+          runts: number | null
           sow_id: string
           start_time: string | null
           status: string
@@ -1307,7 +1648,9 @@ export type Database = {
           farrowing_notes?: string | null
           id?: string
           mummified?: number
+          pen_id?: string | null
           responsible?: string | null
+          runts?: number | null
           sow_id: string
           start_time?: string | null
           status?: string
@@ -1331,7 +1674,9 @@ export type Database = {
           farrowing_notes?: string | null
           id?: string
           mummified?: number
+          pen_id?: string | null
           responsible?: string | null
+          runts?: number | null
           sow_id?: string
           start_time?: string | null
           status?: string
@@ -1589,42 +1934,75 @@ export type Database = {
       piglet_identifications: {
         Row: {
           australian_number: number
+          birth_condition: string | null
           birth_date: string | null
           birth_weight_kg: number | null
+          castration_date: string | null
+          colostrum_checked: boolean | null
           created_at: string
           created_by: string | null
+          death_cause: string | null
+          death_date: string | null
           id: string
+          iron_date: string | null
           litter_id: string
           marked_date: string
           notes: string | null
+          pen_id: string | null
           piglet_number: number
           sex: string | null
+          status: string
+          tail_dock_date: string | null
+          weaning_date: string | null
+          weaning_weight_kg: number | null
         }
         Insert: {
           australian_number: number
+          birth_condition?: string | null
           birth_date?: string | null
           birth_weight_kg?: number | null
+          castration_date?: string | null
+          colostrum_checked?: boolean | null
           created_at?: string
           created_by?: string | null
+          death_cause?: string | null
+          death_date?: string | null
           id?: string
+          iron_date?: string | null
           litter_id: string
           marked_date?: string
           notes?: string | null
+          pen_id?: string | null
           piglet_number: number
           sex?: string | null
+          status?: string
+          tail_dock_date?: string | null
+          weaning_date?: string | null
+          weaning_weight_kg?: number | null
         }
         Update: {
           australian_number?: number
+          birth_condition?: string | null
           birth_date?: string | null
           birth_weight_kg?: number | null
+          castration_date?: string | null
+          colostrum_checked?: boolean | null
           created_at?: string
           created_by?: string | null
+          death_cause?: string | null
+          death_date?: string | null
           id?: string
+          iron_date?: string | null
           litter_id?: string
           marked_date?: string
           notes?: string | null
+          pen_id?: string | null
           piglet_number?: number
           sex?: string | null
+          status?: string
+          tail_dock_date?: string | null
+          weaning_date?: string | null
+          weaning_weight_kg?: number | null
         }
         Relationships: [
           {
@@ -1757,28 +2135,34 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string | null
+          destination: string | null
           event_date: string
           event_type: string
           id: string
           notes: string | null
+          sale_value: number | null
           sow_id: string
         }
         Insert: {
           created_at?: string
           created_by?: string | null
+          destination?: string | null
           event_date?: string
           event_type: string
           id?: string
           notes?: string | null
+          sale_value?: number | null
           sow_id: string
         }
         Update: {
           created_at?: string
           created_by?: string | null
+          destination?: string | null
           event_date?: string
           event_type?: string
           id?: string
           notes?: string | null
+          sale_value?: number | null
           sow_id?: string
         }
         Relationships: [
@@ -1793,34 +2177,79 @@ export type Database = {
       }
       sows: {
         Row: {
+          archived_at: string | null
+          archived_by: string | null
+          archived_reason: string | null
           birth_date: string | null
           breed: string | null
+          category: string | null
+          condition: string | null
           created_at: string
+          dam: string | null
           ear_tag: string
+          entry_date: string | null
+          group_label: string | null
           id: string
+          lineage: string | null
           name: string | null
           notes: string | null
+          origin: string | null
+          pen_id: string | null
+          photo_path: string | null
+          sire: string | null
           status: string
+          weight_date: string | null
+          weight_kg: number | null
         }
         Insert: {
+          archived_at?: string | null
+          archived_by?: string | null
+          archived_reason?: string | null
           birth_date?: string | null
           breed?: string | null
+          category?: string | null
+          condition?: string | null
           created_at?: string
+          dam?: string | null
           ear_tag: string
+          entry_date?: string | null
+          group_label?: string | null
           id?: string
+          lineage?: string | null
           name?: string | null
           notes?: string | null
+          origin?: string | null
+          pen_id?: string | null
+          photo_path?: string | null
+          sire?: string | null
           status?: string
+          weight_date?: string | null
+          weight_kg?: number | null
         }
         Update: {
+          archived_at?: string | null
+          archived_by?: string | null
+          archived_reason?: string | null
           birth_date?: string | null
           breed?: string | null
+          category?: string | null
+          condition?: string | null
           created_at?: string
+          dam?: string | null
           ear_tag?: string
+          entry_date?: string | null
+          group_label?: string | null
           id?: string
+          lineage?: string | null
           name?: string | null
           notes?: string | null
+          origin?: string | null
+          pen_id?: string | null
+          photo_path?: string | null
+          sire?: string | null
           status?: string
+          weight_date?: string | null
+          weight_kg?: number | null
         }
         Relationships: []
       }
@@ -1828,10 +2257,13 @@ export type Database = {
         Row: {
           assignee_id: string | null
           completed_at: string | null
+          completed_by: string | null
           created_at: string
+          created_by: string | null
           due_date: string | null
           id: string
           litter_id: string | null
+          notes: string | null
           priority: string
           sector: string | null
           sow_id: string | null
@@ -1841,10 +2273,13 @@ export type Database = {
         Insert: {
           assignee_id?: string | null
           completed_at?: string | null
+          completed_by?: string | null
           created_at?: string
+          created_by?: string | null
           due_date?: string | null
           id?: string
           litter_id?: string | null
+          notes?: string | null
           priority?: string
           sector?: string | null
           sow_id?: string | null
@@ -1854,10 +2289,13 @@ export type Database = {
         Update: {
           assignee_id?: string | null
           completed_at?: string | null
+          completed_by?: string | null
           created_at?: string
+          created_by?: string | null
           due_date?: string | null
           id?: string
           litter_id?: string | null
+          notes?: string | null
           priority?: string
           sector?: string | null
           sow_id?: string | null
@@ -2189,6 +2627,34 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      access_role: { Args: never; Returns: string | null }
+      can_delete: { Args: never; Returns: boolean }
+      can_manage_farm: { Args: never; Returns: boolean }
+      can_manage_health: { Args: never; Returns: boolean }
+      can_view_audit: { Args: never; Returns: boolean }
+      can_write: { Args: never; Returns: boolean }
+      farm_users: {
+        Args: never
+        Returns: {
+          active: boolean
+          display_name: string | null
+          email: string | null
+          joined_at: string | null
+          last_seen_at: string | null
+          role: string
+          user_id: string
+        }[]
+      }
+      is_farm_admin: { Args: never; Returns: boolean }
+      set_user_access: {
+        Args: { p_active: boolean; p_role: string; p_user_id: string }
+        Returns: undefined
+      }
+      touch_last_seen: { Args: never; Returns: undefined }
+      transfer_piglets: {
+        Args: { p_date: string; p_from: string; p_quantity: number; p_reason: string; p_responsible: string; p_to: string }
+        Returns: undefined
+      }
       create_farm_access_code: { Args: { p_code: string }; Returns: undefined }
       delete_sow: { Args: { p_sow_id: string }; Returns: undefined }
       has_role: {
