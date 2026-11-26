@@ -6,7 +6,6 @@ import { accessQuery, ROLE_INFO } from "@/lib/access";
 import { InstallAppButton } from "@/components/farm/InstallAppButton";
 import { GlobalSearchResults } from "@/components/farm/GlobalSearchResults";
 import { RemindersBell } from "@/components/farm/RemindersBell";
-import { Splash } from "@/components/farm/motion";
 import { SyncStatus, useOnline } from "@/components/farm/OfflineSync";
 import { supabase } from "@/integrations/supabase/client";
 import { Wordmark, LogoMark } from "@/components/farm/Logo";
@@ -93,9 +92,9 @@ function Shell(){
  </div>;
 
  const iconBtn="items-center h-10 w-10 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition-colors hover:bg-muted hover:text-foreground";
- return <TooltipProvider delayDuration={200}><Splash><div className="text-center text-white"><LogoMark className="mx-auto h-24 w-24 drop-shadow-[0_16px_40px_rgba(0,0,0,.45)]" animated/><p className="mt-5 text-xl font-extrabold tracking-tight">Fazenda Santo Antônio</p><p className="mt-1 text-[.62rem] font-bold uppercase tracking-[.26em] text-[#E3C77F]">Preparando a granja</p><div className="mx-auto mt-6 h-1 w-40 overflow-hidden rounded-full bg-white/15"><div className="splash-bar h-full w-full bg-[#E3C77F]"/></div></div></Splash><div className={`min-h-screen bg-background transition-[padding] duration-300 ${collapsed?"md:pl-[76px]":"md:pl-[264px]"}`}>
+ return <TooltipProvider delayDuration={200}><div className={`min-h-screen bg-background transition-[padding] duration-300 ${collapsed?"md:pl-[76px]":"md:pl-[264px]"}`}>
   <aside className={`sidebar-surface fixed inset-y-0 left-0 z-30 hidden flex-col overflow-y-auto bg-sidebar py-5 transition-[width] duration-300 md:flex ${collapsed?"w-[76px] px-3":"w-[264px] px-3"}`}>
-   <div className={`mb-7 flex items-center ${collapsed?"justify-center":"justify-between px-2"}`}>{collapsed?<LogoMark className="h-10 w-10" animated/>:<Wordmark animated/>}</div>
+   <div className={`mb-7 flex items-center ${collapsed?"justify-center":"justify-between px-2"}`}>{collapsed?<LogoMark className="h-10 w-10"/>:<Wordmark/>}</div>
    {navList(collapsed)}
    {userBox(collapsed)}
   </aside>

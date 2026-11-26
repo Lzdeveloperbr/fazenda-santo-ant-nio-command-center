@@ -67,6 +67,6 @@ do $$ begin
   begin
     insert into public.farm_settings (id) values (false);
     raise exception 'segunda linha deveria falhar';
-  exception when check_violation then null; end;
+  exception when check_violation or unique_violation then null; end; -- 0022: uma linha por granja
   assert exists (select 1 from storage.buckets where id = 'sow-photos' and public = false), 'bucket privado de fotos';
 end $$;

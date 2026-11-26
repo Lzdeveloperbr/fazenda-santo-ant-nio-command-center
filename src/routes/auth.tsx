@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BrandLockup, LogoMark } from "@/components/farm/Logo";
-import { Landscape3D } from "@/components/farm/Landscape3D";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -133,11 +132,9 @@ function AuthPage() {
     <main className="grid min-h-screen bg-background lg:grid-cols-[1.1fr_1fr]">
       {/* Painel da marca com a paisagem 3D */}
       <section className="brand-aurora relative hidden overflow-hidden text-white lg:flex lg:flex-col">
-        <Landscape3D className="absolute inset-0 opacity-90" />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#06190f] via-[#06190f]/30 to-transparent" />
         <div className="relative z-10 flex h-full flex-col justify-between p-10 xl:p-14">
           <Link to="/" className="w-fit">
-            <BrandLockup size="lg" />
+            <BrandLockup size="lg" animated={false} />
           </Link>
           <div className="max-w-md">
             <p className="text-sm font-semibold text-[#E3C77F]">Command Center da suinocultura</p>
@@ -171,7 +168,7 @@ function AuthPage() {
         <div className="relative w-full max-w-md">
           <div className="mb-6 flex justify-center lg:hidden">
             <Link to="/">
-              <LogoMark className="h-20 w-20 drop-shadow-[0_12px_28px_rgba(0,0,0,.35)]" animated />
+              <LogoMark className="h-20 w-20 drop-shadow-[0_12px_28px_rgba(0,0,0,.35)]" />
             </Link>
           </div>
           <div className="panel animate-rise p-6 sm:p-8">
