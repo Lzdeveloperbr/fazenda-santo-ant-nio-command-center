@@ -1,10 +1,11 @@
 import { createFileRoute, redirect, Outlet, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, PiggyBank, Baby, ListChecks, LogOut, Menu, X, Layers3, HeartPulse, Wheat, TrendingUp, Fence, Ear, BrainCircuit, BookOpen, Box, Warehouse, ClipboardCheck, Radar, Wallet, Calculator, Search, Moon, Sun, PanelLeftClose, PanelLeftOpen, ChevronRight, LayoutGrid, HeartHandshake, Users, History, Eye, Skull, Package } from "lucide-react";
+import { LayoutDashboard, PiggyBank, Baby, ListChecks, LogOut, Menu, X, Layers3, HeartPulse, Wheat, TrendingUp, Fence, Ear, BrainCircuit, BookOpen, Box, Warehouse, ClipboardCheck, Radar, Wallet, Calculator, Search, Moon, Sun, PanelLeftClose, PanelLeftOpen, ChevronRight, LayoutGrid, HeartHandshake, Users, History, Eye, Skull, Package, CalendarDays, FileBarChart } from "lucide-react";
 import { accessQuery, ROLE_INFO } from "@/lib/access";
 import { InstallAppButton } from "@/components/farm/InstallAppButton";
 import { GlobalSearchResults } from "@/components/farm/GlobalSearchResults";
+import { RemindersBell } from "@/components/farm/RemindersBell";
 import { supabase } from "@/integrations/supabase/client";
 import { Wordmark, LogoMark } from "@/components/farm/Logo";
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -19,9 +20,11 @@ export const Route = createFileRoute("/_authenticated")({
 const GROUPS=["Gestão","Ferramentas","Gestação e reprodução","Rebanho","Manejo e saúde","Visualização 3D"] as const;
 const NAV=[
  {to:"/painel",label:"Visão geral",short:"Início",icon:LayoutDashboard,group:"Gestão"},
+ {to:"/agenda",label:"Agenda da granja",short:"Agenda",icon:CalendarDays,group:"Gestão"},
  {to:"/inteligencia",label:"Pendências e previsões",short:"Pendências",icon:Radar,group:"Gestão"},
  {to:"/auditoria",label:"Auditoria e qualidade",short:"Auditoria",icon:ClipboardCheck,group:"Gestão"},
  {to:"/financeiro",label:"Financeiro e relatório",short:"Financeiro",icon:Wallet,group:"Gestão"},
+ {to:"/relatorios",label:"Central de relatórios",short:"Relatórios",icon:FileBarChart,group:"Gestão"},
  {to:"/desempenho",label:"Desempenho",short:"Desempenho",icon:TrendingUp,group:"Gestão"},
  {to:"/usuarios",label:"Equipe e permissões",short:"Equipe",icon:Users,group:"Gestão",restricted:true},
  {to:"/historico",label:"Histórico de alterações",short:"Histórico",icon:History,group:"Gestão",restricted:true},
@@ -105,6 +108,7 @@ function Shell(){
     <div className="ml-auto flex shrink-0 items-center gap-2">
      <button onClick={()=>setSearchOpen(true)} className="hidden h-10 items-center gap-2 rounded-lg border border-border bg-card px-3 text-sm text-muted-foreground hover:bg-muted lg:flex lg:w-64"><Search className="h-4 w-4"/><span className="flex-1 text-left">Buscar na granja…</span><kbd className="rounded border border-border bg-muted px-1.5 font-mono text-[.65rem]">Ctrl K</kbd></button>
      <button onClick={()=>setSearchOpen(true)} className={`${iconBtn} inline-flex lg:hidden`} aria-label="Buscar"><Search className="h-[18px] w-[18px]"/></button>
+     {role&&<RemindersBell className={iconBtn}/>}
      <InstallAppButton />
      <button onClick={toggle} className={`${iconBtn} inline-flex`} aria-label={theme==="dark"?"Usar tema claro":"Usar tema escuro"}>{theme==="dark"?<Sun className="h-[18px] w-[18px]"/>:<Moon className="h-[18px] w-[18px]"/>}</button>
      <div className="hidden pl-2 text-right sm:block"><p className="font-mono text-sm font-semibold tabular-nums">{now.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}</p><p className="text-[.65rem] capitalize text-muted-foreground">{now.toLocaleDateString("pt-BR",{weekday:"short",day:"2-digit",month:"short"})}</p></div>

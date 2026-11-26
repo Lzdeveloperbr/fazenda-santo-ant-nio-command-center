@@ -48,23 +48,23 @@ Legenda: ✅ funciona · 🟡 parcial · ❌ não existe
 | # | Seção | Situação | O que existe / o que falta |
 |---|---|---|---|
 | 1 | Preservar projeto | ✅ | Análise feita; mudanças incrementais e não destrutivas |
-| 2 | Dashboard | 🟡 | `/painel` com indicadores reais e filtros de período; `/inteligencia` com pendências. Faltam vários indicadores financeiros/estoque no painel e alertas de ferro/vacina por leitão |
+| 2 | Dashboard | ✅ **Fase 5** | Painel com filtros de período, situação do plantel (15 estados), taxas de parto/concepção, estoque, consumo diário de ração, financeiro, gráficos de 12 meses e alertas inteligentes |
 | 3 | Prontuário da matriz | ✅ **Fase 2** | Ver seção 4.1. Falta histórico de mudanças de baia como evento próprio (hoje aparece no Histórico de alterações) |
 | 4 | Reprodução | 🟡 | Ciclos, cio, retorno, reprodutores, calendário, indicadores; **prazos agora configuráveis no banco (Fase 2)**. Faltam cadastro de lotes de sêmen e término de cio |
 | 5 | Gestação | ✅/🟡 | Diagnósticos, perdas, alertas derivados de datas, linha do tempo. Falta condição corporal e alimentação por matriz |
 | 6 | Maternidade | ✅ **Fase 3** | Parto com início/fim, responsável, intercorrências, mumificados, refugos e baia; ficha de mortalidade completa; indicadores com denominadores |
 | 7 | Leitões | ✅ **Fase 3** | Prontuário individual (sexo, peso, condição, colostragem, ferro, cauda, castração, baia, morte, desmame), pendências, visão por leitegada e adoções |
-| 8 | Desmame | 🟡 | Desmame com machos/fêmeas, peso médio, destino e baia (Fase 3); idade e peso ao desmame calculados. Falta intervalo desmame-cio por matriz (Fase 5, indicadores) |
-| 9 | Sanidade | 🟡 | Registros, ocorrências, tratamentos veterinários vinculados a lote de medicamento, carência informada. Falta calendário sanitário com protocolos configuráveis |
+| 8 | Desmame | ✅ **Fases 3 e 5** | Desmame com machos/fêmeas, peso, destino e baia; idade, peso, mortalidade pré-desmame e intervalo desmame-cio calculados |
+| 9 | Sanidade | ✅ **Fase 5** | Protocolos sanitários configuráveis (sem nenhum valor pronto), que só geram lembretes depois de validados por veterinário/gestão; alteração exige nova validação |
 | 10 | Estoque e farmácia | ✅ **Fase 4** | Estoque geral (`/almoxarifado`) com entrada, saída, devolução, transferência e ajuste de inventário (só gestão), lote, validade, NF, custo, fornecedor; saldo só por movimentação; saída acima do saldo recusada; alertas consolidados de materiais, ração e farmácia |
 | 11 | Ração e nutrição | 🟡 | Rações, movimentos, consumo por baia/lote. Faltam planos por fase e histórico por matriz |
 | 12 | Baias | 🟡 | Galpão e sala, matrizes/leitegadas vinculadas e bloqueio de lotação de matrizes (só gestão autoriza) na Fase 3. Mapa interativo por galpão ainda é o da Granja 3D |
 | 13 | Descarte e mortalidade | ✅ **Fases 3–4** | `/mortalidade` com leitões, matrizes e lotes; descarte com destino, valor de venda e lançamento opcional da receita |
-| 14 | Indicadores | 🟡 | `/desempenho` com indicadores reais. Faltam comparativos mês×mês, ano×ano e exportação |
+| 14 | Indicadores | ✅ **Fase 5** | Relatório de indicadores com período atual × anterior × ano anterior e base de cálculo; matriz × média do plantel; GMD e conversão por lote quando há dados; exportação |
 | 15 | Financeiro | ✅ **Fase 4** | Contas a pagar/receber com baixa e atraso, fluxo de caixa com realizado e previsto separados, centros de custo, custo por lote, fornecedores, documento/NF |
-| 16 | Calendário | 🟡 | Calendário reprodutivo e tarefas. Falta agenda geral dia/semana/mês unificada e "quem executou" em todas as tarefas |
+| 16 | Calendário | ✅ **Fase 5** | `/agenda` dia/semana/mês com previsões marcadas, protocolos, vacinas, tratamentos, desmames, contas, validades e tarefas; conclusão registra quem executou; sino de lembretes no topo |
 | 17 | Santo Antônio AI | 🟡 | Edge Function `vet-assistant` (organiza observações, não prescreve). Falta assistente de perguntas sobre os dados |
-| 18 | Relatórios | 🟡 | Impressão/PDF e CSV em alguns módulos. Falta central única, Excel e filtros padronizados |
+| 18 | Relatórios | ✅ **Fase 5** | `/relatorios` com os 18 relatórios, filtros de período/matriz/lote/usuário, PDF com identidade da fazenda, Excel (.xlsx), CSV e impressão |
 | 19 | Usuários e permissões | ✅ **Fase 1** | Ver seção 4 |
 | 20 | PWA | 🟡 | Manifest, ícones, service worker de cache estático, botão instalar. Falta modo offline com fila de sincronização |
 | 21 | Design | 🟡 | Sidebar, tema claro/escuro, cards. Ajustes contínuos por módulo |
@@ -117,6 +117,12 @@ Legenda: ✅ funciona · 🟡 parcial · ❌ não existe
 - Migration `0018_estoque_fornecedores_financeiro.sql`: `suppliers`, `stock_items`, `stock_movements` (imutáveis: sem alteração nem exclusão; correção por ajuste com motivo, só Administrador/Gerente); fornecedor, NF e custo nas entradas de ração e farmácia; centro de custo, data e forma de pagamento e documento no financeiro (pendente não pode ter data de pagamento); destino e valor de venda no descarte.
 - Telas: **Estoque geral e fornecedores** e abas novas no Financeiro (contas, fluxo de caixa, custos).
 - Pendências conhecidas: o saldo bancário inicial não existe no sistema (o fluxo acumulado começa em zero); ração e medicamentos só entram no custo do lote se tiverem lançamento financeiro.
+
+## 4.4 Fase 5 — entregue
+
+- Migration `0019_agenda_protocolos_sanitarios.sql`: `tasks.created_by/completed_by/notes` (preenchidos pelo banco), `health_protocols` com validação obrigatória (nome e registro de quem validou), perfil Veterinário pode gerenciar protocolos.
+- Telas: **Agenda da granja**, **Central de relatórios** e complemento do **Painel**; sino de lembretes.
+- Excel gerado no próprio navegador (`fflate`), validado com leitor de planilhas; texto nunca vira fórmula.
 
 ## 5. Próximas fases (ordem recomendada)
 

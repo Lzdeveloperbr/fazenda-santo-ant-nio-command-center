@@ -24,3 +24,18 @@ describe("exportação", () => {
     expect(slug("Relatório de Ração")).toBe("relatorio-de-racao");
   });
 });
+
+describe("xlsx", () => {
+  it("gera um pacote válido com texto protegido e números como números", async () => {
+    const { buildXlsx } = await import("./export");
+    const { unzipSync, strFromU8 } = await import("fflate");
+    const bytes = await buildXlsx("Teste <&>", ["Nome", "Qtd"], [["=SUM(A1)", 3.5], [null, 2]]);
+    const files = unzipSync(bytes);
+    expect(Object.keys(files)).toEqual(expect.arrayContaining(["[Content_Types].xml", "xl/workbook.xml", "xl/worksheets/sheet1.xml"]));
+    const sheet = strFromU8(files["xl/worksheets/sheet1.xml"]!);
+    expect(sheet).toContain('t="inlineStr"');
+    expect(sheet).toContain("<v>3.5</v>");
+    expect(sheet).not.toContain("<f>");
+    expect(strFromU8(files["xl/workbook.xml"]!)).toContain('name="Teste &lt;&amp;&gt;"');
+  });
+});

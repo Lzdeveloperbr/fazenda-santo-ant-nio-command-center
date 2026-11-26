@@ -37,6 +37,8 @@ export type Permissions = {
   canDelete: boolean;
   canViewAudit: boolean;
   canManageUsers: boolean;
+  /** Protocolos sanitários: administrador, gerente ou veterinário. */
+  canManageHealth: boolean;
 };
 
 export function permissionsFor(role: Role | null): Permissions {
@@ -46,6 +48,7 @@ export function permissionsFor(role: Role | null): Permissions {
     canDelete: role === "admin" || role === "gerente",
     canViewAudit: role === "admin" || role === "gerente",
     canManageUsers: role === "admin",
+    canManageHealth: role === "admin" || role === "gerente" || role === "veterinario",
   };
 }
 

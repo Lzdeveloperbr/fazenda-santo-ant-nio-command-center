@@ -19,7 +19,9 @@ describe("permissionsFor", () => {
       canWrite: true,
       canDelete: false,
       canViewAudit: false,
+      canManageHealth: true,
     });
+    expect(permissionsFor("funcionario").canManageHealth).toBe(false);
     expect(permissionsFor("funcionario")).toMatchObject({
       canWrite: true,
       canDelete: false,

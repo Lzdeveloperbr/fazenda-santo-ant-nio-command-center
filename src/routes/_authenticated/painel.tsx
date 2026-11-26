@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { PERIOD_LABEL, periodStart, periodStats, type PeriodKey } from "@/lib/farm/period";
+import { DashboardCommand } from "@/components/farm/DashboardCommand";
 import {
   Activity, AlertTriangle, ArrowRight, Baby, CalendarClock, CheckCircle2,
   ClipboardList, HeartPulse, PiggyBank, Skull, Sprout, TrendingUp, Wheat,
@@ -215,6 +216,8 @@ function Dashboard() {
           <Link to="/tarefas" className="mt-3 flex items-center justify-between rounded-xl border px-3 py-2.5 text-sm font-semibold transition hover:bg-muted"><span>Ver rotina completa</span><ArrowRight className="h-4 w-4" /></Link>
         </section>
       </div>
+
+      <DashboardCommand from={from} to={to} today={today} />
 
       <section className="overflow-hidden rounded-2xl border bg-card shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b p-4 sm:p-5"><div><p className="text-[11px] font-bold uppercase tracking-[.15em] text-muted-foreground">Atalhos de trabalho</p><h2 className="mt-1 text-lg font-bold">Acesse os módulos da granja</h2></div><span className="text-xs text-muted-foreground">Escolha uma área para continuar</span></div>

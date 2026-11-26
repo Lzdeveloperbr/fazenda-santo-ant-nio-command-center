@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      health_protocols: {
+        Row: {
+          active: boolean
+          anchor: string
+          created_at: string
+          created_by: string | null
+          dose_instructions: string | null
+          id: string
+          kind: string
+          name: string
+          notes: string | null
+          offset_days: number
+          product: string | null
+          repeat_every_days: number | null
+          target: string
+          updated_at: string
+          validated_at: string | null
+          validated_by: string | null
+          validated_by_name: string | null
+        }
+        Insert: {
+          active?: boolean
+          anchor: string
+          created_at?: string
+          created_by?: string | null
+          dose_instructions?: string | null
+          id?: string
+          kind: string
+          name: string
+          notes?: string | null
+          offset_days: number
+          product?: string | null
+          repeat_every_days?: number | null
+          target: string
+          updated_at?: string
+          validated_at?: string | null
+          validated_by?: string | null
+          validated_by_name?: string | null
+        }
+        Update: {
+          active?: boolean
+          anchor?: string
+          created_at?: string
+          created_by?: string | null
+          dose_instructions?: string | null
+          id?: string
+          kind?: string
+          name?: string
+          notes?: string | null
+          offset_days?: number
+          product?: string | null
+          repeat_every_days?: number | null
+          target?: string
+          updated_at?: string
+          validated_at?: string | null
+          validated_by?: string | null
+          validated_by_name?: string | null
+        }
+        Relationships: []
+      }
       suppliers: {
         Row: {
           active: boolean
@@ -2177,10 +2237,13 @@ export type Database = {
         Row: {
           assignee_id: string | null
           completed_at: string | null
+          completed_by: string | null
           created_at: string
+          created_by: string | null
           due_date: string | null
           id: string
           litter_id: string | null
+          notes: string | null
           priority: string
           sector: string | null
           sow_id: string | null
@@ -2190,10 +2253,13 @@ export type Database = {
         Insert: {
           assignee_id?: string | null
           completed_at?: string | null
+          completed_by?: string | null
           created_at?: string
+          created_by?: string | null
           due_date?: string | null
           id?: string
           litter_id?: string | null
+          notes?: string | null
           priority?: string
           sector?: string | null
           sow_id?: string | null
@@ -2203,10 +2269,13 @@ export type Database = {
         Update: {
           assignee_id?: string | null
           completed_at?: string | null
+          completed_by?: string | null
           created_at?: string
+          created_by?: string | null
           due_date?: string | null
           id?: string
           litter_id?: string | null
+          notes?: string | null
           priority?: string
           sector?: string | null
           sow_id?: string | null
@@ -2541,6 +2610,7 @@ export type Database = {
       access_role: { Args: never; Returns: string | null }
       can_delete: { Args: never; Returns: boolean }
       can_manage_farm: { Args: never; Returns: boolean }
+      can_manage_health: { Args: never; Returns: boolean }
       can_view_audit: { Args: never; Returns: boolean }
       can_write: { Args: never; Returns: boolean }
       farm_users: {

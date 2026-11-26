@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedAlmoxarifadoRouteImport } from './routes/_authenticated/almoxarifado'
 import { Route as AuthenticatedAuditoriaRouteImport } from './routes/_authenticated/auditoria'
 import { Route as AuthenticatedBaiasRouteImport } from './routes/_authenticated/baias'
@@ -34,6 +35,7 @@ import { Route as AuthenticatedMortalidadeRouteImport } from './routes/_authenti
 import { Route as AuthenticatedMutiraoRouteImport } from './routes/_authenticated/mutirao'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
 import { Route as AuthenticatedPlantelRouteImport } from './routes/_authenticated/plantel'
+import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
 import { Route as AuthenticatedSanidadeRouteImport } from './routes/_authenticated/sanidade'
 import { Route as AuthenticatedTarefasRouteImport } from './routes/_authenticated/tarefas'
 import { Route as AuthenticatedUsuariosRouteImport } from './routes/_authenticated/usuarios'
@@ -52,6 +54,11 @@ const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAgendaRoute = AuthenticatedAgendaRouteImport.update({
+  id: '/agenda',
+  path: '/agenda',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAlmoxarifadoRoute =
   AuthenticatedAlmoxarifadoRouteImport.update({
@@ -169,6 +176,11 @@ const AuthenticatedPlantelRoute = AuthenticatedPlantelRouteImport.update({
   path: '/plantel',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedRelatoriosRoute = AuthenticatedRelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSanidadeRoute = AuthenticatedSanidadeRouteImport.update({
   id: '/sanidade',
   path: '/sanidade',
@@ -194,6 +206,7 @@ const AuthenticatedMatrizesSowIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/agenda': typeof AuthenticatedAgendaRoute
   '/almoxarifado': typeof AuthenticatedAlmoxarifadoRoute
   '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/baias': typeof AuthenticatedBaiasRoute
@@ -216,6 +229,7 @@ export interface FileRoutesByFullPath {
   '/mutirao': typeof AuthenticatedMutiraoRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/plantel': typeof AuthenticatedPlantelRoute
+  '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/sanidade': typeof AuthenticatedSanidadeRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
@@ -224,6 +238,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/agenda': typeof AuthenticatedAgendaRoute
   '/almoxarifado': typeof AuthenticatedAlmoxarifadoRoute
   '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/baias': typeof AuthenticatedBaiasRoute
@@ -246,6 +261,7 @@ export interface FileRoutesByTo {
   '/mutirao': typeof AuthenticatedMutiraoRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/plantel': typeof AuthenticatedPlantelRoute
+  '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/sanidade': typeof AuthenticatedSanidadeRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
@@ -256,6 +272,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/almoxarifado': typeof AuthenticatedAlmoxarifadoRoute
   '/_authenticated/auditoria': typeof AuthenticatedAuditoriaRoute
   '/_authenticated/baias': typeof AuthenticatedBaiasRoute
@@ -278,6 +295,7 @@ export interface FileRoutesById {
   '/_authenticated/mutirao': typeof AuthenticatedMutiraoRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
   '/_authenticated/plantel': typeof AuthenticatedPlantelRoute
+  '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/sanidade': typeof AuthenticatedSanidadeRoute
   '/_authenticated/tarefas': typeof AuthenticatedTarefasRoute
   '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
@@ -288,6 +306,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/agenda'
     | '/almoxarifado'
     | '/auditoria'
     | '/baias'
@@ -310,6 +329,7 @@ export interface FileRouteTypes {
     | '/mutirao'
     | '/painel'
     | '/plantel'
+    | '/relatorios'
     | '/sanidade'
     | '/tarefas'
     | '/usuarios'
@@ -318,6 +338,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/agenda'
     | '/almoxarifado'
     | '/auditoria'
     | '/baias'
@@ -340,6 +361,7 @@ export interface FileRouteTypes {
     | '/mutirao'
     | '/painel'
     | '/plantel'
+    | '/relatorios'
     | '/sanidade'
     | '/tarefas'
     | '/usuarios'
@@ -349,6 +371,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/agenda'
     | '/_authenticated/almoxarifado'
     | '/_authenticated/auditoria'
     | '/_authenticated/baias'
@@ -371,6 +394,7 @@ export interface FileRouteTypes {
     | '/_authenticated/mutirao'
     | '/_authenticated/painel'
     | '/_authenticated/plantel'
+    | '/_authenticated/relatorios'
     | '/_authenticated/sanidade'
     | '/_authenticated/tarefas'
     | '/_authenticated/usuarios'
@@ -405,6 +429,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/agenda': {
+      id: '/_authenticated/agenda'
+      path: '/agenda'
+      fullPath: '/agenda'
+      preLoaderRoute: typeof AuthenticatedAgendaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/almoxarifado': {
       id: '/_authenticated/almoxarifado'
@@ -560,6 +591,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPlantelRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/relatorios': {
+      id: '/_authenticated/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof AuthenticatedRelatoriosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/sanidade': {
       id: '/_authenticated/sanidade'
       path: '/sanidade'
@@ -605,6 +643,7 @@ const AuthenticatedMatrizesRouteWithChildren =
   )
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
   AuthenticatedAlmoxarifadoRoute: typeof AuthenticatedAlmoxarifadoRoute
   AuthenticatedAuditoriaRoute: typeof AuthenticatedAuditoriaRoute
   AuthenticatedBaiasRoute: typeof AuthenticatedBaiasRoute
@@ -627,12 +666,14 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMutiraoRoute: typeof AuthenticatedMutiraoRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
   AuthenticatedPlantelRoute: typeof AuthenticatedPlantelRoute
+  AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
   AuthenticatedSanidadeRoute: typeof AuthenticatedSanidadeRoute
   AuthenticatedTarefasRoute: typeof AuthenticatedTarefasRoute
   AuthenticatedUsuariosRoute: typeof AuthenticatedUsuariosRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
   AuthenticatedAlmoxarifadoRoute: AuthenticatedAlmoxarifadoRoute,
   AuthenticatedAuditoriaRoute: AuthenticatedAuditoriaRoute,
   AuthenticatedBaiasRoute: AuthenticatedBaiasRoute,
@@ -655,6 +696,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMutiraoRoute: AuthenticatedMutiraoRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
   AuthenticatedPlantelRoute: AuthenticatedPlantelRoute,
+  AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedSanidadeRoute: AuthenticatedSanidadeRoute,
   AuthenticatedTarefasRoute: AuthenticatedTarefasRoute,
   AuthenticatedUsuariosRoute: AuthenticatedUsuariosRoute,

@@ -181,3 +181,9 @@ export const medicationLotsQuery = queryOptions({
   queryKey: ["farm_medication_lots"],
   queryFn: () => unwrap<Database["public"]["Tables"]["farm_medication_lots"]["Row"][]>(supabase.from("farm_medication_lots").select("*").order("expiry_date")),
 });
+
+export type HealthProtocol = Database["public"]["Tables"]["health_protocols"]["Row"];
+export const healthProtocolsQuery = queryOptions({
+  queryKey: ["health_protocols"],
+  queryFn: () => unwrap<HealthProtocol[]>(supabase.from("health_protocols").select("*").order("name")),
+});
