@@ -30,6 +30,7 @@ import { Route as AuthenticatedHistoricoRouteImport } from './routes/_authentica
 import { Route as AuthenticatedInteligenciaRouteImport } from './routes/_authenticated/inteligencia'
 import { Route as AuthenticatedLeitoesRouteImport } from './routes/_authenticated/leitoes'
 import { Route as AuthenticatedLotesRouteImport } from './routes/_authenticated/lotes'
+import { Route as AuthenticatedManejoGuiadoRouteImport } from './routes/_authenticated/manejo-guiado'
 import { Route as AuthenticatedMaternidadeRouteImport } from './routes/_authenticated/maternidade'
 import { Route as AuthenticatedMatrizesRouteImport } from './routes/_authenticated/matrizes'
 import { Route as AuthenticatedMortalidadeRouteImport } from './routes/_authenticated/mortalidade'
@@ -150,6 +151,12 @@ const AuthenticatedLotesRoute = AuthenticatedLotesRouteImport.update({
   path: '/lotes',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedManejoGuiadoRoute =
+  AuthenticatedManejoGuiadoRouteImport.update({
+    id: '/manejo-guiado',
+    path: '/manejo-guiado',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedMaternidadeRoute =
   AuthenticatedMaternidadeRouteImport.update({
     id: '/maternidade',
@@ -230,6 +237,7 @@ export interface FileRoutesByFullPath {
   '/inteligencia': typeof AuthenticatedInteligenciaRoute
   '/leitoes': typeof AuthenticatedLeitoesRoute
   '/lotes': typeof AuthenticatedLotesRoute
+  '/manejo-guiado': typeof AuthenticatedManejoGuiadoRoute
   '/maternidade': typeof AuthenticatedMaternidadeRoute
   '/matrizes': typeof AuthenticatedMatrizesRouteWithChildren
   '/mortalidade': typeof AuthenticatedMortalidadeRoute
@@ -263,6 +271,7 @@ export interface FileRoutesByTo {
   '/inteligencia': typeof AuthenticatedInteligenciaRoute
   '/leitoes': typeof AuthenticatedLeitoesRoute
   '/lotes': typeof AuthenticatedLotesRoute
+  '/manejo-guiado': typeof AuthenticatedManejoGuiadoRoute
   '/maternidade': typeof AuthenticatedMaternidadeRoute
   '/matrizes': typeof AuthenticatedMatrizesRouteWithChildren
   '/mortalidade': typeof AuthenticatedMortalidadeRoute
@@ -298,6 +307,7 @@ export interface FileRoutesById {
   '/_authenticated/inteligencia': typeof AuthenticatedInteligenciaRoute
   '/_authenticated/leitoes': typeof AuthenticatedLeitoesRoute
   '/_authenticated/lotes': typeof AuthenticatedLotesRoute
+  '/_authenticated/manejo-guiado': typeof AuthenticatedManejoGuiadoRoute
   '/_authenticated/maternidade': typeof AuthenticatedMaternidadeRoute
   '/_authenticated/matrizes': typeof AuthenticatedMatrizesRouteWithChildren
   '/_authenticated/mortalidade': typeof AuthenticatedMortalidadeRoute
@@ -333,6 +343,7 @@ export interface FileRouteTypes {
     | '/inteligencia'
     | '/leitoes'
     | '/lotes'
+    | '/manejo-guiado'
     | '/maternidade'
     | '/matrizes'
     | '/mortalidade'
@@ -366,6 +377,7 @@ export interface FileRouteTypes {
     | '/inteligencia'
     | '/leitoes'
     | '/lotes'
+    | '/manejo-guiado'
     | '/maternidade'
     | '/matrizes'
     | '/mortalidade'
@@ -400,6 +412,7 @@ export interface FileRouteTypes {
     | '/_authenticated/inteligencia'
     | '/_authenticated/leitoes'
     | '/_authenticated/lotes'
+    | '/_authenticated/manejo-guiado'
     | '/_authenticated/maternidade'
     | '/_authenticated/matrizes'
     | '/_authenticated/mortalidade'
@@ -568,6 +581,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLotesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/manejo-guiado': {
+      id: '/_authenticated/manejo-guiado'
+      path: '/manejo-guiado'
+      fullPath: '/manejo-guiado'
+      preLoaderRoute: typeof AuthenticatedManejoGuiadoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/maternidade': {
       id: '/_authenticated/maternidade'
       path: '/maternidade'
@@ -680,6 +700,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedInteligenciaRoute: typeof AuthenticatedInteligenciaRoute
   AuthenticatedLeitoesRoute: typeof AuthenticatedLeitoesRoute
   AuthenticatedLotesRoute: typeof AuthenticatedLotesRoute
+  AuthenticatedManejoGuiadoRoute: typeof AuthenticatedManejoGuiadoRoute
   AuthenticatedMaternidadeRoute: typeof AuthenticatedMaternidadeRoute
   AuthenticatedMatrizesRoute: typeof AuthenticatedMatrizesRouteWithChildren
   AuthenticatedMortalidadeRoute: typeof AuthenticatedMortalidadeRoute
@@ -711,6 +732,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedInteligenciaRoute: AuthenticatedInteligenciaRoute,
   AuthenticatedLeitoesRoute: AuthenticatedLeitoesRoute,
   AuthenticatedLotesRoute: AuthenticatedLotesRoute,
+  AuthenticatedManejoGuiadoRoute: AuthenticatedManejoGuiadoRoute,
   AuthenticatedMaternidadeRoute: AuthenticatedMaternidadeRoute,
   AuthenticatedMatrizesRoute: AuthenticatedMatrizesRouteWithChildren,
   AuthenticatedMortalidadeRoute: AuthenticatedMortalidadeRoute,

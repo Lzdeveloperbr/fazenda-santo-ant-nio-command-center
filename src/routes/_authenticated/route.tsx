@@ -1,7 +1,7 @@
 import { createFileRoute, redirect, Outlet, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, PiggyBank, Baby, ListChecks, LogOut, Menu, X, Layers3, HeartPulse, Wheat, TrendingUp, Fence, Ear, BrainCircuit, BookOpen, Box, Warehouse, ClipboardCheck, Radar, Wallet, Calculator, Search, Moon, Sun, PanelLeftClose, PanelLeftOpen, ChevronRight, LayoutGrid, HeartHandshake, Users, History, Eye, Skull, Package, CalendarDays, FileBarChart, Sparkles } from "lucide-react";
+import { LayoutDashboard, PiggyBank, Baby, ListChecks, LogOut, Menu, X, Layers3, HeartPulse, Wheat, TrendingUp, Fence, Ear, BrainCircuit, BookOpen, Box, Warehouse, ClipboardCheck, Radar, Wallet, Calculator, Search, Moon, Sun, PanelLeftClose, PanelLeftOpen, ChevronRight, LayoutGrid, HeartHandshake, Users, History, Eye, Skull, Package, CalendarDays, FileBarChart, Sparkles, Route as RouteIcon } from "lucide-react";
 import { accessQuery, ROLE_INFO } from "@/lib/access";
 import { InstallAppButton } from "@/components/farm/InstallAppButton";
 import { GlobalSearchResults } from "@/components/farm/GlobalSearchResults";
@@ -39,6 +39,7 @@ const NAV=[
  {to:"/historico",label:"Histórico de alterações",short:"Histórico",icon:History,group:"Gestão",restricted:true},
  {to:"/calculadoras",label:"Calculadoras e ferramentas",short:"Calculadoras",icon:Calculator,group:"Ferramentas"},
  {to:"/gestacao",label:"Gestação e reprodução",short:"Gestação",icon:HeartHandshake,group:"Gestação e reprodução"},
+ {to:"/manejo-guiado",label:"Manejo guiado",short:"Guiado",icon:RouteIcon,group:"Rebanho"},
  {to:"/matrizes",label:"Matrizes e reprodução",short:"Matrizes",icon:PiggyBank,group:"Rebanho"},
  {to:"/maternidade",label:"Maternidade",short:"Maternidade",icon:Baby,group:"Rebanho"},
  {to:"/desmame",label:"Marcação e desmame",short:"Desmame",icon:Ear,group:"Rebanho"},
