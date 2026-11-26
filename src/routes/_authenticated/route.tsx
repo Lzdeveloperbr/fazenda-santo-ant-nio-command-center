@@ -1,7 +1,7 @@
 import { createFileRoute, redirect, Outlet, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { ClipboardList, LayoutDashboard, PiggyBank, Baby, ListChecks, LogOut, Menu, X, Layers3, HeartPulse, Wheat, TrendingUp, Fence, Ear, BrainCircuit, BookOpen, Box, Warehouse, ClipboardCheck, Radar, Wallet, Calculator, Search, Moon, Sun, PanelLeftClose, PanelLeftOpen, ChevronRight, LayoutGrid, HeartHandshake, Users, History, Eye, Skull, Package, CalendarDays, FileBarChart, Sparkles, Route as RouteIcon } from "lucide-react";
+import { ClipboardList, Settings, LifeBuoy, QrCode, LayoutDashboard, PiggyBank, Baby, ListChecks, LogOut, Menu, X, Layers3, HeartPulse, Wheat, TrendingUp, Fence, Ear, BrainCircuit, BookOpen, Box, Warehouse, ClipboardCheck, Radar, Wallet, Calculator, Search, Moon, Sun, PanelLeftClose, PanelLeftOpen, ChevronRight, LayoutGrid, HeartHandshake, Users, History, Eye, Skull, Package, CalendarDays, FileBarChart, Sparkles, Route as RouteIcon } from "lucide-react";
 import { accessQuery, ROLE_INFO } from "@/lib/access";
 import { InstallAppButton } from "@/components/farm/InstallAppButton";
 import { GlobalSearchResults } from "@/components/farm/GlobalSearchResults";
@@ -36,6 +36,9 @@ const NAV=[
  {to:"/financeiro",label:"Financeiro e relatório",short:"Financeiro",icon:Wallet,group:"Gestão"},
  {to:"/relatorios",label:"Central de relatórios",short:"Relatórios",icon:FileBarChart,group:"Gestão"},
  {to:"/desempenho",label:"Desempenho",short:"Desempenho",icon:TrendingUp,group:"Gestão"},
+ {to:"/etiquetas",label:"Etiquetas QR Code",short:"Etiquetas",icon:QrCode,group:"Gestão"},
+ {to:"/ajuda",label:"Central de ajuda",short:"Ajuda",icon:LifeBuoy,group:"Gestão"},
+ {to:"/configuracoes",label:"Configurações da granja",short:"Ajustes",icon:Settings,group:"Gestão"},
  {to:"/usuarios",label:"Equipe e permissões",short:"Equipe",icon:Users,group:"Gestão",restricted:true},
  {to:"/historico",label:"Histórico de alterações",short:"Histórico",icon:History,group:"Gestão",restricted:true},
  {to:"/calculadoras",label:"Calculadoras e ferramentas",short:"Calculadoras",icon:Calculator,group:"Ferramentas"},

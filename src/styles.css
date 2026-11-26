@@ -141,3 +141,12 @@ button { transition: transform .12s ease, background-color .2s ease, color .2s e
 
 /* Cartão de destaque do painel: verde sólido, legível, sem efeitos pesados */
 .hero-panel { background: radial-gradient(ellipse at 100% 0%, rgba(227,199,127,.16), transparent 45%), linear-gradient(135deg, #17462F 0%, #0F3322 100%); box-shadow: 0 18px 40px -28px rgba(10,40,26,.8); }
+
+/* Impressão de etiquetas: só a área marcada sai no papel. */
+@media print {
+  body * { visibility: hidden; }
+  .print-area, .print-area * { visibility: visible; }
+  .print-area { position: absolute; inset: 0 auto auto 0; width: 100%; background: #fff; color: #000; }
+  .no-print { display: none !important; }
+  .label-card { break-inside: avoid; border: 1px solid #000 !important; }
+}

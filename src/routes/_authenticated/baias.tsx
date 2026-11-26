@@ -40,7 +40,7 @@ function Baias() {
   const [inviteCode,setInviteCode]=useState("");
   const [inviteBusy,setInviteBusy]=useState(false);
   const [sector,setSector]=useState("todos");
-  const [search,setSearch]=useState("");
+  const [search,setSearch]=useState(()=>typeof window==="undefined"?"":new URLSearchParams(window.location.search).get("baia")??"");
   const [selectedPen,setSelectedPen]=useState("todos");
   const refresh=()=>{qc.invalidateQueries({queryKey:["farm_pens"]});qc.invalidateQueries({queryKey:["feed_products"]});qc.invalidateQueries({queryKey:["pen_records"]});qc.invalidateQueries({queryKey:["feed_movements"]});};
   const penRows=pens.data??[], productRows=products.data??[], recordRows=records.data??[];

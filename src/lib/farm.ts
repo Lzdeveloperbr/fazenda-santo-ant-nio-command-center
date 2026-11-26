@@ -359,3 +359,10 @@ export const dailyActivityQuery = (day: string) =>
       );
     },
   });
+
+export type Farm = Database["public"]["Tables"]["farms"]["Row"];
+/** A granja do usuário (RLS devolve só a própria). */
+export const farmQuery = queryOptions({
+  queryKey: ["farm"],
+  queryFn: async () => (await unwrap<Farm[]>(supabase.from("farms").select("*").limit(1)))[0] ?? null,
+});
