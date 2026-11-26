@@ -17,9 +17,8 @@ import { FormDialog, Field, SubmitRow, selectCls } from "@/components/farm/FormD
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import type { Litter, Sow } from "@/lib/farm";
-import { lazy, Suspense, useState } from "react";
+import { useState } from "react";
 
-const PigViewer = lazy(() => import("@/components/farm3d/PigViewer"));
 
 export const Route = createFileRoute("/_authenticated/matrizes/$sowId")({
   head: () => ({
@@ -108,7 +107,6 @@ function SowRecord() {
         <dl className="mt-5 grid gap-3 border-t pt-5 text-sm sm:grid-cols-3 lg:grid-cols-4">
           {info.map(([label, value]) => <div key={label}><dt className="text-muted-foreground">{label}</dt><dd className="mt-1 font-semibold">{value}</dd></div>)}
         </dl>
-        <div className="no-print mt-5"><Suspense fallback={<div className="h-64 rounded-xl bg-muted/60" />}><PigViewer status={sow.status} piglets={(() => { const cur = sowLitters.find((l) => l.status === "maternidade"); return cur ? livePiglets(cur) : 0; })()} /></Suspense><p className="mt-2 text-xs text-muted-foreground">Representação ilustrativa da categoria — gire com o dedo e aproxime com pinça. Não é uma imagem do animal real. Os leitões ao redor mostram a quantidade viva registrada na leitegada atual.</p></div>
         {sow.notes && <p className="mt-4 whitespace-pre-wrap rounded-xl bg-muted/50 p-3 text-sm leading-6">{sow.notes}</p>}
       </section>
 

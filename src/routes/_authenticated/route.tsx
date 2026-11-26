@@ -1,7 +1,7 @@
 import { createFileRoute, redirect, Outlet, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { ClipboardList, Settings, LifeBuoy, QrCode, LayoutDashboard, PiggyBank, Baby, ListChecks, LogOut, Menu, X, Layers3, HeartPulse, Wheat, TrendingUp, Fence, Ear, BrainCircuit, BookOpen, Box, Warehouse, ClipboardCheck, Radar, Wallet, Calculator, Search, Moon, Sun, PanelLeftClose, PanelLeftOpen, ChevronRight, LayoutGrid, HeartHandshake, Users, History, Eye, Skull, Package, CalendarDays, FileBarChart, Sparkles, Route as RouteIcon } from "lucide-react";
+import { ClipboardList, Settings, LifeBuoy, QrCode, LayoutDashboard, PiggyBank, Baby, ListChecks, LogOut, Menu, X, Layers3, HeartPulse, Wheat, TrendingUp, Fence, Ear, BrainCircuit, BookOpen, ClipboardCheck, Radar, Wallet, Calculator, Search, Moon, Sun, PanelLeftClose, PanelLeftOpen, ChevronRight, LayoutGrid, HeartHandshake, Users, History, Eye, Skull, Package, CalendarDays, FileBarChart, Sparkles, Route as RouteIcon } from "lucide-react";
 import { accessQuery, ROLE_INFO } from "@/lib/access";
 import { InstallAppButton } from "@/components/farm/InstallAppButton";
 import { GlobalSearchResults } from "@/components/farm/GlobalSearchResults";
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/_authenticated")({
  },
  component:Shell,
 });
-const GROUPS=["Gestão","Ferramentas","Gestação e reprodução","Rebanho","Manejo e saúde","Visualização 3D"] as const;
+const GROUPS=["Gestão","Ferramentas","Gestação e reprodução","Rebanho","Manejo e saúde"] as const;
 const NAV=[
  {to:"/painel",label:"Visão geral",short:"Início",icon:LayoutDashboard,group:"Gestão"},
  {to:"/agenda",label:"Agenda da granja",short:"Agenda",icon:CalendarDays,group:"Gestão"},
@@ -59,8 +59,6 @@ const NAV=[
  {to:"/estoque",label:"Estoque de ração",short:"Estoque",icon:Wheat,group:"Manejo e saúde"},
  {to:"/almoxarifado",label:"Estoque geral e fornecedores",short:"Almoxarifado",icon:Package,group:"Manejo e saúde"},
  {to:"/biblioteca-suinos",label:"Biblioteca técnica",short:"Biblioteca",icon:BookOpen,group:"Manejo e saúde"},
- {to:"/plantel",label:"Plantel 3D",short:"Plantel",icon:Box,group:"Visualização 3D"},
- {to:"/granja-3d",label:"Granja 3D",short:"Granja",icon:Warehouse,group:"Visualização 3D"},
 ] as const;
 const BOTTOM=["/painel","/matrizes","/maternidade","/tarefas"] as const;
 function useClock(){const [now,setNow]=useState(()=>new Date());useEffect(()=>{const t=setInterval(()=>setNow(new Date()),30000);return()=>clearInterval(t);},[]);return now;}

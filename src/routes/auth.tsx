@@ -137,7 +137,7 @@ function AuthPage() {
             <BrandLockup size="lg" animated={false} />
           </Link>
           <div className="max-w-md">
-            <p className="text-sm font-semibold text-[#E3C77F]">Command Center da suinocultura</p>
+            <p className="text-sm font-semibold text-[#E3C77F]">Gestão completa da suinocultura</p>
             <h2 className="mt-3 text-4xl font-extrabold leading-[1.08] tracking-tight">
               Cada matriz, cada leitão, cada decisão — em um só lugar.
             </h2>

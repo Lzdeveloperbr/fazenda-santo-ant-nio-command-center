@@ -1,11 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { lazy, Suspense, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { ClipboardList, History, Stethoscope, AlertTriangle, AlertCircle, Info, CheckCircle2, Box } from "lucide-react";
+import { ClipboardList, History, Stethoscope, AlertTriangle, AlertCircle, Info, CheckCircle2 } from "lucide-react";
 import { litterAlerts, daysSince, type LitterAlert } from "@/lib/farm/litter-alerts";
-const LitterDiagnosisScene = lazy(() => import("@/components/farm3d/LitterDiagnosisScene"));
 import { supabase } from "@/integrations/supabase/client";
 import { sowsQuery, littersQuery, litterEventsQuery, pensQuery, pigletsQuery, livePiglets, fmtDate, todayISO, LITTER_EVENT_LABEL, type Litter, type LitterEvent } from "@/lib/farm";
 import { litterEventError } from "@/lib/farm/reproduction";
@@ -281,12 +280,11 @@ function Diagnosis({ active, tag }: { active: Litter[]; tag: (id: string) => str
   return (
     <section className="panel overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-4 sm:px-5">
-        <div className="flex items-center gap-3"><span className="rounded-lg bg-accent p-2 text-primary"><Box className="h-5 w-5" /></span><div><p className="label-tech">Diagnóstico visual 3D</p><h2 className="text-lg font-bold">Porca {tag(l.sow_id)} e leitegada</h2></div></div>
+        <div className="flex items-center gap-3"><span className="rounded-lg bg-accent p-2 text-primary"><Stethoscope className="h-5 w-5" /></span><div><p className="label-tech">Diagnóstico da leitegada</p><h2 className="text-lg font-bold">Porca {tag(l.sow_id)} e leitegada</h2></div></div>
         <label className="flex items-center gap-2 text-sm"><span className="text-muted-foreground">Leitegada</span><select value={l.id} onChange={(e) => setSel(e.target.value)} className="h-10 rounded-lg border border-input bg-card px-3 font-mono text-sm">{ranked.map((r) => <option key={r.l.id} value={r.l.id}>{tag(r.l.sow_id)} · {r.alerts.filter((x) => x.level === "alerta" || x.level === "atencao").length} ponto(s)</option>)}</select></label>
       </div>
-      <div className="grid gap-0 lg:grid-cols-[1.4fr_1fr]">
-        <div className="p-3 sm:p-4"><Suspense fallback={<div className="flex h-[380px] items-center justify-center rounded-xl bg-muted/60 text-sm text-muted-foreground sm:h-[440px]">Carregando visualização…</div>}><LitterDiagnosisScene alerts={alerts} live={live} deaths={l.deaths} /></Suspense></div>
-        <div className="border-t border-border p-4 sm:p-5 lg:border-l lg:border-t-0">
+      <div className="grid gap-0">
+        <div className="p-4 sm:p-5">
           <dl className="grid grid-cols-4 gap-2 rounded-xl bg-muted/50 p-3 text-center">
             <Mini k="Dias" v={daysSince(l.farrowing_date)} /><Mini k="Vivos" v={live} /><Mini k="Mortes" v={l.deaths} /><Mini k="Mortal." v={base > 0 ? `${Math.round((l.deaths / base) * 100)}%` : "—"} />
           </dl>

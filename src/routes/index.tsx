@@ -107,7 +107,7 @@ function Index() {
           </header>
           <div className="grid items-center gap-12 pt-14 lg:grid-cols-[1.15fr_.85fr] lg:pt-24">
             <div className="max-w-2xl">
-              <Reveal><span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-[#EEDBA6]">Command Center da suinocultura</span></Reveal>
+              <Reveal><span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-[#EEDBA6]">Gestão completa da suinocultura</span></Reveal>
               <Reveal delay={80}><h1 className="mt-6 text-4xl font-extrabold leading-[1.05] tracking-[-.035em] sm:text-6xl">Cada matriz, cada leitão, <span className="text-[#E3C77F]">cada decisão.</span></h1></Reveal>
               <Reveal delay={160}><p className="mt-6 max-w-xl text-base leading-7 text-white/80 sm:text-lg">Reprodução, maternidade, sanidade, estoque, financeiro e relatórios da Fazenda Santo Antônio em um só lugar — no computador e no celular.</p></Reveal>
               <Reveal delay={240}>
