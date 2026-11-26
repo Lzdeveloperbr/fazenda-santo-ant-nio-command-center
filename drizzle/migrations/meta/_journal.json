@@ -155,6 +155,27 @@
       "when": 1796200000000,
       "tag": "0021_cio_semen_condicao_nutricao",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1796300000000,
+      "tag": "0022_isolamento_por_granja",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1796400000000,
+      "tag": "0023_fluxos_guiados_extras",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1796500000000,
+      "tag": "0024_problemas_permissoes",
+      "breakpoints": true
     }
   ]
 }

@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import {
   ArrowRight,
+  Check,
   Baby,
   BellRing,
   BrainCircuit,
@@ -19,8 +20,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { BrandLockup, LogoMark } from "@/components/farm/Logo";
-import { Landscape3D } from "@/components/farm/Landscape3D";
-import { Reveal, Tilt } from "@/components/farm/motion";
+import { Reveal } from "@/components/farm/motion";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/")({
@@ -99,51 +99,32 @@ function Index() {
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#F5F2E9] text-[#17301F]">
       {/* Abertura */}
-      <section className="brand-aurora relative min-h-[100svh] text-white">
-        <Landscape3D className="absolute inset-0" />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#06190f]/95 via-[#06190f]/55 to-transparent" />
-        <div className="pointer-events-none absolute inset-0 bg-[#06190f]/45 sm:hidden" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#F5F2E9] to-transparent" />
-        <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-7xl flex-col px-5 pb-28 pt-6 sm:px-8">
+      <section className="brand-aurora relative text-white">
+        <div className="relative z-10 mx-auto max-w-7xl px-5 pb-28 pt-6 sm:px-8 lg:pb-36">
           <header className="flex items-center justify-between gap-4">
-            <BrandLockup />
-            <Button
-              asChild
-              variant="outline"
-              className="h-10 rounded-full border-white/25 bg-white/10 px-5 text-white backdrop-blur hover:bg-white/20 hover:text-white"
-            >
-              <Link to="/auth">Entrar</Link>
-            </Button>
+            <BrandLockup animated={false} />
+            <Button asChild variant="outline" className="h-10 rounded-full border-white/25 bg-white/10 px-5 text-white hover:bg-white/20 hover:text-white"><Link to="/auth">Entrar</Link></Button>
           </header>
-          <div className="my-auto max-w-2xl pt-16">
-            <Reveal>
-              <span className="inline-flex items-center gap-2 rounded-full border border-[#E3C77F]/40 bg-white/[.07] px-3.5 py-1.5 text-xs font-semibold text-[#EEDBA6] backdrop-blur">
-                Command Center da suinocultura
-              </span>
-            </Reveal>
-            <Reveal delay={80}>
-              <h1 className="mt-6 text-[2.8rem] font-extrabold leading-[1.02] tracking-[-.045em] sm:text-6xl lg:text-7xl">
-                Cada matriz. Cada leitão. <span className="text-brand-gradient">Cada decisão.</span>
-              </h1>
-            </Reveal>
-            <Reveal delay={160}>
-              <p className="mt-6 max-w-xl text-base leading-7 text-white/75 sm:text-lg">
-                Reprodução, maternidade, sanidade, estoque, financeiro e relatórios da Fazenda Santo
-                Antônio em um só lugar — no computador e no celular, até com internet instável.
-              </p>
-            </Reveal>
-            <Reveal delay={240}>
-              <div className="mt-9 flex flex-wrap items-center gap-4">
-                <Button
-                  asChild
-                  size="lg"
-                  className="h-13 rounded-2xl bg-[#E3C77F] px-7 text-base font-extrabold text-[#123B28] shadow-[0_18px_40px_-14px_rgba(227,199,127,.7)] hover:bg-[#F0D891]"
-                >
-                  <Link to="/auth">
-                    Entrar no sistema <ArrowRight className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
-                <span className="text-xs text-white/55">Acesso exclusivo à equipe autorizada</span>
+          <div className="grid items-center gap-12 pt-14 lg:grid-cols-[1.15fr_.85fr] lg:pt-24">
+            <div className="max-w-2xl">
+              <Reveal><span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-[#EEDBA6]">Gestão completa da suinocultura</span></Reveal>
+              <Reveal delay={80}><h1 className="mt-6 text-4xl font-extrabold leading-[1.05] tracking-[-.035em] sm:text-6xl">Cada matriz, cada leitão, <span className="text-[#E3C77F]">cada decisão.</span></h1></Reveal>
+              <Reveal delay={160}><p className="mt-6 max-w-xl text-base leading-7 text-white/80 sm:text-lg">Reprodução, maternidade, sanidade, estoque, financeiro e relatórios da Fazenda Santo Antônio em um só lugar — no computador e no celular.</p></Reveal>
+              <Reveal delay={240}>
+                <div className="mt-9 flex flex-wrap items-center gap-4">
+                  <Button asChild size="lg" className="h-12 rounded-xl bg-[#E3C77F] px-7 text-base font-extrabold text-[#123B28] hover:bg-[#F0D891]"><Link to="/auth">Entrar no sistema <ArrowRight className="ml-2 h-5 w-5" /></Link></Button>
+                  <span className="text-xs text-white/60">Acesso exclusivo à equipe autorizada</span>
+                </div>
+              </Reveal>
+            </div>
+            <Reveal delay={200} className="hidden lg:block">
+              <div className="rounded-3xl bg-white/[.06] p-8 ring-1 ring-white/12">
+                <LogoMark className="mx-auto h-40 w-40 drop-shadow-[0_18px_40px_rgba(0,0,0,.35)]" />
+                <ul className="mt-8 space-y-3 text-sm text-white/85">
+                  {["Prontuário completo de cada matriz", "Partos, leitegadas e desmames sem perder histórico", "Alertas de parto, vacina, estoque e contas", "Relatórios em PDF, Excel e CSV"].map((t) => (
+                    <li key={t} className="flex items-center gap-3"><span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#E3C77F] text-[#123B28]"><Check className="h-3.5 w-3.5" /></span>{t}</li>
+                  ))}
+                </ul>
               </div>
             </Reveal>
           </div>
@@ -182,15 +163,13 @@ function Index() {
         <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {MODULES.map((m, i) => (
             <Reveal key={m.title} delay={(i % 4) * 90}>
-              <Tilt className="h-full">
                 <div className="group h-full rounded-3xl border border-[#E3DFD2] bg-white p-6 shadow-[0_14px_40px_-34px_rgba(18,59,40,.6)] transition hover:border-[#1E5A3C]/30 hover:shadow-[0_24px_60px_-36px_rgba(18,59,40,.6)]">
-                  <span className="inline-grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-[#1E5A3C] to-[#0E3322] text-[#E3C77F] shadow-lg shadow-[#1E5A3C]/20 transition group-hover:scale-110 group-hover:rotate-[-4deg]">
+                  <span className="inline-grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-[#1E5A3C] to-[#0E3322] text-[#E3C77F] shadow-lg shadow-[#1E5A3C]/20 transition ">
                     <m.icon className="h-6 w-6" />
                   </span>
                   <h3 className="mt-5 text-lg font-bold">{m.title}</h3>
                   <p className="mt-2 text-sm leading-6 text-[#66736A]">{m.text}</p>
                 </div>
-              </Tilt>
             </Reveal>
           ))}
         </div>
@@ -280,7 +259,7 @@ function Index() {
         </div>
         <Reveal className="mt-14 overflow-hidden rounded-[2rem]">
           <div className="brand-aurora relative flex flex-col items-center gap-6 px-6 py-14 text-center text-white">
-            <LogoMark className="h-20 w-20" animated />
+            <LogoMark className="h-20 w-20" />
             <h2 className="max-w-xl text-3xl font-extrabold tracking-tight sm:text-4xl">
               Pronto para começar o dia na granja?
             </h2>

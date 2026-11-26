@@ -148,7 +148,7 @@ function EditBreeding({ b, cfg }: { b: Breeding; cfg: GestationConfig }) {
     const reason = String(f.get("reason") || "").trim(); if (!reason) return void toast.error("Informe o motivo da correção.");
     setBusy(true);
     const note = `[Correção ${fmtDate(todayISO())}] ${b.breeding_date !== date ? `data ${fmtDate(b.breeding_date)} → ${fmtDate(date)}; ` : ""}${reason}`;
-    const { error } = await supabase.from("breedings").update({ breeding_date: date, expected_farrowing: cycleDates(date, cfg).farrowing, breeding_time: String(f.get("time") || "") || null, responsible: String(f.get("responsible") || "") || null, semen_code: String(f.get("semen") || "") || null, notes: [b.notes, note].filter(Boolean).join("\n") }).eq("id", b.id);
+    const { error } = await supabase.from("breedings").update({ breeding_date: date, breeding_time: String(f.get("time") || "") || null, responsible: String(f.get("responsible") || "") || null, semen_code: String(f.get("semen") || "") || null, notes: [b.notes, note].filter(Boolean).join("\n") }).eq("id", b.id);
     setBusy(false); if (error) return void toast.error(error.message);
     toast.success("Cobertura corrigida; datas do ciclo recalculadas"); await qc.invalidateQueries(); close();
   }}>

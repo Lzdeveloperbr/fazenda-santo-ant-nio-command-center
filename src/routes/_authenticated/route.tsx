@@ -1,12 +1,12 @@
 import { createFileRoute, redirect, Outlet, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, PiggyBank, Baby, ListChecks, LogOut, Menu, X, Layers3, HeartPulse, Wheat, TrendingUp, Fence, Ear, BrainCircuit, BookOpen, Box, Warehouse, ClipboardCheck, Radar, Wallet, Calculator, Search, Moon, Sun, PanelLeftClose, PanelLeftOpen, ChevronRight, LayoutGrid, HeartHandshake, Users, History, Eye, Skull, Package, CalendarDays, FileBarChart, Sparkles } from "lucide-react";
+import { ClipboardList, Settings, LifeBuoy, QrCode, LayoutDashboard, PiggyBank, Baby, ListChecks, LogOut, Menu, X, Layers3, HeartPulse, Wheat, TrendingUp, Fence, Ear, BrainCircuit, BookOpen, ClipboardCheck, Radar, Wallet, Calculator, Search, Moon, Sun, PanelLeftClose, PanelLeftOpen, ChevronRight, LayoutGrid, HeartHandshake, Users, History, Eye, Skull, Package, CalendarDays, FileBarChart, Sparkles, Route as RouteIcon } from "lucide-react";
 import { accessQuery, ROLE_INFO } from "@/lib/access";
 import { InstallAppButton } from "@/components/farm/InstallAppButton";
 import { GlobalSearchResults } from "@/components/farm/GlobalSearchResults";
 import { RemindersBell } from "@/components/farm/RemindersBell";
-import { Splash } from "@/components/farm/motion";
+import { FavoriteButton } from "@/components/farm/Favorites";
 import { SyncStatus, useOnline } from "@/components/farm/OfflineSync";
 import { supabase } from "@/integrations/supabase/client";
 import { Wordmark, LogoMark } from "@/components/farm/Logo";
@@ -26,20 +26,25 @@ export const Route = createFileRoute("/_authenticated")({
  },
  component:Shell,
 });
-const GROUPS=["Gestão","Ferramentas","Gestação e reprodução","Rebanho","Manejo e saúde","Visualização 3D"] as const;
+const GROUPS=["Gestão","Ferramentas","Gestação e reprodução","Rebanho","Manejo e saúde"] as const;
 const NAV=[
  {to:"/painel",label:"Visão geral",short:"Início",icon:LayoutDashboard,group:"Gestão"},
  {to:"/agenda",label:"Agenda da granja",short:"Agenda",icon:CalendarDays,group:"Gestão"},
+ {to:"/rotina",label:"Rotina da equipe",short:"Rotina",icon:ClipboardList,group:"Gestão"},
  {to:"/assistente",label:"Santo Antônio AI · Perguntas",short:"Perguntas",icon:Sparkles,group:"Gestão"},
  {to:"/inteligencia",label:"Pendências e previsões",short:"Pendências",icon:Radar,group:"Gestão"},
  {to:"/auditoria",label:"Auditoria e qualidade",short:"Auditoria",icon:ClipboardCheck,group:"Gestão"},
  {to:"/financeiro",label:"Financeiro e relatório",short:"Financeiro",icon:Wallet,group:"Gestão"},
  {to:"/relatorios",label:"Central de relatórios",short:"Relatórios",icon:FileBarChart,group:"Gestão"},
  {to:"/desempenho",label:"Desempenho",short:"Desempenho",icon:TrendingUp,group:"Gestão"},
+ {to:"/etiquetas",label:"Etiquetas QR Code",short:"Etiquetas",icon:QrCode,group:"Gestão"},
+ {to:"/ajuda",label:"Central de ajuda",short:"Ajuda",icon:LifeBuoy,group:"Gestão"},
+ {to:"/configuracoes",label:"Configurações da granja",short:"Ajustes",icon:Settings,group:"Gestão"},
  {to:"/usuarios",label:"Equipe e permissões",short:"Equipe",icon:Users,group:"Gestão",restricted:true},
  {to:"/historico",label:"Histórico de alterações",short:"Histórico",icon:History,group:"Gestão",restricted:true},
  {to:"/calculadoras",label:"Calculadoras e ferramentas",short:"Calculadoras",icon:Calculator,group:"Ferramentas"},
  {to:"/gestacao",label:"Gestação e reprodução",short:"Gestação",icon:HeartHandshake,group:"Gestação e reprodução"},
+ {to:"/manejo-guiado",label:"Manejo guiado",short:"Guiado",icon:RouteIcon,group:"Rebanho"},
  {to:"/matrizes",label:"Matrizes e reprodução",short:"Matrizes",icon:PiggyBank,group:"Rebanho"},
  {to:"/maternidade",label:"Maternidade",short:"Maternidade",icon:Baby,group:"Rebanho"},
  {to:"/desmame",label:"Marcação e desmame",short:"Desmame",icon:Ear,group:"Rebanho"},
@@ -54,8 +59,6 @@ const NAV=[
  {to:"/estoque",label:"Estoque de ração",short:"Estoque",icon:Wheat,group:"Manejo e saúde"},
  {to:"/almoxarifado",label:"Estoque geral e fornecedores",short:"Almoxarifado",icon:Package,group:"Manejo e saúde"},
  {to:"/biblioteca-suinos",label:"Biblioteca técnica",short:"Biblioteca",icon:BookOpen,group:"Manejo e saúde"},
- {to:"/plantel",label:"Plantel 3D",short:"Plantel",icon:Box,group:"Visualização 3D"},
- {to:"/granja-3d",label:"Granja 3D",short:"Granja",icon:Warehouse,group:"Visualização 3D"},
 ] as const;
 const BOTTOM=["/painel","/matrizes","/maternidade","/tarefas"] as const;
 function useClock(){const [now,setNow]=useState(()=>new Date());useEffect(()=>{const t=setInterval(()=>setNow(new Date()),30000);return()=>clearInterval(t);},[]);return now;}
@@ -93,9 +96,9 @@ function Shell(){
  </div>;
 
  const iconBtn="items-center h-10 w-10 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition-colors hover:bg-muted hover:text-foreground";
- return <TooltipProvider delayDuration={200}><Splash><div className="text-center text-white"><LogoMark className="mx-auto h-24 w-24 drop-shadow-[0_16px_40px_rgba(0,0,0,.45)]" animated/><p className="mt-5 text-xl font-extrabold tracking-tight">Fazenda Santo Antônio</p><p className="mt-1 text-[.62rem] font-bold uppercase tracking-[.26em] text-[#E3C77F]">Preparando a granja</p><div className="mx-auto mt-6 h-1 w-40 overflow-hidden rounded-full bg-white/15"><div className="splash-bar h-full w-full bg-[#E3C77F]"/></div></div></Splash><div className={`min-h-screen bg-background transition-[padding] duration-300 ${collapsed?"md:pl-[76px]":"md:pl-[264px]"}`}>
+ return <TooltipProvider delayDuration={200}><div className={`min-h-screen bg-background transition-[padding] duration-300 ${collapsed?"md:pl-[76px]":"md:pl-[264px]"}`}>
   <aside className={`sidebar-surface fixed inset-y-0 left-0 z-30 hidden flex-col overflow-y-auto bg-sidebar py-5 transition-[width] duration-300 md:flex ${collapsed?"w-[76px] px-3":"w-[264px] px-3"}`}>
-   <div className={`mb-7 flex items-center ${collapsed?"justify-center":"justify-between px-2"}`}>{collapsed?<LogoMark className="h-10 w-10" animated/>:<Wordmark animated/>}</div>
+   <div className={`mb-7 flex items-center ${collapsed?"justify-center":"justify-between px-2"}`}>{collapsed?<LogoMark className="h-10 w-10"/>:<Wordmark/>}</div>
    {navList(collapsed)}
    {userBox(collapsed)}
   </aside>
@@ -119,6 +122,7 @@ function Shell(){
      <button onClick={()=>setSearchOpen(true)} className="hidden h-10 items-center gap-2 rounded-lg border border-border bg-card px-3 text-sm text-muted-foreground hover:bg-muted lg:flex lg:w-64"><Search className="h-4 w-4"/><span className="flex-1 text-left">Buscar na granja…</span><kbd className="rounded border border-border bg-muted px-1.5 font-mono text-[.65rem]">Ctrl K</kbd></button>
      <button onClick={()=>setSearchOpen(true)} className={`${iconBtn} inline-flex lg:hidden`} aria-label="Buscar"><Search className="h-[18px] w-[18px]"/></button>
      <SyncStatus/>
+     {role&&active&&active.to!=="/painel"&&<FavoriteButton path={active.to} label={active.label} className={iconBtn}/>}
      {role&&<RemindersBell className={iconBtn}/>}
      <InstallAppButton />
      <button onClick={toggle} className={`${iconBtn} inline-flex`} aria-label={theme==="dark"?"Usar tema claro":"Usar tema escuro"}>{theme==="dark"?<Sun className="h-[18px] w-[18px]"/>:<Moon className="h-[18px] w-[18px]"/>}</button>

@@ -14,6 +14,159 @@ export type Database = {
   }
   public: {
     Tables: {
+      user_favorites: {
+        Row: {
+          created_at: string
+          farm_id: string
+          id: string
+          kind: string
+          label: string
+          ref: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          farm_id?: string
+          id?: string
+          kind: string
+          label: string
+          ref: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          farm_id?: string
+          id?: string
+          kind?: string
+          label?: string
+          ref?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      shift_handovers: {
+        Row: {
+          created_at: string
+          created_by: string
+          farm_id: string
+          id: string
+          occurrences: string | null
+          pending: string | null
+          received_at: string | null
+          received_by: string | null
+          sector: string | null
+          shift: string
+          shift_date: string
+          summary: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          farm_id?: string
+          id?: string
+          occurrences?: string | null
+          pending?: string | null
+          received_at?: string | null
+          received_by?: string | null
+          sector?: string | null
+          shift: string
+          shift_date?: string
+          summary: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          farm_id?: string
+          id?: string
+          occurrences?: string | null
+          pending?: string | null
+          received_at?: string | null
+          received_by?: string | null
+          sector?: string | null
+          shift?: string
+          shift_date?: string
+          summary?: string
+        }
+        Relationships: []
+      }
+      issue_reports: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string
+          description: string
+          farm_id: string
+          id: string
+          page: string | null
+          resolution: string | null
+          resolved_at: string | null
+          status: string
+          title: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          created_by?: string
+          description: string
+          farm_id?: string
+          id?: string
+          page?: string | null
+          resolution?: string | null
+          resolved_at?: string | null
+          status?: string
+          title: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string
+          description?: string
+          farm_id?: string
+          id?: string
+          page?: string | null
+          resolution?: string | null
+          resolved_at?: string | null
+          status?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      farms: {
+        Row: {
+          city: string | null
+          created_at: string
+          document: string | null
+          id: string
+          legal_name: string | null
+          name: string
+          notes: string | null
+          phone: string | null
+          state: string | null
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          document?: string | null
+          id?: string
+          legal_name?: string | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          state?: string | null
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          document?: string | null
+          id?: string
+          legal_name?: string | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          state?: string | null
+        }
+        Relationships: []
+      }
       feed_plans: {
         Row: {
           active: boolean
@@ -2846,6 +2999,18 @@ export type Database = {
       }
       create_farm_access_code: { Args: { p_code: string }; Returns: undefined }
       delete_sow: { Args: { p_sow_id: string }; Returns: undefined }
+      flow_register_breeding: {
+        Args: { p_boar: string | null; p_boar_id: string | null; p_date: string; p_doses: number | null; p_heat_started_at: string | null; p_notes: string | null; p_responsible: string | null; p_semen_batch_id: string | null; p_sow_id: string; p_time: string | null; p_type: string }
+        Returns: Json
+      }
+      flow_register_farrowing: {
+        Args: { p_alive: number; p_breeding_id: string; p_complications: string[] | null; p_date: string; p_deaths_after: number; p_end: string | null; p_mummified: number; p_notes: string | null; p_pen_id: string | null; p_piglets: Json; p_responsible: string | null; p_runts: number | null; p_start: string | null; p_stillborn: number }
+        Returns: Json
+      }
+      flow_register_weaning: {
+        Args: { p_avg_weight: number | null; p_date: string; p_dest_pen: string | null; p_destination: string | null; p_females: number | null; p_litter_id: string; p_males: number | null; p_notes: string | null; p_piglet_weights: Json; p_responsible: string | null }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

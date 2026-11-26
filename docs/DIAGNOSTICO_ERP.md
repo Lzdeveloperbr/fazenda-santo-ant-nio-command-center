@@ -135,24 +135,57 @@ Legenda: ✅ funciona · 🟡 parcial · ❌ não existe
 - Migration `0021_cio_semen_condicao_nutricao.sql`: `heat_detections`, `semen_batches` (doses consumidas pela cobertura; lote vencido ou sem doses recusado; corrigir a cobertura devolve doses), `breedings.semen_batch_id/semen_doses_used`, `sow_condition_records`, `feed_plans` (criação/alteração só por Administrador, Gerente ou Veterinário; mudar conteúdo derruba a validação).
 - Telas: abas **Cio (início/fim)** e **Sêmen** em Gestação; lote de sêmen na nova cobertura; **Condição corporal e alimentação** na ficha; **Planos de alimentação** no Estoque de ração; aba **Mapa** em Baias.
 
+## 4.7 Fase 8 — isolamento por granja (seção 24)
+
+- Migration `0022_isolamento_por_granja.sql`: tabela `farms` (a granja atual vira "Fazenda Santo Antônio"), `farm_id` em todas as tabelas, preenchido com a granja existente sem apagar nada, e política restritiva "granja isolada" em cada tabela. Usuários, histórico e códigos de acesso ficam presos à própria granja.
+- Brinco único entre matrizes ativas e código único de reprodutor por granja (duplicatas antigas continuam; novas são recusadas). Chaves estrangeiras principais conferem que os dois registros são da mesma granja.
+- Criar uma segunda granja só pelo serviço (`create_farm_with_owner`, papel `service_role`): não há cadastro público de granjas.
+
+## 4.8 Fase 9 — fluxos guiados (seção 28)
+
+- Migration `0023_fluxos_guiados_extras.sql`: funções `flow_register_breeding`, `flow_register_farrowing` e `flow_register_weaning`. Cada uma valida e grava tudo numa transação só (tudo ou nada). Tabelas `issue_reports`, `shift_handovers`, `user_favorites`.
+- Tela **Manejo guiado**: cobertura/inseminação, parto e desmame passo a passo, com conferência a cada etapa e resumo final (datas previstas, lembretes, prontuários criados).
+
+## 4.9 Fase 10 — extras (seções 26 e 27)
+
+- Migration `0024_problemas_permissoes.sql`: só o autor corrige o próprio relato (enquanto aberto); só administrador/gerente muda a situação. Data de resolução automática.
+- **Rotina da equipe**: passagem de turno (quem assume confirma; depois trava), relatos de problemas e atividade do dia por pessoa (contagem do histórico de auditoria, só administrador/gerente).
+- **Configurações da granja**: dados cadastrais (só administrador altera), parâmetros de manejo e **cópia de segurança** em JSON com conferência de integridade.
+- **Etiquetas QR Code** imprimíveis para baias e matrizes. O QR da baia abre Baias já filtrado.
+- **Importar matrizes** por CSV, com conferência linha a linha antes de gravar (brinco repetido, datas impossíveis, peso, fórmulas de planilha) e gravação de uma vez só.
+- **Central de ajuda** com busca.
+- **Favoritos** (estrela no topo de cada tela, cada usuário vê só os seus) e **ações rápidas por perfil** no painel (Consulta não recebe ações de gravação).
+- **Calculadoras**: 35 ferramentas; novas: idade gestacional, taxa de concepção, nascidos vivos por matriz, custo por leitão desmamado, capacidade de alojamento, ponto de reposição de estoque, projeção de produção. Cada uma mostra a fórmula e valida os campos.
+
+## 4.10 Restauração de uma cópia de segurança
+
+A cópia nunca é aplicada sozinha pelo app, para não sobrescrever dados atuais. Procedimento para o responsável técnico:
+
+1. Em Configurações › Cópia de segurança › **Conferir uma cópia**, confirmar "Arquivo íntegro".
+2. Fazer backup do banco atual pelo painel do Supabase (Database › Backups).
+3. Restaurar num projeto Supabase **de homologação** com as mesmas migrations; para cada tabela do arquivo (`tables.<nome>`), inserir as linhas com `insert … on conflict (id) do nothing`, na ordem do campo `tables` (granja e cadastros antes de eventos), com a sessão em `service_role`.
+4. Conferir as contagens (`counts`) contra `select count(*)` de cada tabela.
+5. Só depois repetir no banco de produção, se for o caso.
+
 ## 5. Limitações conhecidas (honestas)
 
 - **Abrir o app do zero sem internet** mostra o aviso de sem conexão: o aparelho não guarda cópia do banco (decisão de privacidade). A fila offline serve para quedas de conexão com o app já aberto.
-- **Telas autenticadas não foram testadas contra o banco real**: foram conferidas no navegador com dados simulados, e as regras do banco foram testadas num PostgreSQL local com as mesmas migrations. É preciso aplicar as migrations 0015–0020 em homologação e seguir a seção 7.
+- **Telas autenticadas não foram testadas contra o banco real**: foram conferidas no navegador com dados simulados, e as regras do banco foram testadas num PostgreSQL local com as mesmas migrations. É preciso aplicar as migrations 0015–0024 em homologação e seguir a seção 7.
 - **Lint completo** ainda acusa os avisos de formatação/`any` que já existiam; os arquivos novos passam no lint, salvo divergências de formatação entre o prettier e o plugin do eslint.
 - **Taxa anual de mortalidade/descarte de matrizes** depende do plantel médio histórico, que o sistema ainda não guarda; aparecem as contagens.
-- **Multi-granja** não implementado (ver decisão abaixo).
+- **Filtros avançados salvos e duplicação controlada de registros** ainda não têm tela.
+- **Importação** aceita CSV; arquivos .xlsx precisam ser salvos como CSV antes.
 
 ## 6. Decisões que dependem do proprietário
 
-- **Multi-granja (seção 24, "isolamento por granja"):** hoje o sistema é de uma granja só. Isolar por granja exige `farm_id` em todas as tabelas e reescrever todas as políticas. Recomendação: só fazer se houver plano real de atender outras granjas.
+- **Novas granjas:** o isolamento está pronto (0022), mas criar outra granja é feito pelo serviço; decidir se haverá cadastro público e cobrança.
 - **Restrição de leitura por perfil:** hoje todo perfil ativo lê todos os módulos (Consulta inclusive). Se o Funcionário não deve ver o financeiro, por exemplo, isso precisa ser definido módulo a módulo.
 - **Protocolos sanitários, doses e carências:** precisam ser fornecidos e validados pelo médico-veterinário responsável; o sistema não terá valores padrão inventados.
 
 ## 7. Como validar a Fase 1 em homologação
 
 1. Backup do banco.
-2. Aplicar, em ordem, `0015` a `0021` pelo fluxo oficial (Lovable/Supabase). Antes, rodar `tests/db/run.sh` num PostgreSQL local descartável.
+2. Aplicar, em ordem, `0015` a `0024` pelo fluxo oficial (Lovable/Supabase). Antes, rodar `tests/db/run.sh` num PostgreSQL local descartável.
 3. Entrar como um dos fundadores: menu Gestão deve mostrar **Equipe e permissões** e **Histórico de alterações**.
 4. Mudar um funcionário de teste para **Consulta** e confirmar que ele vê os dados, vê o aviso e não consegue salvar.
 5. Desativar o usuário de teste e confirmar que ele não vê dados.

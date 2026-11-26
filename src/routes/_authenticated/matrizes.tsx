@@ -2,7 +2,7 @@ import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-r
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Plus, Search, ArrowUpDown, Download, RotateCcw, FileText, Pencil, ClipboardPlus, Trash2 } from "lucide-react";
+import { Plus, Upload, Search, ArrowUpDown, Download, RotateCcw, FileText, Pencil, ClipboardPlus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { usePermissions } from "@/lib/access";
 import { SowFormDialog } from "@/components/farm/SowForm";
@@ -290,7 +290,12 @@ function ReactivateSow({ sow, onDone }: { sow: Sow; onDone: () => void }) {
 }
 
 function NewSow({ onDone }: { onDone: () => void }) {
-  return <SowFormDialog onDone={onDone} trigger={<Button className="h-10"><Plus className="mr-1 h-4 w-4" />Nova matriz</Button>} />;
+  return (
+    <div className="flex flex-wrap gap-2">
+      <Link to="/importar-matrizes"><Button variant="outline" className="h-10"><Upload className="mr-1 h-4 w-4" />Importar planilha</Button></Link>
+      <SowFormDialog onDone={onDone} trigger={<Button className="h-10"><Plus className="mr-1 h-4 w-4" />Nova matriz</Button>} />
+    </div>
+  );
 }
 
 function NewBreeding({ sow, onDone }: { sow: Sow; onDone: () => void }) {
