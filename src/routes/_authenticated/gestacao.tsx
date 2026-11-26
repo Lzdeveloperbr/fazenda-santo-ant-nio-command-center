@@ -9,6 +9,7 @@ import { boarsQuery, pensQuery, breedingsQuery, diagnosesQuery, gestationEventsQ
 import { addDays, cycleAlert, cycleDates, cycleStage, daysBetween, DEFAULT_CONFIG, farrowingWarning, PRIORITY_LABEL, PRIORITY_RANK, reproductiveIndicators, type GestationConfig } from "@/lib/farm/gestation";
 import { farmSettingsQuery } from "@/lib/farm/farm-settings";
 import { FarmSettingsForm } from "@/components/farm/FarmSettingsForm";
+import { HeatDetections, SemenBatches, SemenBatchFields } from "@/components/farm/ReproExtras";
 import { Empty, SectionTitle } from "@/components/farm/Kpi";
 import { FormDialog, Field, SubmitRow, selectCls } from "@/components/farm/FormDialog";
 import { Button } from "@/components/ui/button";
@@ -80,7 +81,7 @@ function Gestacao() {
     <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Pesquisar brinco, nome, reprodutor, data de cobertura ou de parto (dd/mm/aaaa)…" className="h-11" />
 
     <Tabs defaultValue="painel">
-      <div className="-mx-4 overflow-x-auto px-4 pb-1"><TabsList className="h-auto w-max flex-nowrap">{[["painel","Painel"],["cio","Retorno ao cio"],["dx","Diagnóstico"],["gestantes","Gestantes"],["partos","Partos previstos"],["calendario","Calendário"],["vazias","Vazias e descartadas"],["ocorrencias","Perdas"],["historico","Histórico"],["reprodutores","Reprodutores"],["indicadores","Indicadores e relatórios"],["config","Configurações"]].map(([v, l]) => <TabsTrigger key={v} value={v!} className="py-2">{l}</TabsTrigger>)}</TabsList></div>
+      <div className="-mx-4 overflow-x-auto px-4 pb-1"><TabsList className="h-auto w-max flex-nowrap">{[["painel","Painel"],["cio","Retorno ao cio"],["dx","Diagnóstico"],["gestantes","Gestantes"],["partos","Partos previstos"],["calendario","Calendário"],["vazias","Vazias e descartadas"],["ocorrencias","Perdas"],["historico","Histórico"],["observacao-cio","Cio (início/fim)"],["semen","Sêmen"],["reprodutores","Reprodutores"],["indicadores","Indicadores e relatórios"],["config","Configurações"]].map(([v, l]) => <TabsTrigger key={v} value={v!} className="py-2">{l}</TabsTrigger>)}</TabsList></div>
 
       <TabsContent value="painel" className="space-y-6">
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-6">
@@ -119,6 +120,8 @@ function Gestacao() {
 
       <TabsContent value="historico"><History S={S} B={B} L={L} D={D} O={O} boarName={boarName} /></TabsContent>
 
+      <TabsContent value="observacao-cio"><HeatDetections sows={S} /></TabsContent>
+      <TabsContent value="semen"><SemenBatches /></TabsContent>
       <TabsContent value="reprodutores"><Boars boars={BO} B={B} L={L} onDone={refresh} /></TabsContent>
 
       <TabsContent value="indicadores"><Indicators S={S} B={B} L={L} D={D} O={O} tag={tag} boarName={boarName} cfg={cfg} /></TabsContent>
@@ -167,7 +170,7 @@ function NewBreeding({ sows, boars, breedings, onDone }: { sows: Sow[]; boars: {
     if (!sowId) return void toast.error("Selecione a matriz."); if (!date || date > todayISO()) return void toast.error("Informe uma data válida (não futura).");
     if (open && !ack) return void toast.error("Confirme que deseja registrar outra cobertura com ciclo ativo.");
     setBusy(true); const boarId = String(f.get("boar_id") || "") || null;
-    const { error } = await supabase.from("breedings").insert({ sow_id: sowId, breeding_date: date, breeding_time: String(f.get("time") || "") || null, breeding_type: String(f.get("type")), boar_id: boarId, boar: String(f.get("boar") || "") || null, semen_code: String(f.get("semen") || "") || null, dose_number: String(f.get("dose") || "") || null, responsible: String(f.get("responsible") || "") || null, services_count: Number(f.get("services") || 1), notes: String(f.get("notes") || "") || null });
+    const { error } = await supabase.from("breedings").insert({ sow_id: sowId, breeding_date: date, breeding_time: String(f.get("time") || "") || null, breeding_type: String(f.get("type")), boar_id: boarId, boar: String(f.get("boar") || "") || null, semen_code: String(f.get("semen") || "") || null, dose_number: String(f.get("dose") || "") || null, responsible: String(f.get("responsible") || "") || null, services_count: Number(f.get("services") || 1), notes: String(f.get("notes") || "") || null, ...(f.get("semen_batch_id") ? { semen_batch_id: String(f.get("semen_batch_id")), semen_doses_used: Number(f.get("semen_doses_used") || 1) } : {}) });
     if (!error) await supabase.from("sows").update({ status: "coberta" }).eq("id", sowId).in("status", ["vazia", "coberta"]);
     setBusy(false); if (error) return void toast.error(error.message); toast.success("Cobertura registrada e ciclo iniciado"); setSowId(""); setAck(false); onDone(); close();
   }}>
@@ -177,6 +180,7 @@ function NewBreeding({ sows, boars, breedings, onDone }: { sows: Sow[]; boars: {
     <Field label="Tipo"><select name="type" className={selectCls}>{Object.entries(TYPE_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></Field>
     <Field label="Reprodutor cadastrado"><select name="boar_id" className={selectCls}><option value="">—</option>{boars.filter((b) => b.status === "ativo").map((b) => <option key={b.id} value={b.id}>{b.code}{b.name ? ` · ${b.name}` : ""}</option>)}</select></Field>
     <Field label="Ou identificação livre do cachaço"><Input name="boar" className="h-11" /></Field>
+    <SemenBatchFields />
     <div className="grid grid-cols-2 gap-3"><Field label="Código do sêmen"><Input name="semen" className="h-11" /></Field><Field label="Nº da dose"><Input name="dose" className="h-11" /></Field></div>
     <div className="grid grid-cols-2 gap-3"><Field label="Responsável"><Input name="responsible" className="h-11" /></Field><Field label="Serviços realizados"><Input name="services" type="number" min={1} defaultValue={1} className="h-11" /></Field></div>
     <Field label="Observações"><Input name="notes" className="h-11" /></Field>

@@ -50,15 +50,15 @@ Legenda: ✅ funciona · 🟡 parcial · ❌ não existe
 | 1 | Preservar projeto | ✅ | Análise feita; mudanças incrementais e não destrutivas |
 | 2 | Dashboard | ✅ **Fase 5** | Painel com filtros de período, situação do plantel (15 estados), taxas de parto/concepção, estoque, consumo diário de ração, financeiro, gráficos de 12 meses e alertas inteligentes |
 | 3 | Prontuário da matriz | ✅ **Fase 2** | Ver seção 4.1. Falta histórico de mudanças de baia como evento próprio (hoje aparece no Histórico de alterações) |
-| 4 | Reprodução | 🟡 | Ciclos, cio, retorno, reprodutores, calendário, indicadores; **prazos agora configuráveis no banco (Fase 2)**. Faltam cadastro de lotes de sêmen e término de cio |
-| 5 | Gestação | ✅/🟡 | Diagnósticos, perdas, alertas derivados de datas, linha do tempo. Falta condição corporal e alimentação por matriz |
+| 4 | Reprodução | ✅ **Fase 7** | Ciclos, retorno, reprodutores, calendário, indicadores, prazos no banco; observação de cio com início/fim, intensidade e sinais; lotes de sêmen com controle de doses e validade |
+| 5 | Gestação | ✅ **Fase 7** | Diagnósticos, perdas, alertas, linha do tempo; condição corporal (escore, toucinho) e alimentação por matriz |
 | 6 | Maternidade | ✅ **Fase 3** | Parto com início/fim, responsável, intercorrências, mumificados, refugos e baia; ficha de mortalidade completa; indicadores com denominadores |
 | 7 | Leitões | ✅ **Fase 3** | Prontuário individual (sexo, peso, condição, colostragem, ferro, cauda, castração, baia, morte, desmame), pendências, visão por leitegada e adoções |
 | 8 | Desmame | ✅ **Fases 3 e 5** | Desmame com machos/fêmeas, peso, destino e baia; idade, peso, mortalidade pré-desmame e intervalo desmame-cio calculados |
 | 9 | Sanidade | ✅ **Fase 5** | Protocolos sanitários configuráveis (sem nenhum valor pronto), que só geram lembretes depois de validados por veterinário/gestão; alteração exige nova validação |
 | 10 | Estoque e farmácia | ✅ **Fase 4** | Estoque geral (`/almoxarifado`) com entrada, saída, devolução, transferência e ajuste de inventário (só gestão), lote, validade, NF, custo, fornecedor; saldo só por movimentação; saída acima do saldo recusada; alertas consolidados de materiais, ração e farmácia |
-| 11 | Ração e nutrição | 🟡 | Rações, movimentos, consumo por baia/lote. Faltam planos por fase e histórico por matriz |
-| 12 | Baias | 🟡 | Galpão e sala, matrizes/leitegadas vinculadas e bloqueio de lotação de matrizes (só gestão autoriza) na Fase 3. Mapa interativo por galpão ainda é o da Granja 3D |
+| 11 | Ração e nutrição | ✅ **Fase 7** | Rações, consumo por baia/lote, histórico por matriz; planos por fase que só ficam vigentes depois de validados pelo responsável técnico |
+| 12 | Baias | ✅ **Fase 7** | Galpão/sala, lotação controlada, mapa 2D interativo por setor › galpão › sala com cores de ocupação e atenção, detalhe da baia (animais, lote, histórico) |
 | 13 | Descarte e mortalidade | ✅ **Fases 3–4** | `/mortalidade` com leitões, matrizes e lotes; descarte com destino, valor de venda e lançamento opcional da receita |
 | 14 | Indicadores | ✅ **Fase 5** | Relatório de indicadores com período atual × anterior × ano anterior e base de cálculo; matriz × média do plantel; GMD e conversão por lote quando há dados; exportação |
 | 15 | Financeiro | ✅ **Fase 4** | Contas a pagar/receber com baixa e atraso, fluxo de caixa com realizado e previsto separados, centros de custo, custo por lote, fornecedores, documento/NF |
@@ -130,6 +130,11 @@ Legenda: ✅ funciona · 🟡 parcial · ❌ não existe
 - Edge Function `farm-assistant` (mesma chave `OPENAI_API_KEY` da `vet-assistant`; sem a chave, só as respostas calculadas funcionam). Limite de 30 perguntas por hora por usuário.
 - Offline: funcionam sem conexão (com o app aberto) os eventos da Maternidade (morte, pesagem, adoção de entrada/saída, observação) e o Caderno de baia. Desmame exige conexão. Cada registro recebe um id no aparelho; reenvio não duplica. Recusas do servidor ficam para revisão, nunca são apagadas sozinhas.
 
+## 4.6 Fase 7 — entregue
+
+- Migration `0021_cio_semen_condicao_nutricao.sql`: `heat_detections`, `semen_batches` (doses consumidas pela cobertura; lote vencido ou sem doses recusado; corrigir a cobertura devolve doses), `breedings.semen_batch_id/semen_doses_used`, `sow_condition_records`, `feed_plans` (criação/alteração só por Administrador, Gerente ou Veterinário; mudar conteúdo derruba a validação).
+- Telas: abas **Cio (início/fim)** e **Sêmen** em Gestação; lote de sêmen na nova cobertura; **Condição corporal e alimentação** na ficha; **Planos de alimentação** no Estoque de ração; aba **Mapa** em Baias.
+
 ## 5. Limitações conhecidas (honestas)
 
 - **Abrir o app do zero sem internet** mostra o aviso de sem conexão: o aparelho não guarda cópia do banco (decisão de privacidade). A fila offline serve para quedas de conexão com o app já aberto.
@@ -147,7 +152,7 @@ Legenda: ✅ funciona · 🟡 parcial · ❌ não existe
 ## 7. Como validar a Fase 1 em homologação
 
 1. Backup do banco.
-2. Aplicar, em ordem, `0015` a `0020` pelo fluxo oficial (Lovable/Supabase). Antes, rodar `tests/db/run.sh` num PostgreSQL local descartável.
+2. Aplicar, em ordem, `0015` a `0021` pelo fluxo oficial (Lovable/Supabase). Antes, rodar `tests/db/run.sh` num PostgreSQL local descartável.
 3. Entrar como um dos fundadores: menu Gestão deve mostrar **Equipe e permissões** e **Histórico de alterações**.
 4. Mudar um funcionário de teste para **Consulta** e confirmar que ele vê os dados, vê o aviso e não consegue salvar.
 5. Desativar o usuário de teste e confirmar que ele não vê dados.

@@ -9,6 +9,8 @@ import { FormDialog, Field } from "@/components/farm/FormDialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  heatDetectionsQuery,
+  sowConditionQuery,
   diagnosesQuery,
   fmtDate,
   gestationEventsQuery,
@@ -260,6 +262,8 @@ export function ArchiveSowButton({ sow }: { sow: Sow }) {
 }
 
 const KIND_TONE: Record<TimelineKind, string> = {
+  cio: "bg-info/15 text-info",
+  condicao: "bg-muted text-muted-foreground",
   cobertura: "bg-info/15 text-info",
   diagnostico: "bg-info/15 text-info",
   gestacao: "bg-warn/15 text-warn",
@@ -312,6 +316,8 @@ export function SowTimeline({
       return data ?? [];
     },
   });
+  const heats = useQuery({ ...heatDetectionsQuery, retry: false });
+  const conditions = useQuery({ ...sowConditionQuery, retry: false });
   const [filter, setFilter] = useState<TimelineKind | "">("");
   const litterIds = new Set(litters.map((l) => l.id));
   const items = buildSowTimeline({
@@ -324,6 +330,8 @@ export function SowTimeline({
     vaccines: vaccines.data ?? [],
     medications: meds.data ?? [],
     labels: { sowEvent: SOW_EVENT_LABEL, litterEvent: LITTER_EVENT_LABEL },
+    heats: (heats.data ?? []).filter((h) => h.sow_id === sow.id),
+    conditions: (conditions.data ?? []).filter((c) => c.sow_id === sow.id),
   });
   const kinds = Array.from(new Set(items.map((i) => i.kind)));
   const shown = filter ? items.filter((i) => i.kind === filter) : items;

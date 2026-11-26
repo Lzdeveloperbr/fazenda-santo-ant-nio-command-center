@@ -1,40 +1,308 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { ArrowRight, Leaf, ShieldCheck, ClipboardList, Sprout, PiggyBank, Baby, Wheat, Activity, ChartNoAxesCombined } from "lucide-react";
+import {
+  ArrowRight,
+  Baby,
+  BellRing,
+  BrainCircuit,
+  CalendarDays,
+  ChartNoAxesCombined,
+  ClipboardCheck,
+  FileBarChart,
+  HeartPulse,
+  Package,
+  PiggyBank,
+  ShieldCheck,
+  Smartphone,
+  Wallet,
+  WifiOff,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { LogoMark } from "@/components/farm/Logo";
+import { BrandLockup, LogoMark } from "@/components/farm/Logo";
+import { Landscape3D } from "@/components/farm/Landscape3D";
+import { Reveal, Tilt } from "@/components/farm/motion";
 import { Button } from "@/components/ui/button";
 
-export const Route=createFileRoute("/")({head:()=>({meta:[{title:"Fazenda Santo Antônio | Gestão da Suinocultura"},{name:"description",content:"Uma plataforma completa para acompanhar matrizes, maternidade, lotes, sanidade, alimentação e desempenho da suinocultura."},{property:"og:title",content:"Fazenda Santo Antônio | Gestão da Suinocultura"},{property:"og:description",content:"Manejo organizado. Produção acompanhada. Decisões melhores."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary"}]}),component:Index});
-function Index(){
- const navigate=useNavigate();useEffect(()=>{supabase.auth.getSession().then(({data})=>{if(data.session)navigate({to:"/painel",replace:true});});},[navigate]);
- return <main className="min-h-screen overflow-hidden bg-[#F5F3EB] text-[#20372A]">
-  <section className="relative isolate overflow-hidden bg-[#173F2B] text-white">
-   <div className="absolute inset-0 -z-10 opacity-40" style={{backgroundImage:"radial-gradient(circle at 80% 20%, rgba(174,207,155,.28), transparent 28%), radial-gradient(circle at 12% 85%, rgba(215,182,108,.16), transparent 30%)"}}/>
-   <div className="absolute -right-32 top-16 -z-10 h-[28rem] w-[28rem] rounded-full border border-white/10"/><div className="absolute -right-12 top-36 -z-10 h-80 w-80 rounded-full border border-white/10"/>
-   <div className="mx-auto max-w-7xl px-5 pb-20 pt-7 sm:px-8 lg:pb-28">
-    <header className="flex items-center gap-3"><LogoMark className="h-14 w-14"/><div><p className="text-[.65rem] font-bold uppercase tracking-[.2em] text-[#D7B66C]">Gestão da suinocultura</p><p className="mt-1 text-lg font-bold tracking-tight">Fazenda Santo Antônio</p></div><span className="ml-auto hidden rounded-full border border-white/15 bg-white/[.06] px-4 py-2 text-xs font-medium text-white/75 sm:inline-flex">Tecnologia a serviço do campo</span></header>
-    <div className="grid items-center gap-12 pt-16 lg:grid-cols-[1.1fr_.9fr] lg:pt-24">
-     <div className="max-w-2xl"><span className="inline-flex items-center gap-2 rounded-full border border-[#D7B66C]/35 bg-white/[.06] px-3 py-1.5 text-xs font-semibold text-[#E7D5A8]"><Leaf className="h-3.5 w-3.5"/> Gestão rural, com visão de produção</span>
-      <h1 className="mt-7 text-[2.65rem] font-bold leading-[1.04] tracking-[-.045em] sm:text-6xl lg:text-[4.35rem]">O cuidado com cada animal. A visão de toda a granja.</h1>
-      <p className="mt-6 max-w-xl text-base leading-7 text-white/70 sm:text-lg">Organize matrizes, coberturas, partos, leitões, lotes, sanidade, alimentação e resultados em um único centro de gestão.</p>
-      <div className="mt-9 flex flex-wrap items-center gap-4"><Button asChild size="lg" className="h-12 rounded-xl bg-[#D7B66C] px-6 font-bold text-[#173F2B] shadow-lg shadow-black/10 hover:bg-[#E4C982]"><Link to="/auth">Entrar no sistema <ArrowRight className="ml-2 h-4 w-4"/></Link></Button><span className="text-xs text-white/50">Acesso exclusivo à equipe autorizada</span></div>
-      <div className="mt-12 flex flex-wrap gap-x-8 gap-y-3 border-t border-white/15 pt-6 text-xs font-medium text-white/65"><span className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-[#D7B66C]"/> Dados organizados</span><span className="flex items-center gap-2"><Activity className="h-4 w-4 text-[#D7B66C]"/> Indicadores de produção</span><span className="flex items-center gap-2"><ClipboardList className="h-4 w-4 text-[#D7B66C]"/> Rotina de manejo</span></div>
-     </div>
-     <div className="relative mx-auto w-full max-w-[480px]"><div className="absolute -inset-5 rounded-[2rem] bg-[#D7B66C]/10 blur-2xl"/><div className="relative rounded-[1.8rem] border border-white/15 bg-white/[.08] p-3 shadow-2xl backdrop-blur-xl sm:p-5">
-      <div className="rounded-[1.3rem] bg-[#FBFAF6] p-5 text-[#20372A] sm:p-6"><div className="flex items-center justify-between border-b border-[#E8E5DA] pb-4"><div><p className="text-[.62rem] font-bold uppercase tracking-[.17em] text-[#718074]">Centro de gestão</p><p className="mt-1 text-xl font-bold">Sua granja em foco</p></div><LogoMark className="h-11 w-11"/></div>
-       <div className="mt-5 grid grid-cols-2 gap-3"><Feature icon={PiggyBank} title="Rebanho" detail="Matrizes e reprodução"/><Feature icon={Baby} title="Maternidade" detail="Partos e leitegadas"/><Feature icon={ShieldCheck} title="Sanidade" detail="Registros e cuidados"/><Feature icon={Wheat} title="Alimentação" detail="Estoque e consumo"/></div>
-       <div className="mt-4 flex items-center gap-3 rounded-xl bg-[#EAF0E8] p-3"><span className="rounded-lg bg-white p-2 text-[#315E40]"><ChartNoAxesCombined className="h-5 w-5"/></span><div><p className="text-sm font-bold">Desempenho por lote</p><p className="mt-0.5 text-xs text-[#718074]">Pesagens, evolução e indicadores</p></div></div>
-      </div>
-     </div></div>
-    </div>
-   </div>
-  </section>
-  <section className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:py-20"><div className="max-w-2xl"><p className="text-xs font-bold uppercase tracking-[.18em] text-[#66806B]">Uma operação conectada</p><h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Do manejo diário aos números da produção.</h2><p className="mt-4 leading-7 text-[#6B776C]">Cada módulo ajuda a manter o histórico da granja organizado e facilita o acompanhamento do trabalho da equipe.</p></div>
-   <div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><Pillar icon={PiggyBank} title="Rebanho" text="Histórico das matrizes e reprodução."/><Pillar icon={Baby} title="Maternidade" text="Acompanhamento das leitegadas."/><Pillar icon={Wheat} title="Operação" text="Lotes, estoque e sanidade."/><Pillar icon={ChartNoAxesCombined} title="Desempenho" text="Pesagens e indicadores por lote."/></div>
-  </section>
-  <footer className="border-t border-[#E2E0D5] bg-[#F0EEE5]"><div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-6 text-xs text-[#718074] sm:px-8"><div className="flex items-center gap-2"><LogoMark className="h-8 w-8"/><span className="font-semibold text-[#31513A]">Fazenda Santo Antônio</span></div><span>Gestão simples. Manejo bem feito.</span></div></footer>
- </main>;
+export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Fazenda Santo Antônio | Gestão da Suinocultura" },
+      {
+        name: "description",
+        content:
+          "Command Center da Fazenda Santo Antônio: matrizes, reprodução, maternidade, leitões, sanidade, estoque, financeiro, relatórios e assistente inteligente.",
+      },
+      { property: "og:title", content: "Fazenda Santo Antônio | Gestão da Suinocultura" },
+      {
+        property: "og:description",
+        content: "Cada matriz, cada leitão, cada decisão — em um só lugar.",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:image", content: "/og-image.jpg" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: Index,
+});
+
+const MODULES = [
+  {
+    icon: PiggyBank,
+    title: "Matrizes e reprodução",
+    text: "Prontuário com foto e QR Code, coberturas, cio, sêmen, diagnósticos e situação em 15 estados.",
+  },
+  {
+    icon: Baby,
+    title: "Maternidade e leitões",
+    text: "Partos, adoções, mortalidade com motivo e idade, manejo individual e desmame com destino.",
+  },
+  {
+    icon: HeartPulse,
+    title: "Sanidade",
+    text: "Vacinas, tratamentos e protocolos validados pelo veterinário, com carência e lembretes.",
+  },
+  {
+    icon: Package,
+    title: "Estoque e farmácia",
+    text: "Materiais, ração e medicamentos com lote, validade, fornecedor e bloqueio de saldo.",
+  },
+  {
+    icon: Wallet,
+    title: "Financeiro",
+    text: "Contas a pagar e receber, fluxo de caixa realizado × previsto e custo por lote.",
+  },
+  {
+    icon: FileBarChart,
+    title: "Relatórios",
+    text: "18 relatórios com a identidade da fazenda em PDF, Excel e CSV.",
+  },
+  {
+    icon: CalendarDays,
+    title: "Agenda da granja",
+    text: "Partos, diagnósticos, desmames, vacinas, contas e tarefas por dia, semana e mês.",
+  },
+  {
+    icon: BrainCircuit,
+    title: "Santo Antônio AI",
+    text: "Pergunte sobre a granja e receba respostas calculadas com os seus registros.",
+  },
+] as const;
+
+function Index() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) navigate({ to: "/painel", replace: true });
+    });
+  }, [navigate]);
+
+  return (
+    <main className="min-h-screen overflow-x-hidden bg-[#F5F2E9] text-[#17301F]">
+      {/* Abertura */}
+      <section className="brand-aurora relative min-h-[100svh] text-white">
+        <Landscape3D className="absolute inset-0" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#06190f]/95 via-[#06190f]/55 to-transparent" />
+        <div className="pointer-events-none absolute inset-0 bg-[#06190f]/45 sm:hidden" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#F5F2E9] to-transparent" />
+        <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-7xl flex-col px-5 pb-28 pt-6 sm:px-8">
+          <header className="flex items-center justify-between gap-4">
+            <BrandLockup />
+            <Button
+              asChild
+              variant="outline"
+              className="h-10 rounded-full border-white/25 bg-white/10 px-5 text-white backdrop-blur hover:bg-white/20 hover:text-white"
+            >
+              <Link to="/auth">Entrar</Link>
+            </Button>
+          </header>
+          <div className="my-auto max-w-2xl pt-16">
+            <Reveal>
+              <span className="inline-flex items-center gap-2 rounded-full border border-[#E3C77F]/40 bg-white/[.07] px-3.5 py-1.5 text-xs font-semibold text-[#EEDBA6] backdrop-blur">
+                Command Center da suinocultura
+              </span>
+            </Reveal>
+            <Reveal delay={80}>
+              <h1 className="mt-6 text-[2.8rem] font-extrabold leading-[1.02] tracking-[-.045em] sm:text-6xl lg:text-7xl">
+                Cada matriz. Cada leitão. <span className="text-brand-gradient">Cada decisão.</span>
+              </h1>
+            </Reveal>
+            <Reveal delay={160}>
+              <p className="mt-6 max-w-xl text-base leading-7 text-white/75 sm:text-lg">
+                Reprodução, maternidade, sanidade, estoque, financeiro e relatórios da Fazenda Santo
+                Antônio em um só lugar — no computador e no celular, até com internet instável.
+              </p>
+            </Reveal>
+            <Reveal delay={240}>
+              <div className="mt-9 flex flex-wrap items-center gap-4">
+                <Button
+                  asChild
+                  size="lg"
+                  className="h-13 rounded-2xl bg-[#E3C77F] px-7 text-base font-extrabold text-[#123B28] shadow-[0_18px_40px_-14px_rgba(227,199,127,.7)] hover:bg-[#F0D891]"
+                >
+                  <Link to="/auth">
+                    Entrar no sistema <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
+                <span className="text-xs text-white/55">Acesso exclusivo à equipe autorizada</span>
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* Números do produto */}
+      <section className="relative z-10 mx-auto -mt-16 max-w-6xl px-5 sm:px-8">
+        <Reveal className="grid grid-cols-2 gap-3 rounded-3xl border border-[#E5E0D2] bg-white/90 p-4 shadow-[0_30px_80px_-40px_rgba(18,59,40,.45)] backdrop-blur sm:grid-cols-4 sm:p-6">
+          {[
+            ["15", "situações de matriz"],
+            ["18", "relatórios prontos"],
+            ["5", "perfis de acesso"],
+            ["100%", "dados reais, sem inventar"],
+          ].map(([n, l]) => (
+            <div key={l} className="rounded-2xl bg-[#F6F3EA] p-4 text-center">
+              <p className="text-3xl font-extrabold tracking-tight text-[#1E5A3C] sm:text-4xl">
+                {n}
+              </p>
+              <p className="mt-1 text-xs font-semibold text-[#6B776C]">{l}</p>
+            </div>
+          ))}
+        </Reveal>
+      </section>
+
+      {/* Módulos */}
+      <section className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:py-28">
+        <Reveal className="max-w-2xl">
+          <p className="text-xs font-bold uppercase tracking-[.2em] text-[#4F7A5B]">
+            Uma operação conectada
+          </p>
+          <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-5xl">
+            Do manejo diário aos números da produção.
+          </h2>
+        </Reveal>
+        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {MODULES.map((m, i) => (
+            <Reveal key={m.title} delay={(i % 4) * 90}>
+              <Tilt className="h-full">
+                <div className="group h-full rounded-3xl border border-[#E3DFD2] bg-white p-6 shadow-[0_14px_40px_-34px_rgba(18,59,40,.6)] transition hover:border-[#1E5A3C]/30 hover:shadow-[0_24px_60px_-36px_rgba(18,59,40,.6)]">
+                  <span className="inline-grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-[#1E5A3C] to-[#0E3322] text-[#E3C77F] shadow-lg shadow-[#1E5A3C]/20 transition group-hover:scale-110 group-hover:rotate-[-4deg]">
+                    <m.icon className="h-6 w-6" />
+                  </span>
+                  <h3 className="mt-5 text-lg font-bold">{m.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-[#66736A]">{m.text}</p>
+                </div>
+              </Tilt>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* Como funciona */}
+      <section className="brand-aurora relative text-white">
+        <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:py-28">
+          <Reveal className="max-w-2xl">
+            <p className="text-xs font-bold uppercase tracking-[.2em] text-[#E3C77F]">
+              Na rotina da granja
+            </p>
+            <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-5xl">
+              Registre no celular. Decida com números.
+            </h2>
+          </Reveal>
+          <div className="mt-12 grid gap-5 md:grid-cols-3">
+            {[
+              {
+                icon: Smartphone,
+                n: "01",
+                title: "Registre na baia",
+                text: "Morte, pesagem, parto ou trato em poucos toques. Sem internet, fica guardado e é enviado depois — sem duplicar.",
+              },
+              {
+                icon: BellRing,
+                n: "02",
+                title: "Receba os alertas",
+                text: "Partos previstos, diagnósticos, vacinas, estoque baixo e contas vencendo aparecem na agenda e no sino.",
+              },
+              {
+                icon: ChartNoAxesCombined,
+                n: "03",
+                title: "Acompanhe os resultados",
+                text: "Taxa de parto, mortalidade, desmamados, custo por lote e comparativos com o período anterior.",
+              },
+            ].map((s, i) => (
+              <Reveal key={s.n} delay={i * 120}>
+                <div className="h-full rounded-3xl border border-white/12 bg-white/[.06] p-7 backdrop-blur">
+                  <div className="flex items-center justify-between">
+                    <span className="grid h-12 w-12 place-items-center rounded-2xl bg-[#E3C77F] text-[#123B28]">
+                      <s.icon className="h-6 w-6" />
+                    </span>
+                    <span className="font-mono text-4xl font-bold text-white/15">{s.n}</span>
+                  </div>
+                  <h3 className="mt-6 text-xl font-bold">{s.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-white/70">{s.text}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Confiança */}
+      <section className="mx-auto max-w-7xl px-5 py-20 sm:px-8">
+        <div className="grid gap-5 lg:grid-cols-3">
+          {[
+            {
+              icon: ShieldCheck,
+              title: "Segurança no banco de dados",
+              text: "Cada perfil só faz o que pode, e quem é desativado perde o acesso na hora.",
+            },
+            {
+              icon: ClipboardCheck,
+              title: "Histórico que não se apaga",
+              text: "Toda inclusão, alteração e exclusão fica registrada com quem fez, quando e o valor anterior.",
+            },
+            {
+              icon: WifiOff,
+              title: "Feito para o campo",
+              text: "Instale como aplicativo no Android ou no computador e continue registrando quando a conexão cair.",
+            },
+          ].map((c, i) => (
+            <Reveal key={c.title} delay={i * 100}>
+              <div className="flex h-full gap-4 rounded-3xl border border-[#E3DFD2] bg-white p-6">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#EAF1E8] text-[#1E5A3C]">
+                  <c.icon className="h-5 w-5" />
+                </span>
+                <div>
+                  <h3 className="font-bold">{c.title}</h3>
+                  <p className="mt-1.5 text-sm leading-6 text-[#66736A]">{c.text}</p>
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+        <Reveal className="mt-14 overflow-hidden rounded-[2rem]">
+          <div className="brand-aurora relative flex flex-col items-center gap-6 px-6 py-14 text-center text-white">
+            <LogoMark className="h-20 w-20" animated />
+            <h2 className="max-w-xl text-3xl font-extrabold tracking-tight sm:text-4xl">
+              Pronto para começar o dia na granja?
+            </h2>
+            <Button
+              asChild
+              size="lg"
+              className="h-12 rounded-2xl bg-[#E3C77F] px-7 font-extrabold text-[#123B28] hover:bg-[#F0D891]"
+            >
+              <Link to="/auth">
+                Entrar no sistema <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+          </div>
+        </Reveal>
+      </section>
+
+      <footer className="border-t border-[#E2DDCF] bg-[#EFEBE0]">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-7 text-xs text-[#6B776C] sm:px-8">
+          <BrandLockup tone="dark" animated={false} />
+          <span>Manejo bem feito. Produção acompanhada.</span>
+        </div>
+      </footer>
+    </main>
+  );
 }
-function Feature({icon:Icon,title,detail}:{icon:typeof PiggyBank;title:string;detail:string}){return <div className="rounded-xl border border-[#E7E5DB] bg-white p-3"><span className="inline-flex rounded-lg bg-[#EAF0E8] p-2 text-[#315E40]"><Icon className="h-4 w-4"/></span><p className="mt-3 text-sm font-bold">{title}</p><p className="mt-1 text-xs text-[#778276]">{detail}</p></div>;}
-function Pillar({icon:Icon,title,text}:{icon:typeof PiggyBank;title:string;text:string}){return <div className="rounded-2xl border border-[#E3E1D7] bg-white p-5 shadow-[0_10px_30px_-28px_rgba(32,55,42,.4)]"><span className="inline-flex rounded-xl bg-[#EAF0E8] p-3 text-[#315E40]"><Icon className="h-5 w-5"/></span><h3 className="mt-4 font-bold">{title}</h3><p className="mt-2 text-sm leading-6 text-[#718074]">{text}</p></div>;}

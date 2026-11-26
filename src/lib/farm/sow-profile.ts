@@ -174,6 +174,8 @@ export function validateSowForm(f: SowFormInput, today: string): string | null {
 }
 
 export type TimelineKind =
+  | "cio"
+  | "condicao"
   | "cobertura"
   | "diagnostico"
   | "gestacao"
@@ -193,6 +195,8 @@ export type TimelineItem = {
 };
 
 export const TIMELINE_KIND_LABEL: Record<TimelineKind, string> = {
+  cio: "Cio",
+  condicao: "Condição corporal",
   cobertura: "Reprodução",
   diagnostico: "Diagnóstico",
   gestacao: "Gestação",
@@ -267,6 +271,8 @@ export function buildSowTimeline(input: {
   vaccines: { vaccination_date: string; vaccine_name: string; created_at: string }[];
   medications: { administration_start: string; product_name: string; created_at: string }[];
   labels: { sowEvent: Record<string, string>; litterEvent: Record<string, string> };
+  heats?: { started_at: string; ended_at: string | null; intensity: string | null; created_at: string }[];
+  conditions?: { record_date: string; body_condition_score: number | null; feed_kg_day: number | null; backfat_mm: number | null; created_at: string }[];
 }): TimelineItem[] {
   const out: TimelineItem[] = [];
   const ts = (c: string) => Date.parse(c) || 0;
@@ -348,5 +354,9 @@ export function buildSowTimeline(input: {
       order: ts(m.created_at),
       title: `Medicamento: ${m.product_name}`,
     });
+  for (const h of input.heats ?? [])
+    out.push({ date: h.started_at.slice(0, 10), kind: "cio", order: ts(h.created_at), title: h.ended_at ? "Cio observado" : "Cio observado (sem término registrado)", detail: [h.intensity && `Intensidade ${h.intensity}`, h.ended_at && `Término ${h.ended_at.slice(0, 10).split("-").reverse().join("/")}`].filter(Boolean).join(" · ") || undefined });
+  for (const c of input.conditions ?? [])
+    out.push({ date: c.record_date, kind: "condicao", order: ts(c.created_at), title: "Condição corporal / alimentação", detail: [c.body_condition_score !== null && `Escore ${c.body_condition_score}`, c.backfat_mm !== null && `Toucinho ${c.backfat_mm} mm`, c.feed_kg_day !== null && `${c.feed_kg_day} kg/dia`].filter(Boolean).join(" · ") || undefined });
   return out.sort((a, b) => b.date.localeCompare(a.date) || b.order - a.order);
 }

@@ -187,3 +187,24 @@ export const healthProtocolsQuery = queryOptions({
   queryKey: ["health_protocols"],
   queryFn: () => unwrap<HealthProtocol[]>(supabase.from("health_protocols").select("*").order("name")),
 });
+
+export type SemenBatch = Database["public"]["Tables"]["semen_batches"]["Row"];
+export type HeatDetection = Database["public"]["Tables"]["heat_detections"]["Row"];
+export type SowCondition = Database["public"]["Tables"]["sow_condition_records"]["Row"];
+export type FeedPlan = Database["public"]["Tables"]["feed_plans"]["Row"];
+export const semenBatchesQuery = queryOptions({
+  queryKey: ["semen_batches"],
+  queryFn: () => unwrap<SemenBatch[]>(supabase.from("semen_batches").select("*").order("received_date", { ascending: false })),
+});
+export const heatDetectionsQuery = queryOptions({
+  queryKey: ["heat_detections"],
+  queryFn: () => unwrap<HeatDetection[]>(supabase.from("heat_detections").select("*").order("started_at", { ascending: false }).limit(1000)),
+});
+export const sowConditionQuery = queryOptions({
+  queryKey: ["sow_condition_records"],
+  queryFn: () => unwrap<SowCondition[]>(supabase.from("sow_condition_records").select("*").order("record_date", { ascending: false })),
+});
+export const feedPlansQuery = queryOptions({
+  queryKey: ["feed_plans"],
+  queryFn: () => unwrap<FeedPlan[]>(supabase.from("feed_plans").select("*").order("category").order("day_from")),
+});

@@ -7,6 +7,7 @@ import { parityOf, SOW_CATEGORY_LABEL, sowSituation } from "@/lib/farm/sow-profi
 import { daysBetween } from "@/lib/farm/gestation";
 import { SowFormDialog } from "@/components/farm/SowForm";
 import { ArchiveSowButton, SowPhoto, SowQrCode, SowTimeline } from "@/components/farm/SowRecordExtras";
+import { SowConditionSection } from "@/components/farm/ReproExtras";
 import { Empty, SectionTitle } from "@/components/farm/Kpi";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -150,6 +151,8 @@ function SowRecord() {
           </article>;
         })}</div>}
       </section>
+
+      <SowConditionSection sow={sow} />
 
       <AnimalHealthSection sow={sow} litters={countedLitters} />
 

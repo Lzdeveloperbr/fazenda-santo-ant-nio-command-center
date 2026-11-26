@@ -14,6 +14,189 @@ export type Database = {
   }
   public: {
     Tables: {
+      feed_plans: {
+        Row: {
+          active: boolean
+          category: string
+          created_at: string
+          created_by: string | null
+          day_from: number | null
+          day_to: number | null
+          feed_product_id: string | null
+          id: string
+          kg_per_animal_day: number | null
+          name: string
+          notes: string | null
+          updated_at: string
+          validated_at: string | null
+          validated_by_name: string | null
+        }
+        Insert: {
+          active?: boolean
+          category: string
+          created_at?: string
+          created_by?: string | null
+          day_from?: number | null
+          day_to?: number | null
+          feed_product_id?: string | null
+          id?: string
+          kg_per_animal_day?: number | null
+          name: string
+          notes?: string | null
+          updated_at?: string
+          validated_at?: string | null
+          validated_by_name?: string | null
+        }
+        Update: {
+          active?: boolean
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          day_from?: number | null
+          day_to?: number | null
+          feed_product_id?: string | null
+          id?: string
+          kg_per_animal_day?: number | null
+          name?: string
+          notes?: string | null
+          updated_at?: string
+          validated_at?: string | null
+          validated_by_name?: string | null
+        }
+        Relationships: []
+      }
+      sow_condition_records: {
+        Row: {
+          backfat_mm: number | null
+          body_condition_score: number | null
+          created_at: string
+          created_by: string | null
+          feed_kg_day: number | null
+          feed_product_id: string | null
+          id: string
+          notes: string | null
+          record_date: string
+          responsible: string | null
+          sow_id: string
+        }
+        Insert: {
+          backfat_mm?: number | null
+          body_condition_score?: number | null
+          created_at?: string
+          created_by?: string | null
+          feed_kg_day?: number | null
+          feed_product_id?: string | null
+          id?: string
+          notes?: string | null
+          record_date?: string
+          responsible?: string | null
+          sow_id: string
+        }
+        Update: {
+          backfat_mm?: number | null
+          body_condition_score?: number | null
+          created_at?: string
+          created_by?: string | null
+          feed_kg_day?: number | null
+          feed_product_id?: string | null
+          id?: string
+          notes?: string | null
+          record_date?: string
+          responsible?: string | null
+          sow_id?: string
+        }
+        Relationships: []
+      }
+      semen_batches: {
+        Row: {
+          boar_description: string | null
+          boar_id: string | null
+          code: string
+          collection_date: string | null
+          created_at: string
+          created_by: string | null
+          doses_available: number
+          doses_received: number
+          expiry_date: string | null
+          id: string
+          notes: string | null
+          received_date: string
+          storage: string | null
+          supplier_id: string | null
+        }
+        Insert: {
+          boar_description?: string | null
+          boar_id?: string | null
+          code: string
+          collection_date?: string | null
+          created_at?: string
+          created_by?: string | null
+          doses_available: number
+          doses_received: number
+          expiry_date?: string | null
+          id?: string
+          notes?: string | null
+          received_date?: string
+          storage?: string | null
+          supplier_id?: string | null
+        }
+        Update: {
+          boar_description?: string | null
+          boar_id?: string | null
+          code?: string
+          collection_date?: string | null
+          created_at?: string
+          created_by?: string | null
+          doses_available?: number
+          doses_received?: number
+          expiry_date?: string | null
+          id?: string
+          notes?: string | null
+          received_date?: string
+          storage?: string | null
+          supplier_id?: string | null
+        }
+        Relationships: []
+      }
+      heat_detections: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          detected_by: string | null
+          ended_at: string | null
+          id: string
+          intensity: string | null
+          notes: string | null
+          signs: string[]
+          sow_id: string
+          started_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          detected_by?: string | null
+          ended_at?: string | null
+          id?: string
+          intensity?: string | null
+          notes?: string | null
+          signs?: string[]
+          sow_id: string
+          started_at: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          detected_by?: string | null
+          ended_at?: string | null
+          id?: string
+          intensity?: string | null
+          notes?: string | null
+          signs?: string[]
+          sow_id?: string
+          started_at?: string
+        }
+        Relationships: []
+      }
       ai_questions: {
         Row: {
           answer: string | null
@@ -645,7 +828,9 @@ export type Database = {
           pregnancy_check: string
           prep_checklist: Json
           responsible: string | null
+          semen_batch_id: string | null
           semen_code: string | null
+          semen_doses_used: number | null
           services_count: number
           sow_id: string
           updated_at: string
@@ -671,7 +856,9 @@ export type Database = {
           pregnancy_check?: string
           prep_checklist?: Json
           responsible?: string | null
+          semen_batch_id?: string | null
           semen_code?: string | null
+          semen_doses_used?: number | null
           services_count?: number
           sow_id: string
           updated_at?: string
@@ -697,7 +884,9 @@ export type Database = {
           pregnancy_check?: string
           prep_checklist?: Json
           responsible?: string | null
+          semen_batch_id?: string | null
           semen_code?: string | null
+          semen_doses_used?: number | null
           services_count?: number
           sow_id?: string
           updated_at?: string
