@@ -4,6 +4,7 @@ import { AlertTriangle, ArrowDownToLine, ArrowUpFromLine, Wheat } from "lucide-r
 import { supabase } from "@/integrations/supabase/client";
 import { SectionTitle, Empty } from "@/components/farm/Kpi";
 import { Button } from "@/components/ui/button";
+import { FeedPlans } from "@/components/farm/ReproExtras";
 
 const db = supabase as any;
 const productsQuery = { queryKey: ["feed_products"], queryFn: async () => { const { data, error } = await db.from("feed_products").select("*").order("name"); if (error) throw error; return data ?? []; } };
@@ -34,5 +35,6 @@ function Estoque() {
   {low.length>0&&<div className="flex gap-2 rounded-xl border border-warn/40 bg-warn/10 p-3 text-sm text-foreground"><AlertTriangle className="h-5 w-5 shrink-0"/><div><b>Reposição necessária</b><p className="mt-1 text-xs">{low.map((p:any)=>p.name).join(" · ")}</p></div></div>}
   <section className="space-y-3"><h3 className="font-bold">Saldo por ração</h3>{products.isLoading?<p className="text-sm text-muted-foreground">Carregando estoque…</p>:rows.length===0?<Empty>Nenhuma ração cadastrada. Use o módulo Baias para cadastrar os produtos e lançar os saldos.</Empty>:<div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{rows.map((p:any)=><article key={p.id} className="panel p-4"><div className="flex items-start justify-between"><div><p className="text-xs text-muted-foreground">{PHASES[p.phase]??p.phase}</p><b>{p.name}</b></div><Wheat className="h-5 w-5 text-primary"/></div><p className="mt-4 text-3xl font-bold tabular-nums">{Number(p.stock_kg).toLocaleString("pt-BR")} <span className="text-sm text-muted-foreground">kg</span></p><p className="mt-1 text-xs text-muted-foreground">Mínimo: {Number(p.minimum_stock_kg).toLocaleString("pt-BR")} kg</p>{p.supplier&&<p className="mt-2 text-xs text-muted-foreground">Fornecedor: {p.supplier}</p>}</article>)}</div>}</section>
   <section className="space-y-3"><h3 className="font-bold">Movimentações recentes</h3>{movements.data?.length?<div className="panel divide-y">{movements.data.map((m:any)=><div key={m.id} className="flex items-center gap-3 p-3"><span className={m.movement_type==="entrada"?"text-primary":"text-warn"}>{m.movement_type==="entrada"?<ArrowDownToLine className="h-4 w-4"/>:<ArrowUpFromLine className="h-4 w-4"/>}</span><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{m.feed_products?.name??"Ração"}</p><p className="text-xs text-muted-foreground">{new Date(m.movement_date+"T12:00:00").toLocaleDateString("pt-BR")} · {m.notes??"Sem observação"}</p></div><b className="text-sm tabular-nums">{m.movement_type==="entrada"?"+":"−"}{Number(m.quantity_kg).toLocaleString("pt-BR")} kg</b></div>)}</div>:<Empty>As entradas e consumos aparecerão aqui.</Empty>}</section>
+  <FeedPlans />
  </div>;
 }

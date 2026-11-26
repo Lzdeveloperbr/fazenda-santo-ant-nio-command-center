@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 import { toast } from "sonner";
-import { Fence, Plus, ClipboardList, Wheat, Boxes, AlertTriangle, Search, CalendarDays, Users, Droplets, Thermometer, ArrowDownToLine, ArrowUpFromLine, Copy, KeyRound, BookOpen, Baby, ShieldCheck } from "lucide-react";
+import { Fence, Plus, ClipboardList, Wheat, Boxes, AlertTriangle, Search, CalendarDays, Users, Droplets, Thermometer, ArrowDownToLine, ArrowUpFromLine, Copy, KeyRound, BookOpen, Baby, ShieldCheck, LayoutGrid } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SectionTitle, Empty } from "@/components/farm/Kpi";
 import { FormDialog, SubmitRow, Field, selectCls } from "@/components/farm/FormDialog";
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { todayISO, fmtDate, sowsQuery, littersQuery, livePiglets } from "@/lib/farm";
 import { OUTCOME_MESSAGE, useOfflineSave } from "@/components/farm/OfflineSync";
+import { PenMap } from "@/components/farm/PenMap";
 
 const db = supabase as any;
 const pensQuery = { queryKey: ["farm_pens"], queryFn: async () => { const {data,error}=await db.from("farm_pens").select("*").order("sector").order("code"); if(error)throw error; return data??[]; } };
@@ -35,7 +36,7 @@ export const Route = createFileRoute("/_authenticated/baias")({
 function Baias() {
   const qc=useQueryClient();
   const pens=useQuery(pensQuery), products=useQuery(productsQuery), records=useQuery(recordsQuery), movements=useQuery(movementsQuery);
-  const [tab,setTab]=useState<"baias"|"caderno"|"racao"|"levantamento"|"equipe">("baias");
+  const [tab,setTab]=useState<"baias"|"mapa"|"caderno"|"racao"|"levantamento"|"equipe">("baias");
   const [inviteCode,setInviteCode]=useState("");
   const [inviteBusy,setInviteBusy]=useState(false);
   const [sector,setSector]=useState("todos");
@@ -61,13 +62,14 @@ function Baias() {
     </div>
     {lowStock.length>0&&<div className="flex items-start gap-3 rounded-2xl border border-warn/40 bg-warn/10 p-4 text-foreground"><AlertTriangle className="mt-0.5 h-5 w-5 shrink-0"/><div><p className="text-sm font-bold">Atenção ao estoque de ração</p><p className="mt-1 text-xs leading-5">{lowStock.map((p:any)=>p.name+" ("+Number(p.stock_kg).toLocaleString("pt-BR")+" kg)").join(" · ")} — abaixo do mínimo ou no limite.</p></div></div>}
     <div className="flex flex-wrap gap-2 rounded-xl bg-muted/60 p-1">
-      {([["baias","Baias",Fence],["caderno","Caderno",ClipboardList],["racao","Ração",Wheat],["levantamento","Plantel inicial",Baby],["equipe","Equipe / acesso",KeyRound]] as const).map(([id,label,Icon])=><button key={id} onClick={()=>setTab(id)} className={`flex min-w-[115px] flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold transition ${tab===id?"bg-card text-primary shadow-sm":"text-muted-foreground hover:text-foreground"}`}><Icon className="h-4 w-4"/>{label}</button>)}
+      {([["baias","Baias",Fence],["mapa","Mapa",LayoutGrid],["caderno","Caderno",ClipboardList],["racao","Ração",Wheat],["levantamento","Plantel inicial",Baby],["equipe","Equipe / acesso",KeyRound]] as const).map(([id,label,Icon])=><button key={id} onClick={()=>setTab(id)} className={`flex min-w-[115px] flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold transition ${tab===id?"bg-card text-primary shadow-sm":"text-muted-foreground hover:text-foreground"}`}><Icon className="h-4 w-4"/>{label}</button>)}
     </div>
         {loading?<div className="panel p-8 text-center text-sm text-muted-foreground">Carregando baias e estoque…</div>:<>
     {tab==="baias"&&<section className="space-y-4">
       <div className="flex flex-wrap gap-2"><div className="relative min-w-[180px] flex-1"><Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground"/><Input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar número ou setor" className="h-10 pl-9"/></div><select value={sector} onChange={e=>setSector(e.target.value)} className={selectCls+" w-auto min-w-[170px]"}><option value="todos">Todos os setores</option>{SECTORS.map(s=><option key={s}>{s}</option>)}</select></div>
       {filtered.length===0?<Empty>Nenhuma baia cadastrada neste filtro. Use “Numerar baias” para começar.</Empty>:<div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{filtered.map((p:any)=>{const last=latestByPen.get(p.id);return <article key={p.id} className="panel space-y-3 p-4"><div className="flex items-start justify-between gap-3"><div><p className="text-[.65rem] font-bold uppercase tracking-wider text-primary">{[p.sector,p.building,p.room].filter(Boolean).join(" · ")}</p><h3 className="mt-1 text-2xl font-bold tracking-tight">{p.code}</h3></div><span className={`rounded-full px-2.5 py-1 text-[.68rem] font-bold ${p.status==="ativa"?"bg-ok/10 text-ok":"bg-muted text-muted-foreground"}`}>{p.status==="ativa"?"Ativa":p.status==="manutencao"?"Manutenção":"Inativa"}</span></div><div className="grid grid-cols-2 gap-2 text-sm"><div className="rounded-xl bg-muted/50 p-3"><p className="text-xs text-muted-foreground">Capacidade</p><p className="mt-1 font-bold">{p.capacity} animais</p></div><div className="rounded-xl bg-muted/50 p-3"><p className="text-xs text-muted-foreground">Último registro</p><p className="mt-1 font-bold">{last?fmtDate(last.event_date):"Sem registro"}</p></div></div><PenAnimals penId={p.id} capacity={p.capacity}/>{p.notes&&<p className="text-xs text-muted-foreground">{p.notes}</p>}<NewRecord pens={[p]} products={productRows} onDone={refresh} label="Registrar nesta baia"/></article>})}</div>}
     </section>}
+    {tab==="mapa"&&<PenMap/>}
     {tab==="caderno"&&<section className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3"><div><h3 className="font-bold">Anotações por baia</h3><p className="text-xs text-muted-foreground">Registre trato, quantidade de animais, água, temperatura e ocorrências.</p></div><NewRecord pens={penRows.filter((p:any)=>p.status==="ativa")} products={productRows} onDone={refresh}/></div>
       <select value={selectedPen} onChange={e=>setSelectedPen(e.target.value)} className={selectCls+" max-w-sm"}><option value="todos">Todas as baias</option>{penRows.map((p:any)=><option key={p.id} value={p.id}>{p.code} · {p.sector}</option>)}</select>
