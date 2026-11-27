@@ -373,3 +373,13 @@ export const favoritesQuery = queryOptions({
   queryKey: ["user_favorites"],
   queryFn: () => unwrap<Favorite[]>(supabase.from("user_favorites").select("*").order("created_at")),
 });
+
+export type VaccinationRecord = Database["public"]["Tables"]["vaccination_records"]["Row"];
+/** Vacinações individuais de matrizes (para o mapa de vacinação). */
+export const sowVaccinationsQuery = queryOptions({
+  queryKey: ["vaccination_records", "matrizes"],
+  queryFn: () =>
+    unwrap<VaccinationRecord[]>(
+      supabase.from("vaccination_records").select("*").eq("animal_scope", "matriz").order("vaccination_date", { ascending: false }).limit(5000),
+    ),
+});
