@@ -26,6 +26,30 @@ export const Route = createFileRoute("/_authenticated")({
  },
  component:Shell,
 });
+const MENU_KEYWORDS:Record<string,string>={
+ "/gestacao":"cobertura inseminacao cio diagnostico prenhez parto previsto semen",
+ "/manejo-guiado":"cobertura inseminacao parto desmame passo a passo",
+ "/maternidade":"parto leitegada leitoes morte pesagem adocao transferencia",
+ "/desmame":"desmame leitoes creche",
+ "/leitoes":"leitoes brinco australiano identificacao",
+ "/mortalidade":"morte obito perdas",
+ "/matrizes":"porca matriz brinco cadastro ficha descarte",
+ "/sanidade":"vacina medicamento doenca tratamento veterinario",
+ "/farmacia-ai":"remedio medicamento lote carencia",
+ "/estoque":"racao trato alimentacao",
+ "/almoxarifado":"estoque fornecedor compra insumo",
+ "/financeiro":"dinheiro conta pagar receber caixa custo despesa receita",
+ "/tarefas":"tarefa manejo rotina",
+ "/agenda":"calendario lembrete tarefa protocolo",
+ "/relatorios":"relatorio indicadores exportar excel planilha",
+ "/baias":"baia setor caderno racao",
+ "/calculadoras":"calculo conta formula",
+ "/configuracoes":"backup copia seguranca parametros prazos",
+ "/usuarios":"funcionario equipe acesso codigo permissao",
+ "/etiquetas":"qr imprimir etiqueta",
+ "/resumo-do-dia":"hoje imprimir resumo diario",
+ "/rotina":"turno problema relato",
+};
 const GROUPS=["Gestão","Ferramentas","Gestação e reprodução","Rebanho","Manejo e saúde"] as const;
 const NAV=[
  {to:"/painel",label:"Visão geral",short:"Início",icon:LayoutDashboard,group:"Gestão"},
@@ -67,12 +91,12 @@ function useClock(){const [now,setNow]=useState(()=>new Date());useEffect(()=>{c
 function Shell(){
  const {user}=Route.useRouteContext();const qc=useQueryClient();const navigate=useNavigate();const now=useClock();
  const path=useRouterState({select:s=>s.location.pathname});
- const [mobileOpen,setMobileOpen]=useState(false);const [searchOpen,setSearchOpen]=useState(false);const [searchQ,setSearchQ]=useState("");
+ const [mobileOpen,setMobileOpen]=useState(false);const [searchOpen,setSearchOpen]=useState(false);const [searchQ,setSearchQ]=useState("");const [menuQ,setMenuQ]=useState("");
  const [collapsed,setCollapsed]=useState(false);
  const {theme,toggle}=useTheme(user.id);
  useEffect(()=>{setCollapsed(localStorage.getItem("fsa-sidebar")==="1");},[]);
  useEffect(()=>{const k=(e:KeyboardEvent)=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="k"){e.preventDefault();setSearchOpen(o=>!o);}};window.addEventListener("keydown",k);return()=>window.removeEventListener("keydown",k);},[]);
- useEffect(()=>{setMobileOpen(false);},[path]);
+ useEffect(()=>{setMobileOpen(false);setMenuQ("");},[path]);
  function toggleCollapse(){setCollapsed(c=>{localStorage.setItem("fsa-sidebar",c?"0":"1");return !c;});}
  const perms=useQuery(accessQuery(user.id));const online=useOnline();
  const profile=useQuery({queryKey:["profile-name",user.id],queryFn:async()=>{const {data}=await supabase.from("profiles").select("display_name").eq("id",user.id).maybeSingle();return data?.display_name??user.email??"Usuário";}});
@@ -85,11 +109,14 @@ function Shell(){
  const active=NAV.find(n=>path.startsWith(n.to));const name=access.data?.name??user.email??"";const initials=name.split(/[\s@.]/).filter(Boolean).slice(0,2).map(w=>w[0]?.toUpperCase()).join("");
  const isDetail=active&&path!==active.to;
 
- const navList=(mini:boolean)=>GROUPS.map(group=><div key={group} className="mb-5">
+ const fold=(t:string)=>t.normalize("NFD").replace(/\p{M}/gu,"").toLowerCase();
+ const navFor=(group:string,mini:boolean)=>nav.filter(n=>n.group===group&&(mini||!menuQ.trim()||fold(`${n.label} ${n.short} ${n.group} ${MENU_KEYWORDS[n.to]??""}`).includes(fold(menuQ.trim()))));
+ const menuSearch=<div className="relative mb-4 px-1"><Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-sidebar-foreground/45"/><input value={menuQ} onChange={e=>setMenuQ(e.target.value)} placeholder="Procurar no menu" aria-label="Procurar no menu" className="h-10 w-full rounded-lg border border-sidebar-border bg-sidebar-accent/40 pl-9 pr-3 text-sm text-sidebar-foreground placeholder:text-sidebar-foreground/45 focus:outline-none focus:ring-2 focus:ring-sidebar-primary/50"/></div>;
+ const navList=(mini:boolean)=><>{!mini&&menuQ.trim()&&!GROUPS.some(g=>navFor(g,false).length)&&<p className="px-3 text-sm text-sidebar-foreground/60">Nada encontrado.</p>}{GROUPS.filter(g=>navFor(g,mini).length).map(group=><div key={group} className="mb-5">
   {mini?<div className="mx-auto mb-2 h-px w-6 bg-sidebar-border"/>:<p className="mb-1.5 px-3 text-[.62rem] font-bold uppercase tracking-[.16em] text-sidebar-foreground/45">{group}</p>}
-  <nav className="space-y-0.5">{nav.filter(n=>n.group===group).map(n=>{const on=path.startsWith(n.to);const link=<Link key={n.to} to={n.to} aria-current={on?"page":undefined} className={`group relative flex items-center gap-3 rounded-lg py-2.5 text-[.84rem] transition-colors ${mini?"justify-center px-0":"px-3"} ${on?"nav-on font-semibold text-sidebar-foreground":"text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground hover:translate-x-0.5"}`}>{on&&<span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r bg-sidebar-primary"/>}<n.icon className={`h-[18px] w-[18px] shrink-0 ${on?"text-sidebar-primary":""}`}/>{!mini&&<span className="min-w-0 flex-1 truncate">{n.label}</span>}</Link>;
+  <nav className="space-y-0.5">{navFor(group,mini).map(n=>{const on=path.startsWith(n.to);const link=<Link key={n.to} to={n.to} aria-current={on?"page":undefined} className={`group relative flex items-center gap-3 rounded-lg py-2.5 text-[.84rem] transition-colors ${mini?"justify-center px-0":"px-3"} ${on?"nav-on font-semibold text-sidebar-foreground":"text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground hover:translate-x-0.5"}`}>{on&&<span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r bg-sidebar-primary"/>}<n.icon className={`h-[18px] w-[18px] shrink-0 ${on?"text-sidebar-primary":""}`}/>{!mini&&<span className="min-w-0 flex-1 truncate">{n.label}</span>}</Link>;
    return mini?<Tooltip key={n.to}><TooltipTrigger asChild>{link}</TooltipTrigger><TooltipContent side="right">{n.label}</TooltipContent></Tooltip>:link;})}</nav>
- </div>);
+ </div>)}</>;
 
  const userBox=(mini:boolean)=><div className={`mt-auto border-t border-sidebar-border pt-4 ${mini?"flex flex-col items-center gap-2":""}`}>
   <div className={`flex items-center gap-3 ${mini?"":"px-2"}`}><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sidebar-primary text-xs font-bold text-sidebar-primary-foreground">{initials||"FS"}</span>{!mini&&<div className="min-w-0"><p className="truncate text-sm font-semibold text-sidebar-foreground">{name}</p><p className="text-[.68rem] text-sidebar-foreground/55">{role?ROLE_INFO[role].label:"Acesso pendente"}</p></div>}</div>
@@ -100,12 +127,14 @@ function Shell(){
  return <TooltipProvider delayDuration={200}><div className={`min-h-screen bg-background transition-[padding] duration-300 ${collapsed?"md:pl-[76px]":"md:pl-[264px]"}`}>
   <aside className={`sidebar-surface fixed inset-y-0 left-0 z-30 hidden flex-col overflow-y-auto bg-sidebar py-5 transition-[width] duration-300 md:flex ${collapsed?"w-[76px] px-3":"w-[264px] px-3"}`}>
    <div className={`mb-7 flex items-center ${collapsed?"justify-center":"justify-between px-2"}`}>{collapsed?<LogoMark className="h-10 w-10"/>:<Wordmark/>}</div>
+   {!collapsed&&menuSearch}
    {navList(collapsed)}
    {userBox(collapsed)}
   </aside>
   {mobileOpen&&<button aria-label="Fechar menu" className="fixed inset-0 z-40 cursor-default bg-foreground/40 backdrop-blur-[2px] md:hidden" onClick={()=>setMobileOpen(false)}/>}
   <aside className={`sidebar-surface fixed inset-y-0 left-0 z-50 flex w-[min(86vw,300px)] flex-col overflow-y-auto bg-sidebar px-3 py-5 shadow-2xl transition-transform duration-300 md:hidden ${mobileOpen?"translate-x-0":"-translate-x-full"}`} aria-hidden={!mobileOpen}>
    <div className="mb-6 flex items-center justify-between px-2"><Wordmark/><button onClick={()=>setMobileOpen(false)} className="rounded-lg p-2 text-sidebar-foreground/70 hover:bg-sidebar-accent" aria-label="Fechar menu"><X className="h-5 w-5"/></button></div>
+   {menuSearch}
    {navList(false)}
    {userBox(false)}
   </aside>

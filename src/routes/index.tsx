@@ -30,7 +30,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Command Center da Fazenda Santo Antônio: matrizes, reprodução, maternidade, leitões, sanidade, estoque, financeiro, relatórios e assistente inteligente.",
+          "Sistema de gestão da Fazenda Santo Antônio: matrizes, reprodução, maternidade, leitões, sanidade, estoque, financeiro, relatórios e assistente inteligente.",
       },
       { property: "og:title", content: "Fazenda Santo Antônio | Gestão da Suinocultura" },
       {

@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { PERIOD_LABEL, periodStart, periodStats, type PeriodKey } from "@/lib/farm/period";
+import { PERIOD_LABEL, periodStart, periodStats, previousRange, type PeriodKey } from "@/lib/farm/period";
 import { DashboardCommand } from "@/components/farm/DashboardCommand";
 import { QuickPanel } from "@/components/farm/Favorites";
+import { Onboarding } from "@/components/farm/Onboarding";
 import { CountUp } from "@/components/farm/motion";
 import {
   Activity, AlertTriangle, ArrowRight, Baby, CalendarClock, CheckCircle2,
@@ -41,6 +42,8 @@ function Dashboard() {
   const from = period === "custom" ? customFrom : periodStart(period, today, addDaysISO);
   const to = period === "custom" ? customTo : today;
   const ps = useMemo(() => periodStats(from, to, { breedings: breedings.data ?? [], litters: (litters.data ?? []).filter(isCountedLitter), events: events.data ?? [], diagnoses: diagnoses.data ?? [], finance: finance.data ?? [] }), [from, to, breedings.data, litters.data, events.data, diagnoses.data, finance.data]);
+  const prevR = previousRange(from, to);
+  const pp = useMemo(() => periodStats(prevR.from, prevR.to, { breedings: breedings.data ?? [], litters: (litters.data ?? []).filter(isCountedLitter), events: events.data ?? [], diagnoses: diagnoses.data ?? [], finance: finance.data ?? [] }), [prevR.from, prevR.to, breedings.data, litters.data, events.data, diagnoses.data, finance.data]);
   const nextWeek = addDaysISO(today, 7);
   const loading = sows.isLoading || breedings.isLoading || litters.isLoading || tasks.isLoading;
   const error = sows.error || breedings.error || litters.error || tasks.error;
@@ -130,6 +133,8 @@ function Dashboard() {
         </div>
       </section>
 
+      <Onboarding />
+
       <div className="flex items-end justify-between gap-3">
         <div><p className="text-[11px] font-bold uppercase tracking-[.16em] text-muted-foreground">Resumo operacional</p><h2 className="mt-1 text-xl font-bold tracking-tight">Indicadores principais</h2></div>
         <span className="hidden rounded-full bg-muted px-3 py-1.5 text-[11px] font-semibold text-muted-foreground sm:inline-flex">Atualizado a partir dos registros</span>
@@ -156,24 +161,24 @@ function Dashboard() {
         </div>
         {period === "custom" && <div className="mt-3 flex flex-wrap gap-3 text-xs"><label className="flex items-center gap-2">De <input type="date" value={customFrom} max={customTo} onChange={(e) => setCustomFrom(e.target.value)} className="h-9 rounded-md border bg-background px-2" /></label><label className="flex items-center gap-2">Até <input type="date" value={customTo} min={customFrom} max={today} onChange={(e) => setCustomTo(e.target.value)} className="h-9 rounded-md border bg-background px-2" /></label></div>}
         <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
-          <PStat label="Coberturas" value={ps.coberturas} />
-          <PStat label="Inseminações" value={ps.inseminacoes} />
-          <PStat label="Diagnósticos +" value={ps.diagPositivos} />
-          <PStat label="Diagnósticos −" value={ps.diagNegativos} />
-          <PStat label="Taxa de concepção" value={ps.taxaConcepcao == null ? "—" : ps.taxaConcepcao.toFixed(1) + "%"} />
-          <PStat label="Partos" value={ps.partos} />
-          <PStat label="Nascidos vivos" value={ps.nascidosVivos} />
-          <PStat label="Natimortos" value={ps.natimortos} />
-          <PStat label="Mumificados" value={ps.mumificados} />
-          <PStat label="Média vivos/parto" value={ps.mediaVivos == null ? "—" : ps.mediaVivos.toFixed(1)} />
-          <PStat label="Média totais/parto" value={ps.mediaTotais == null ? "—" : ps.mediaTotais.toFixed(1)} />
-          <PStat label="Mortes de leitões" value={ps.mortesLeitoes} />
-          <PStat label="Desmamados" value={ps.desmamados} />
-          <PStat label="Receitas pagas" value={brl(ps.receitas)} />
-          <PStat label="Despesas pagas" value={brl(ps.despesas)} />
-          <PStat label="Resultado (pago)" value={brl(ps.resultado)} />
+          <PStat label="Coberturas" value={ps.coberturas} prev={pp.coberturas} />
+          <PStat label="Inseminações" value={ps.inseminacoes} prev={pp.inseminacoes} />
+          <PStat label="Diagnósticos +" value={ps.diagPositivos} prev={pp.diagPositivos} />
+          <PStat label="Diagnósticos −" value={ps.diagNegativos} prev={pp.diagNegativos} />
+          <PStat label="Taxa de concepção" value={ps.taxaConcepcao == null ? "—" : ps.taxaConcepcao.toFixed(1) + "%"} prev={pp.taxaConcepcao == null ? "—" : pp.taxaConcepcao.toFixed(1) + "%"} />
+          <PStat label="Partos" value={ps.partos} prev={pp.partos} />
+          <PStat label="Nascidos vivos" value={ps.nascidosVivos} prev={pp.nascidosVivos} />
+          <PStat label="Natimortos" value={ps.natimortos} prev={pp.natimortos} />
+          <PStat label="Mumificados" value={ps.mumificados} prev={pp.mumificados} />
+          <PStat label="Média vivos/parto" value={ps.mediaVivos == null ? "—" : ps.mediaVivos.toFixed(1)} prev={pp.mediaVivos == null ? "—" : pp.mediaVivos.toFixed(1)} />
+          <PStat label="Média totais/parto" value={ps.mediaTotais == null ? "—" : ps.mediaTotais.toFixed(1)} prev={pp.mediaTotais == null ? "—" : pp.mediaTotais.toFixed(1)} />
+          <PStat label="Mortes de leitões" value={ps.mortesLeitoes} prev={pp.mortesLeitoes} />
+          <PStat label="Desmamados" value={ps.desmamados} prev={pp.desmamados} />
+          <PStat label="Receitas pagas" value={brl(ps.receitas)} prev={brl(pp.receitas)} />
+          <PStat label="Despesas pagas" value={brl(ps.despesas)} prev={brl(pp.despesas)} />
+          <PStat label="Resultado (pago)" value={brl(ps.resultado)} prev={brl(pp.resultado)} />
         </div>
-        <p className="mt-3 text-[11px] leading-5 text-muted-foreground">Somente registros com data dentro do período. Taxa de concepção = diagnósticos positivos ÷ (positivos + negativos). Financeiro considera apenas lançamentos pagos; pendentes ficam de fora.</p>
+        <p className="mt-3 text-[11px] leading-5 text-muted-foreground">Somente registros com data dentro do período. Taxa de concepção = diagnósticos positivos ÷ (positivos + negativos). Financeiro considera apenas lançamentos pagos; pendentes ficam de fora. "Anterior" é o período de mesmo tamanho logo antes ({fmtDate(prevR.from)} a {fmtDate(prevR.to)}).</p>
       </section>
 
       <div className="grid gap-5 xl:grid-cols-[1.4fr_.8fr]">
@@ -252,6 +257,8 @@ function EmptyChart() {
 }
 
 function brl(v: number) { return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }); }
-function PStat({ label, value }: { label: string; value: number | string }) {
-  return <div className="rounded-xl border bg-background/60 p-3"><p className="text-[11px] font-semibold text-muted-foreground">{label}</p><p className="mt-1 font-mono text-xl font-bold tabular-nums">{typeof value === "number" ? value.toLocaleString("pt-BR") : value}</p></div>;
+function PStat({ label, value, prev }: { label: string; value: number | string; prev?: number | string }) {
+  const f = (v: number | string) => (typeof v === "number" ? v.toLocaleString("pt-BR") : v);
+  const diff = typeof value === "number" && typeof prev === "number" ? value - prev : null;
+  return <div className="rounded-xl border bg-background/60 p-3"><p className="text-[11px] font-semibold text-muted-foreground">{label}</p><p className="mt-1 font-mono text-xl font-bold tabular-nums">{f(value)}</p>{prev !== undefined && <p className="mt-0.5 text-[10px] text-muted-foreground">anterior: {f(prev)}{diff ? <span className="ml-1 font-semibold">({diff > 0 ? "+" : ""}{diff.toLocaleString("pt-BR")})</span> : null}</p>}</div>;
 }

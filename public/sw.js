@@ -2,7 +2,7 @@
 // - Páginas: rede primeiro; sem conexão, usa a última cópia da página (ou do painel).
 // - Arquivos do app (js, css, fontes, ícones): cache primeiro (nomes com hash).
 // - Dados do Supabase NUNCA são guardados aqui (outro domínio, sempre rede).
-const VERSION = "v3";
+const VERSION = "v4";
 const PAGES = `fsa-pages-${VERSION}`;
 const ASSETS = `fsa-assets-${VERSION}`;
 const PRECACHE = ["/manifest.webmanifest", "/icons/icon-192.png", "/icons/icon-512.png", "/icons/santo-antonio-agro.svg"];
@@ -59,4 +59,18 @@ self.addEventListener("fetch", (event) => {
   if (fonts || url.pathname === "/manifest.webmanifest" || url.pathname.startsWith("/icons/") || url.pathname.startsWith("/assets/") || /\.(?:css|js|mjs|svg|png|webp|woff2?)$/i.test(url.pathname)) {
     event.respondWith(cacheFirstAsset(request));
   }
+});
+
+// Toque no aviso de manejos: abre (ou foca) a agenda.
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = new URL((event.notification.data && event.notification.data.url) || "/agenda", self.location.origin).href;
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
+      for (const c of list) {
+        if (c.url.startsWith(self.location.origin) && "focus" in c) { c.navigate(url); return c.focus(); }
+      }
+      return self.clients.openWindow(url);
+    }),
+  );
 });

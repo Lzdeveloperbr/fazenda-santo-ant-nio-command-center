@@ -6,6 +6,7 @@ import { farmSettingsQuery, DEFAULT_FARM_SETTINGS } from "@/lib/farm/farm-settin
 import { parityOf, SOW_CATEGORY_LABEL, sowSituation } from "@/lib/farm/sow-profile";
 import { daysBetween } from "@/lib/farm/gestation";
 import { SowFormDialog } from "@/components/farm/SowForm";
+import { farrowingInterval, sowVsHerd } from "@/lib/farm/zootech";
 import { FavoriteButton } from "@/components/farm/Favorites";
 import { ArchiveSowButton, SowPhoto, SowQrCode, SowTimeline } from "@/components/farm/SowRecordExtras";
 import { SowConditionSection } from "@/components/farm/ReproExtras";
@@ -117,6 +118,20 @@ function SowRecord() {
         <RecordStat label="Desmamados" value={totalWeaned} />
         <RecordStat label="Mortes registradas" value={totalDeaths} />
       </div>
+      {countedLitters.length > 0 && (() => {
+        const herd = sowVsHerd(litters.data ?? []);
+        const me = herd.rows.find((r) => r.sowId === sow.id);
+        const interval = farrowingInterval(countedLitters.map((l) => l.farrowing_date));
+        const fmt = (v: number | null | undefined) => (v == null ? "—" : v.toFixed(1).replace(".", ","));
+        const sign = (v: number | null | undefined) => (v == null || Math.abs(v) < 0.05 ? "" : ` (${v > 0 ? "+" : ""}${v.toFixed(1).replace(".", ",")})`);
+        return (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <RecordStat label="Vivos por parto × plantel" value={fmt(me?.bornAlive.value)} hint={`Plantel: ${fmt(herd.herdNV.value)}${sign(me?.nvDiff)}`} />
+            <RecordStat label="Desmamados por leitegada × plantel" value={fmt(me?.weaned.value)} hint={`Plantel: ${fmt(herd.herdW.value)}${sign(me?.wDiff)}`} />
+            <RecordStat label="Intervalo médio entre partos" value={interval == null ? "—" : `${interval} d`} hint={interval == null ? "Precisa de 2 partos registrados" : `${countedLitters.length} partos registrados`} />
+          </div>
+        );
+      })()}
 
       <section className="panel p-4 sm:p-5">
         <SectionTitle kicker="Reprodução" title="Coberturas e diagnósticos" />

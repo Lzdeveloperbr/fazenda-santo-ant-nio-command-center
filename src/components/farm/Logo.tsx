@@ -139,7 +139,7 @@ export function Wordmark({ animated = false }: { animated?: boolean }) {
           Fazenda Santo Antônio
         </div>
         <div className="mt-1 text-[0.56rem] font-bold uppercase tracking-[0.22em] text-gold">
-          Command Center
+          Gestão de suinocultura
         </div>
       </div>
     </div>
