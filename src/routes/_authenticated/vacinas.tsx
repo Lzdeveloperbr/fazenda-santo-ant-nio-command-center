@@ -12,6 +12,8 @@ import {
   Search,
   ShieldQuestion,
   Syringe,
+  CalendarClock,
+  MinusCircle,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Empty, SectionTitle } from "@/components/farm/Kpi";
@@ -24,6 +26,8 @@ import {
   healthProtocolsQuery,
   SOW_STATUS,
   sowsQuery,
+  breedingsQuery,
+  littersQuery,
   sowVaccinationsQuery,
   todayISO,
   type Sow,
@@ -31,7 +35,9 @@ import {
 import {
   ageLabel,
   CELL_LABEL,
-  cellFor,
+  cellForColumn,
+  CELL_TONE,
+  sowCycle,
   columnAliases,
   vaccineColumns,
   weightStale,
@@ -45,6 +51,7 @@ import { usePermissions } from "@/lib/access";
 import { isActiveSowStatus } from "@/lib/farm/reproduction";
 import { missingFields } from "@/lib/farm/sow-care";
 import { BatchWeighing, CompleteRecords } from "@/components/farm/SowCare";
+import { LitterCareMap } from "@/components/farm/LitterCare";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/_authenticated/vacinas")({
@@ -61,19 +68,15 @@ export const Route = createFileRoute("/_authenticated/vacinas")({
   component: MapaVacinas,
 });
 
-const TONE: Record<CellState, string> = {
-  atrasada: "border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-300",
-  nunca: "border-border bg-muted/60 text-muted-foreground",
-  vence: "border-amber-500/40 bg-amber-500/10 text-amber-800 dark:text-amber-300",
-  aplicada: "border-sky-500/30 bg-sky-500/10 text-sky-800 dark:text-sky-300",
-  em_dia: "border-emerald-500/40 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300",
-};
+const TONE = CELL_TONE;
 const ICON: Record<CellState, typeof Clock> = {
   atrasada: AlertTriangle,
   nunca: ShieldQuestion,
   vence: Clock,
   aplicada: Syringe,
   em_dia: CheckCircle2,
+  programada: CalendarClock,
+  fora_ciclo: MinusCircle,
 };
 const errMsg = (e: unknown) =>
   e && typeof e === "object" && "message" in e
@@ -86,6 +89,8 @@ function MapaVacinas() {
   const perms = usePermissions();
   const sows = useQuery(sowsQuery),
     protos = useQuery(healthProtocolsQuery),
+    breedings = useQuery(breedingsQuery),
+    litters = useQuery(littersQuery),
     recs = useQuery(sowVaccinationsQuery);
   const [q, setQ] = useState("");
   const [only, setOnly] = useState<"todas" | "pendentes" | "sem_peso">("todas");
@@ -108,7 +113,8 @@ function MapaVacinas() {
     return (sows.data ?? [])
       .filter((sow) => isActiveSowStatus(sow.status))
       .map((sow) => {
-        const cells = cols.map((c, i) => cellFor(R, sow.id, aliases[i]!, c.repeatEvery, today));
+        const cycle = sowCycle(sow.id, breedings.data ?? [], litters.data ?? []);
+        const cells = cols.map((c, i) => cellForColumn(R, sow.id, aliases[i]!, c, cycle, today));
         return {
           sow,
           cells,
@@ -118,7 +124,15 @@ function MapaVacinas() {
       });
   }, [sows.data, recs.data, protos.data, cols, today]);
 
-  const order: CellState[] = ["atrasada", "nunca", "vence", "aplicada", "em_dia"];
+  const order: CellState[] = [
+    "atrasada",
+    "nunca",
+    "vence",
+    "programada",
+    "aplicada",
+    "em_dia",
+    "fora_ciclo",
+  ];
   const visible = rows
     .filter(
       (r) => !q || `${r.sow.ear_tag} ${r.sow.name ?? ""}`.toLowerCase().includes(q.toLowerCase()),
@@ -139,7 +153,12 @@ function MapaVacinas() {
   const count = (s: CellState) => rows.filter((r) => r.cells.some((c) => c.state === s)).length;
   const noWeight = rows.filter((r) => weightStale(r.sow.weight_date, today)).length;
   const noBirth = rows.filter((r) => !r.sow.birth_date).length;
-  const loading = sows.isLoading || protos.isLoading || recs.isLoading;
+  const loading =
+    sows.isLoading ||
+    protos.isLoading ||
+    recs.isLoading ||
+    breedings.isLoading ||
+    litters.isLoading;
   const toggle = (id: string) =>
     setSelected((s) => {
       const n = new Set(s);
@@ -199,7 +218,8 @@ function MapaVacinas() {
 
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="no-print max-w-full justify-start overflow-x-auto">
-          <TabsTrigger value="vacinas">Vacinas</TabsTrigger>
+          <TabsTrigger value="vacinas">Matrizes</TabsTrigger>
+          <TabsTrigger value="leitegadas">Leitegadas</TabsTrigger>
           {perms?.canWrite && <TabsTrigger value="pesagem">Pesagem em lote</TabsTrigger>}
           {perms?.canWrite && (
             <TabsTrigger value="cadastro">
@@ -217,6 +237,9 @@ function MapaVacinas() {
             <CompleteRecords sows={activeSows} />
           </TabsContent>
         )}
+        <TabsContent value="leitegadas" className="mt-4">
+          <LitterCareMap />
+        </TabsContent>
         <TabsContent value="vacinas" className="mt-4 space-y-5">
           {loading ? (
             <p className="text-sm text-muted-foreground">Carregando…</p>

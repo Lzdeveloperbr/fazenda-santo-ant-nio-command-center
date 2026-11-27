@@ -185,6 +185,11 @@ Legenda: ✅ funciona · 🟡 parcial · ❌ não existe
 - Mapa das matrizes com abas **Pesagem em lote** e **Completar cadastro** (nascimento, raça, entrada).
 - Ficha da matriz: vacinas (mesma regra do mapa) e gráfico do peso.
 
+## 4.9.5 Vacinas pelo ciclo e mapa das leitegadas
+
+- Protocolos de matriz ancorados na cobertura ou no parto (sem reforço fixo) contam no ciclo atual: prazo = data-base + dias do protocolo (parto previsto quando gestante); feito se aplicado desde a cobertura do ciclo. Porca sem ciclo: "Fora do ciclo".
+- Aba **Leitegadas**: leitegadas em maternidade × protocolos de leitegada (dias desde o parto). Feito = vacina/tratamento registrado para a leitegada ou, no ferro, data de ferro em todos os leitões identificados vivos (parcial quando só alguns). Registro rápido (vacina → vacinação; ferro/manejo → tratamento sem antimicrobiano; medicação fica em Saúde, com receita).
+
 ## 4.10 Restauração de uma cópia de segurança
 
 A cópia nunca é aplicada sozinha pelo app, para não sobrescrever dados atuais. Procedimento para o responsável técnico:

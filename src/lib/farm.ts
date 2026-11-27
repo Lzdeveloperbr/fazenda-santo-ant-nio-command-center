@@ -391,3 +391,19 @@ export const sowWeighingsQuery = queryOptions({
   queryFn: () =>
     unwrap<SowWeighing[]>(supabase.from("sow_weighings").select("*").order("weighed_on", { ascending: false }).limit(10000)),
 });
+
+/** Aplicações feitas em leitegadas (vacinas e tratamentos), para o mapa das leitegadas. */
+export const litterHealthQuery = queryOptions({
+  queryKey: ["vaccination_records", "leitegadas"],
+  queryFn: async () => {
+    const [v, m] = await Promise.all([
+      unwrap<Pick<VaccinationRecord, "litter_id" | "vaccine_name" | "vaccination_date">[]>(
+        supabase.from("vaccination_records").select("litter_id, vaccine_name, vaccination_date").not("litter_id", "is", null).limit(5000),
+      ),
+      unwrap<{ litter_id: string | null; product_name: string; administration_start: string }[]>(
+        supabase.from("medication_records").select("litter_id, product_name, administration_start").not("litter_id", "is", null).limit(5000),
+      ),
+    ]);
+    return { vacs: v, meds: m };
+  },
+});

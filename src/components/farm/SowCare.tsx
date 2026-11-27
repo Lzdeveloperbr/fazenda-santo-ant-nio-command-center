@@ -10,7 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   fmtDate,
+  breedingsQuery,
   healthProtocolsQuery,
+  littersQuery,
   sowVaccinationsQuery,
   sowWeighingsQuery,
   todayISO,
@@ -29,8 +31,10 @@ import { batchWeighErrors, filledWeights, missingFields, parseKg } from "@/lib/f
 import {
   ageLabel,
   CELL_LABEL,
-  cellFor,
+  CELL_TONE,
+  cellForColumn,
   columnAliases,
+  sowCycle,
   vaccineColumns,
 } from "@/lib/farm/vaccine-map";
 
@@ -328,7 +332,9 @@ export function SowHealthSummary({ sow }: { sow: Sow }) {
   const today = todayISO();
   const weighings = useQuery(sowWeighingsQuery),
     protos = useQuery(healthProtocolsQuery),
-    recs = useQuery(sowVaccinationsQuery);
+    recs = useQuery(sowVaccinationsQuery),
+    breedings = useQuery(breedingsQuery),
+    litters = useQuery(littersQuery);
   const mine = useMemo(
     () =>
       (weighings.data ?? [])
@@ -339,18 +345,13 @@ export function SowHealthSummary({ sow }: { sow: Sow }) {
   const cells = useMemo(() => {
     const P = protos.data ?? [],
       R = recs.data ?? [];
+    const cycle = sowCycle(sow.id, breedings.data ?? [], litters.data ?? []);
     return vaccineColumns(P, R).map((c) => ({
       col: c,
-      cell: cellFor(R, sow.id, columnAliases(c, P), c.repeatEvery, today),
+      cell: cellForColumn(R, sow.id, columnAliases(c, P), c, cycle, today),
     }));
-  }, [protos.data, recs.data, sow.id, today]);
-  const tone: Record<string, string> = {
-    atrasada: "border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-300",
-    nunca: "border-border bg-muted/60 text-muted-foreground",
-    vence: "border-amber-500/40 bg-amber-500/10 text-amber-800 dark:text-amber-300",
-    aplicada: "border-sky-500/30 bg-sky-500/10 text-sky-800 dark:text-sky-300",
-    em_dia: "border-emerald-500/40 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300",
-  };
+  }, [protos.data, recs.data, breedings.data, litters.data, sow.id, today]);
+  const tone = CELL_TONE;
   const first = mine[0],
     last = mine[mine.length - 1];
   return (
