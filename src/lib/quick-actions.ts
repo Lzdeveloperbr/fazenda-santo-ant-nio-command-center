@@ -14,6 +14,7 @@ export function quickActionsFor(role: Role | null): QuickAction[] {
   const field: QuickAction[] = [
     { to: "/manejo-guiado", label: "Cobertura, parto ou desmame", detail: "Passo a passo" },
     { to: "/maternidade", label: "Morte ou pesagem de leitão", detail: "Eventos da leitegada" },
+    { to: "/vacinas", label: "Mapa de vacinação", detail: "Vacinas, peso e idade das porcas" },
     { to: "/rotina", label: "Passar o turno", detail: "Resumo e pendências" },
     { to: "/agenda", label: "Tarefas de hoje", detail: "Agenda da granja" },
   ];

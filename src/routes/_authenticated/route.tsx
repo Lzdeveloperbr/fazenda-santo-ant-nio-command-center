@@ -1,7 +1,7 @@
 import { createFileRoute, redirect, Outlet, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { FileText, ClipboardList, Settings, LifeBuoy, QrCode, LayoutDashboard, PiggyBank, Baby, ListChecks, LogOut, Menu, X, Layers3, HeartPulse, Wheat, TrendingUp, Fence, Ear, BrainCircuit, BookOpen, ClipboardCheck, Radar, Wallet, Calculator, Search, Moon, Sun, PanelLeftClose, PanelLeftOpen, ChevronRight, LayoutGrid, HeartHandshake, Users, History, Eye, Skull, Package, CalendarDays, FileBarChart, Sparkles, Route as RouteIcon } from "lucide-react";
+import { Syringe, FileText, ClipboardList, Settings, LifeBuoy, QrCode, LayoutDashboard, PiggyBank, Baby, ListChecks, LogOut, Menu, X, Layers3, HeartPulse, Wheat, TrendingUp, Fence, Ear, BrainCircuit, BookOpen, ClipboardCheck, Radar, Wallet, Calculator, Search, Moon, Sun, PanelLeftClose, PanelLeftOpen, ChevronRight, LayoutGrid, HeartHandshake, Users, History, Eye, Skull, Package, CalendarDays, FileBarChart, Sparkles, Route as RouteIcon } from "lucide-react";
 import { accessQuery, ROLE_INFO } from "@/lib/access";
 import { InstallAppButton } from "@/components/farm/InstallAppButton";
 import { GlobalSearchResults } from "@/components/farm/GlobalSearchResults";
@@ -34,6 +34,7 @@ const MENU_KEYWORDS:Record<string,string>={
  "/leitoes":"leitoes brinco australiano identificacao",
  "/mortalidade":"morte obito perdas",
  "/matrizes":"porca matriz brinco cadastro ficha descarte",
+ "/vacinas":"vacina vacinacao vacinar peso pesar idade mapa porcas matrizes",
  "/sanidade":"vacina medicamento doenca tratamento veterinario",
  "/farmacia-ai":"remedio medicamento lote carencia",
  "/estoque":"racao trato alimentacao",
@@ -79,6 +80,7 @@ const NAV=[
  {to:"/mutirao",label:"Mutirão de Organização",short:"Mutirão",icon:ClipboardCheck,group:"Rebanho"},
  {to:"/tarefas",label:"Rotinas e manejo",short:"Manejo",icon:ListChecks,group:"Manejo e saúde"},
  {to:"/baias",label:"Baias e caderno",short:"Baias",icon:Fence,group:"Manejo e saúde"},
+ {to:"/vacinas",label:"Mapa de vacinação",short:"Vacinas",icon:Syringe,group:"Manejo e saúde"},
  {to:"/sanidade",label:"Saúde e prevenção",short:"Saúde",icon:HeartPulse,group:"Manejo e saúde"},
  {to:"/farmacia-ai",label:"Santo Antônio AI e Farmácia",short:"IA",icon:BrainCircuit,group:"Manejo e saúde"},
  {to:"/estoque",label:"Estoque de ração",short:"Estoque",icon:Wheat,group:"Manejo e saúde"},

@@ -45,6 +45,7 @@ import { Route as AuthenticatedRotinaRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedSanidadeRouteImport } from './routes/_authenticated/sanidade'
 import { Route as AuthenticatedTarefasRouteImport } from './routes/_authenticated/tarefas'
 import { Route as AuthenticatedUsuariosRouteImport } from './routes/_authenticated/usuarios'
+import { Route as AuthenticatedVacinasRouteImport } from './routes/_authenticated/vacinas'
 import { Route as AuthenticatedMatrizesSowIdRouteImport } from './routes/_authenticated/matrizes.$sowId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -236,6 +237,11 @@ const AuthenticatedUsuariosRoute = AuthenticatedUsuariosRouteImport.update({
   path: '/usuarios',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedVacinasRoute = AuthenticatedVacinasRouteImport.update({
+  id: '/vacinas',
+  path: '/vacinas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedMatrizesSowIdRoute =
   AuthenticatedMatrizesSowIdRouteImport.update({
     id: '/$sowId',
@@ -279,6 +285,7 @@ export interface FileRoutesByFullPath {
   '/sanidade': typeof AuthenticatedSanidadeRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
+  '/vacinas': typeof AuthenticatedVacinasRoute
   '/matrizes/$sowId': typeof AuthenticatedMatrizesSowIdRoute
 }
 export interface FileRoutesByTo {
@@ -317,6 +324,7 @@ export interface FileRoutesByTo {
   '/sanidade': typeof AuthenticatedSanidadeRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
   '/usuarios': typeof AuthenticatedUsuariosRoute
+  '/vacinas': typeof AuthenticatedVacinasRoute
   '/matrizes/$sowId': typeof AuthenticatedMatrizesSowIdRoute
 }
 export interface FileRoutesById {
@@ -357,6 +365,7 @@ export interface FileRoutesById {
   '/_authenticated/sanidade': typeof AuthenticatedSanidadeRoute
   '/_authenticated/tarefas': typeof AuthenticatedTarefasRoute
   '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
+  '/_authenticated/vacinas': typeof AuthenticatedVacinasRoute
   '/_authenticated/matrizes/$sowId': typeof AuthenticatedMatrizesSowIdRoute
 }
 export interface FileRouteTypes {
@@ -397,6 +406,7 @@ export interface FileRouteTypes {
     | '/sanidade'
     | '/tarefas'
     | '/usuarios'
+    | '/vacinas'
     | '/matrizes/$sowId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -435,6 +445,7 @@ export interface FileRouteTypes {
     | '/sanidade'
     | '/tarefas'
     | '/usuarios'
+    | '/vacinas'
     | '/matrizes/$sowId'
   id:
     | '__root__'
@@ -474,6 +485,7 @@ export interface FileRouteTypes {
     | '/_authenticated/sanidade'
     | '/_authenticated/tarefas'
     | '/_authenticated/usuarios'
+    | '/_authenticated/vacinas'
     | '/_authenticated/matrizes/$sowId'
   fileRoutesById: FileRoutesById
 }
@@ -737,6 +749,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedUsuariosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/vacinas': {
+      id: '/_authenticated/vacinas'
+      path: '/vacinas'
+      fullPath: '/vacinas'
+      preLoaderRoute: typeof AuthenticatedVacinasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/matrizes/$sowId': {
       id: '/_authenticated/matrizes/$sowId'
       path: '/$sowId'
@@ -794,6 +813,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSanidadeRoute: typeof AuthenticatedSanidadeRoute
   AuthenticatedTarefasRoute: typeof AuthenticatedTarefasRoute
   AuthenticatedUsuariosRoute: typeof AuthenticatedUsuariosRoute
+  AuthenticatedVacinasRoute: typeof AuthenticatedVacinasRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -830,6 +850,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSanidadeRoute: AuthenticatedSanidadeRoute,
   AuthenticatedTarefasRoute: AuthenticatedTarefasRoute,
   AuthenticatedUsuariosRoute: AuthenticatedUsuariosRoute,
+  AuthenticatedVacinasRoute: AuthenticatedVacinasRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

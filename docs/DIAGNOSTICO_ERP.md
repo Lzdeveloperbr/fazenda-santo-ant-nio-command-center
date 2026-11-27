@@ -173,6 +173,12 @@ Legenda: ✅ funciona · 🟡 parcial · ❌ não existe
 - **Avisos no aparelho**: com permissão, um aviso por dia ao abrir o app quando há manejos atrasados ou para hoje. Não é push do servidor: com o app fechado, nada é enviado.
 - Ficha da matriz: vivos por parto e desmamados por leitegada comparados com o plantel, e intervalo médio entre partos.
 
+## 4.9.3 Mapa de vacinação
+
+- Tela **Mapa de vacinação** (`/vacinas`): cada matriz ativa com idade (da data de nascimento), último peso e situação de cada vacina (atrasada, sem registro, vence em 15 dias, aplicada, em dia).
+- Colunas = protocolos ativos de vacina para matriz + vacinas registradas fora de protocolo. Reforço = próxima dose anotada ou intervalo do protocolo; sem isso, só "aplicada".
+- **Vacinação em lote** (um registro por matriz, gravados de uma vez) e **pesagem rápida**. Exporta planilha e imprime.
+
 ## 4.10 Restauração de uma cópia de segurança
 
 A cópia nunca é aplicada sozinha pelo app, para não sobrescrever dados atuais. Procedimento para o responsável técnico:
