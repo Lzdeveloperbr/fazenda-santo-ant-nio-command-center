@@ -157,6 +157,14 @@ Legenda: ✅ funciona · 🟡 parcial · ❌ não existe
 - **Favoritos** (estrela no topo de cada tela, cada usuário vê só os seus) e **ações rápidas por perfil** no painel (Consulta não recebe ações de gravação).
 - **Calculadoras**: 35 ferramentas; novas: idade gestacional, taxa de concepção, nascidos vivos por matriz, custo por leitão desmamado, capacidade de alojamento, ponto de reposição de estoque, projeção de produção. Cada uma mostra a fórmula e valida os campos.
 
+## 4.9.1 Última rodada
+
+- **Filtros avançados** de matrizes (ordem de parto, raça, parto previsto em até N dias) e **filtros salvos**.
+- **Duplicação controlada** no financeiro: copia o lançamento com data de hoje, pendente e sem documento; aviso de lançamento igual antes de gravar (também em lançamentos novos).
+- **Matrizes favoritas**: estrela na ficha; aparecem no painel.
+- **Resumo do dia** imprimível, só com registros do dia.
+- 3D removido de todo o sistema, a pedido do proprietário.
+
 ## 4.10 Restauração de uma cópia de segurança
 
 A cópia nunca é aplicada sozinha pelo app, para não sobrescrever dados atuais. Procedimento para o responsável técnico:
@@ -173,7 +181,7 @@ A cópia nunca é aplicada sozinha pelo app, para não sobrescrever dados atuais
 - **Telas autenticadas não foram testadas contra o banco real**: foram conferidas no navegador com dados simulados, e as regras do banco foram testadas num PostgreSQL local com as mesmas migrations. É preciso aplicar as migrations 0015–0024 em homologação e seguir a seção 7.
 - **Lint completo** ainda acusa os avisos de formatação/`any` que já existiam; os arquivos novos passam no lint, salvo divergências de formatação entre o prettier e o plugin do eslint.
 - **Taxa anual de mortalidade/descarte de matrizes** depende do plantel médio histórico, que o sistema ainda não guarda; aparecem as contagens.
-- **Filtros avançados salvos e duplicação controlada de registros** ainda não têm tela.
+- **Filtros salvos** ficam no aparelho (não acompanham o usuário em outro celular).
 - **Importação** aceita CSV; arquivos .xlsx precisam ser salvos como CSV antes.
 
 ## 6. Decisões que dependem do proprietário

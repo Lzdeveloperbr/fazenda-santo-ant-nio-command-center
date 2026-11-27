@@ -8,6 +8,8 @@ import { usePermissions } from "@/lib/access";
 import { SowFormDialog } from "@/components/farm/SowForm";
 import { allSowsQuery, breedingsQuery, littersQuery, SOW_STATUS, isCountedLitter, SOW_EVENT_LABEL, fmtDate, todayISO, type Sow, type Breeding, type Litter } from "@/lib/farm";
 import { isActiveSowStatus } from "@/lib/farm/reproduction";
+import { AdvancedFilters } from "@/components/farm/SowFilters";
+import { EMPTY_FILTER, matchesFilter, type SowFilter } from "@/lib/farm/sow-filters";
 import { SectionTitle, Empty } from "@/components/farm/Kpi";
 import { FormDialog, SubmitRow, Field, selectCls } from "@/components/farm/FormDialog";
 import { Button } from "@/components/ui/button";
@@ -37,8 +39,10 @@ function Matrizes() {
   const allSows = useQuery(allSowsQuery);
   const breedings = useQuery(breedingsQuery);
   const litters = useQuery(littersQuery);
-  const [q, setQ] = useState("");
-  const [status, setStatus] = useState("todas");
+  const [filter, setFilter] = useState<SowFilter>(EMPTY_FILTER);
+  const { q, status } = filter;
+  const setQ = (v: string) => setFilter((f) => ({ ...f, q: v }));
+  const setStatus = (v: string) => setFilter((f) => ({ ...f, status: v }));
   const [sort, setSort] = useState<{ k: SortKey; asc: boolean }>({ k: "ear_tag", asc: true });
   const refresh = () => qc.invalidateQueries();
 
@@ -50,14 +54,13 @@ function Matrizes() {
       const sowL = L.filter((l) => l.sow_id === s.id);
       return { s, lastB, lastL: sowL[0], parity: sowL.length };
     })
-      .filter((r) => status === "todas" || status === "arquivadas" || r.s.status === status)
-      .filter((r) => !q || `${r.s.ear_tag} ${r.s.name ?? ""}`.toLowerCase().includes(q.toLowerCase()))
+      .filter((r) => matchesFilter({ ...r, expected: r.lastB?.expected_farrowing ?? null }, filter, todayISO()))
       .sort((a, b) => {
         const v = (r: Row) => sort.k === "ear_tag" ? r.s.ear_tag : sort.k === "status" ? r.s.status : sort.k === "parity" ? r.parity : r.lastB?.expected_farrowing ?? "9";
         const x = v(a), y = v(b);
         return (x < y ? -1 : x > y ? 1 : 0) * (sort.asc ? 1 : -1);
       });
-  }, [allSows.data, breedings.data, litters.data, q, status, sort]);
+  }, [allSows.data, breedings.data, litters.data, filter, status, sort]);
 
   if (isDetail) return <Outlet />;
 
@@ -99,6 +102,7 @@ function Matrizes() {
         </select>
         <Button variant="outline" className="h-11" onClick={exportCsv} disabled={!rows.length}><Download className="mr-2 h-4 w-4" />CSV</Button>
       </div>
+      <AdvancedFilters filter={filter} onChange={setFilter} breeds={[...new Set((allSows.data ?? []).map((x) => x.breed?.trim()).filter((b): b is string => !!b))].sort()} />
 
       {allSows.isLoading ? <p className="label-tech animate-pulse-soft">Carregando…</p> : rows.length === 0 ? (
         <Empty>{allSows.data?.length ? "Nenhuma matriz com esses filtros." : "Nenhuma matriz cadastrada. Toque em “Nova matriz” para começar."}</Empty>

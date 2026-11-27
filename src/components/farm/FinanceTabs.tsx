@@ -44,13 +44,13 @@ const batchesQuery = {
 };
 
 /** Fornecedor cadastrado e lote, dentro do formulário de lançamento. */
-export function EntryLinks() {
+export function EntryLinks({ supplierId, batchId }: { supplierId?: string | null | undefined; batchId?: string | null | undefined } = {}) {
   const suppliers = useQuery(suppliersQuery);
   const batches = useQuery(batchesQuery);
   return (
     <div className="grid grid-cols-2 gap-3">
       <Field label="Fornecedor cadastrado">
-        <select name="supplier" className={selectCls} defaultValue="">
+        <select name="supplier" className={selectCls} defaultValue={supplierId ?? ""}>
           <option value="">Nenhum</option>
           {(suppliers.data ?? [])
             .filter((s) => s.active)
@@ -62,7 +62,7 @@ export function EntryLinks() {
         </select>
       </Field>
       <Field label="Lote (para custo por lote)">
-        <select name="batch" className={selectCls} defaultValue="">
+        <select name="batch" className={selectCls} defaultValue={batchId ?? ""}>
           <option value="">Nenhum</option>
           {(batches.data ?? []).map((b) => (
             <option key={b.id} value={b.id}>

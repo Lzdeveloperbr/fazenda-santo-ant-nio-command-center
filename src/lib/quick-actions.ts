@@ -7,6 +7,7 @@ export function quickActionsFor(role: Role | null): QuickAction[] {
   if (!role) return [];
   const read: QuickAction[] = [
     { to: "/relatorios", label: "Relatórios", detail: "Indicadores do período" },
+    { to: "/resumo-do-dia", label: "Resumo do dia", detail: "Para imprimir ou conferir" },
     { to: "/ajuda", label: "Ajuda", detail: "Como usar o sistema" },
   ];
   if (role === "consulta") return read;
