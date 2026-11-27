@@ -165,6 +165,14 @@ Legenda: ✅ funciona · 🟡 parcial · ❌ não existe
 - **Resumo do dia** imprimível, só com registros do dia.
 - 3D removido de todo o sistema, a pedido do proprietário.
 
+## 4.9.2 Melhorias de uso
+
+- Busca dentro do menu, com palavras-chave (ex.: "parto" acha Gestação, Manejo guiado e Maternidade).
+- **Primeiros passos da granja** no painel (administrador/gerente), conferidos pelos registros; some quando tudo está feito.
+- Resultados do período no painel mostram o **período anterior** de mesmo tamanho (dados registrados, sem projeção).
+- **Avisos no aparelho**: com permissão, um aviso por dia ao abrir o app quando há manejos atrasados ou para hoje. Não é push do servidor: com o app fechado, nada é enviado.
+- Ficha da matriz: vivos por parto e desmamados por leitegada comparados com o plantel, e intervalo médio entre partos.
+
 ## 4.10 Restauração de uma cópia de segurança
 
 A cópia nunca é aplicada sozinha pelo app, para não sobrescrever dados atuais. Procedimento para o responsável técnico:

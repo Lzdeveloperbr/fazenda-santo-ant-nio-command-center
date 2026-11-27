@@ -13,7 +13,7 @@ export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
       { title: "Entrar | Fazenda Santo Antônio" },
-      { name: "description", content: "Acesso ao Command Center da Fazenda Santo Antônio." },
+      { name: "description", content: "Acesso ao sistema de gestão da Fazenda Santo Antônio." },
       { property: "og:title", content: "Entrar | Fazenda Santo Antônio" },
       { property: "og:description", content: "Acesso restrito à equipe da fazenda." },
       { property: "og:type", content: "website" },

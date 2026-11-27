@@ -65,7 +65,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "apple-mobile-web-app-title", content: "Santo Antônio" },
       { name: "mobile-web-app-capable", content: "yes" },
-      { name: "description", content: "Command Center da Fazenda Santo Antônio: gestão completa da suinocultura." },
+      { name: "description", content: "Fazenda Santo Antônio: gestão completa da suinocultura." },
       { property: "og:image", content: "/og-image.jpg" },
       { property: "og:site_name", content: "Fazenda Santo Antônio" },
       { property: "og:type", content: "website" },

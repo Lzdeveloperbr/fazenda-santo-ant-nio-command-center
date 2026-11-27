@@ -186,3 +186,11 @@ export function sowVsHerd(litters: Litter[]) {
     rows: rows.sort((a, b) => (b.bornAlive.value ?? -1) - (a.bornAlive.value ?? -1)),
   };
 }
+
+/** Intervalo médio entre partos consecutivos de uma matriz (dias); null com menos de 2 partos. */
+export function farrowingInterval(dates: string[]): number | null {
+  const d = [...dates].sort();
+  if (d.length < 2) return null;
+  const gaps = d.slice(1).map((x, i) => Math.round((Date.parse(x) - Date.parse(d[i]!)) / 86_400_000));
+  return Math.round(gaps.reduce((a, b) => a + b, 0) / gaps.length);
+}
