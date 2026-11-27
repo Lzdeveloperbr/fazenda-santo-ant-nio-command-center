@@ -40,6 +40,7 @@ import { Route as AuthenticatedMortalidadeRouteImport } from './routes/_authenti
 import { Route as AuthenticatedMutiraoRouteImport } from './routes/_authenticated/mutirao'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
+import { Route as AuthenticatedResumoDoDiaRouteImport } from './routes/_authenticated/resumo-do-dia'
 import { Route as AuthenticatedRotinaRouteImport } from './routes/_authenticated/rotina'
 import { Route as AuthenticatedSanidadeRouteImport } from './routes/_authenticated/sanidade'
 import { Route as AuthenticatedTarefasRouteImport } from './routes/_authenticated/tarefas'
@@ -209,6 +210,12 @@ const AuthenticatedRelatoriosRoute = AuthenticatedRelatoriosRouteImport.update({
   path: '/relatorios',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedResumoDoDiaRoute =
+  AuthenticatedResumoDoDiaRouteImport.update({
+    id: '/resumo-do-dia',
+    path: '/resumo-do-dia',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedRotinaRoute = AuthenticatedRotinaRouteImport.update({
   id: '/rotina',
   path: '/rotina',
@@ -267,6 +274,7 @@ export interface FileRoutesByFullPath {
   '/mutirao': typeof AuthenticatedMutiraoRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
+  '/resumo-do-dia': typeof AuthenticatedResumoDoDiaRoute
   '/rotina': typeof AuthenticatedRotinaRoute
   '/sanidade': typeof AuthenticatedSanidadeRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
@@ -304,6 +312,7 @@ export interface FileRoutesByTo {
   '/mutirao': typeof AuthenticatedMutiraoRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
+  '/resumo-do-dia': typeof AuthenticatedResumoDoDiaRoute
   '/rotina': typeof AuthenticatedRotinaRoute
   '/sanidade': typeof AuthenticatedSanidadeRoute
   '/tarefas': typeof AuthenticatedTarefasRoute
@@ -343,6 +352,7 @@ export interface FileRoutesById {
   '/_authenticated/mutirao': typeof AuthenticatedMutiraoRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
+  '/_authenticated/resumo-do-dia': typeof AuthenticatedResumoDoDiaRoute
   '/_authenticated/rotina': typeof AuthenticatedRotinaRoute
   '/_authenticated/sanidade': typeof AuthenticatedSanidadeRoute
   '/_authenticated/tarefas': typeof AuthenticatedTarefasRoute
@@ -382,6 +392,7 @@ export interface FileRouteTypes {
     | '/mutirao'
     | '/painel'
     | '/relatorios'
+    | '/resumo-do-dia'
     | '/rotina'
     | '/sanidade'
     | '/tarefas'
@@ -419,6 +430,7 @@ export interface FileRouteTypes {
     | '/mutirao'
     | '/painel'
     | '/relatorios'
+    | '/resumo-do-dia'
     | '/rotina'
     | '/sanidade'
     | '/tarefas'
@@ -457,6 +469,7 @@ export interface FileRouteTypes {
     | '/_authenticated/mutirao'
     | '/_authenticated/painel'
     | '/_authenticated/relatorios'
+    | '/_authenticated/resumo-do-dia'
     | '/_authenticated/rotina'
     | '/_authenticated/sanidade'
     | '/_authenticated/tarefas'
@@ -689,6 +702,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRelatoriosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/resumo-do-dia': {
+      id: '/_authenticated/resumo-do-dia'
+      path: '/resumo-do-dia'
+      fullPath: '/resumo-do-dia'
+      preLoaderRoute: typeof AuthenticatedResumoDoDiaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/rotina': {
       id: '/_authenticated/rotina'
       path: '/rotina'
@@ -769,6 +789,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMutiraoRoute: typeof AuthenticatedMutiraoRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
+  AuthenticatedResumoDoDiaRoute: typeof AuthenticatedResumoDoDiaRoute
   AuthenticatedRotinaRoute: typeof AuthenticatedRotinaRoute
   AuthenticatedSanidadeRoute: typeof AuthenticatedSanidadeRoute
   AuthenticatedTarefasRoute: typeof AuthenticatedTarefasRoute
@@ -804,6 +825,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMutiraoRoute: AuthenticatedMutiraoRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
+  AuthenticatedResumoDoDiaRoute: AuthenticatedResumoDoDiaRoute,
   AuthenticatedRotinaRoute: AuthenticatedRotinaRoute,
   AuthenticatedSanidadeRoute: AuthenticatedSanidadeRoute,
   AuthenticatedTarefasRoute: AuthenticatedTarefasRoute,

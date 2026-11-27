@@ -152,3 +152,37 @@ export function costPerHead(totalPaid: number, headcount: number): number | null
 export function signedTotal(entries: Entry[]) {
   return entries.reduce((a, e) => a + sign(e) * n(e.amount), 0);
 }
+
+/** Rascunho para duplicar um lançamento (ex.: conta mensal): data de hoje, pendente, sem documento. */
+export function duplicateDraft(e: Entry & { supplier_id?: string | null; document_number?: string | null }, today: string) {
+  return {
+    entry_type: e.entry_type,
+    category: e.category,
+    cost_center: e.cost_center ?? null,
+    supplier_id: e.supplier_id ?? null,
+    batch_id: e.batch_id ?? null,
+    counterpart: e.counterpart ?? null,
+    amount: Number(e.amount),
+    description: e.description && !e.description.startsWith("[ESTORNO:") ? e.description : null,
+    entry_date: today,
+    status: "pendente",
+    due_date: null as string | null,
+    document_number: null as string | null,
+  };
+}
+
+/** Lançamentos já gravados que parecem o mesmo (tipo, categoria, valor, data e contraparte). */
+export function possibleDuplicates(
+  entries: Entry[],
+  d: { entry_type: string; category: string; amount: number; entry_date: string; counterpart: string | null },
+) {
+  const who = (s: string | null | undefined) => (s ?? "").trim().toLowerCase();
+  return entries.filter(
+    (e) =>
+      e.entry_type === d.entry_type &&
+      e.category === d.category &&
+      Math.abs(Number(e.amount) - d.amount) < 0.005 &&
+      e.entry_date === d.entry_date &&
+      who(e.counterpart) === who(d.counterpart),
+  );
+}

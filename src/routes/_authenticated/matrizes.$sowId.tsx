@@ -6,6 +6,7 @@ import { farmSettingsQuery, DEFAULT_FARM_SETTINGS } from "@/lib/farm/farm-settin
 import { parityOf, SOW_CATEGORY_LABEL, sowSituation } from "@/lib/farm/sow-profile";
 import { daysBetween } from "@/lib/farm/gestation";
 import { SowFormDialog } from "@/components/farm/SowForm";
+import { FavoriteButton } from "@/components/farm/Favorites";
 import { ArchiveSowButton, SowPhoto, SowQrCode, SowTimeline } from "@/components/farm/SowRecordExtras";
 import { SowConditionSection } from "@/components/farm/ReproExtras";
 import { Empty, SectionTitle } from "@/components/farm/Kpi";
@@ -94,7 +95,7 @@ function SowRecord() {
           <SowPhoto sow={sow} />
           <div className="min-w-0 flex-1">
             <p className="label-tech">Ficha individual da matriz</p>
-            <h1 className="mt-2 font-mono text-3xl font-bold">{sow.ear_tag}</h1>
+            <div className="mt-2 flex items-center gap-2"><h1 className="font-mono text-3xl font-bold">{sow.ear_tag}</h1><FavoriteButton kind="matriz" path={sow.id} label={sow.ear_tag} className="no-print h-10 w-10 items-center justify-center rounded-lg border border-border hover:bg-muted" /></div>
             <p className="mt-1 text-lg">{sow.name || "Sem nome cadastrado"}</p>
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <span className="rounded-full bg-primary/10 px-3 py-1.5 text-sm font-semibold text-primary">{situation.label}</span>
