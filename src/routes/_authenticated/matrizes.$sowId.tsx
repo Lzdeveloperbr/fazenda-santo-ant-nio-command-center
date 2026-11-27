@@ -8,6 +8,7 @@ import { daysBetween } from "@/lib/farm/gestation";
 import { SowFormDialog } from "@/components/farm/SowForm";
 import { farrowingInterval, sowVsHerd } from "@/lib/farm/zootech";
 import { FavoriteButton } from "@/components/farm/Favorites";
+import { SowHealthSummary } from "@/components/farm/SowCare";
 import { ArchiveSowButton, SowPhoto, SowQrCode, SowTimeline } from "@/components/farm/SowRecordExtras";
 import { SowConditionSection } from "@/components/farm/ReproExtras";
 import { Empty, SectionTitle } from "@/components/farm/Kpi";
@@ -132,6 +133,7 @@ function SowRecord() {
           </div>
         );
       })()}
+      <SowHealthSummary sow={sow} />
 
       <section className="panel p-4 sm:p-5">
         <SectionTitle kicker="Reprodução" title="Coberturas e diagnósticos" />

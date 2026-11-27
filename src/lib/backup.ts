@@ -21,6 +21,7 @@ export const BACKUP_TABLES = [
   "weaning_feed_schedules",
   "sow_events",
   "sow_condition_records",
+  "sow_weighings",
   "farm_pens",
   "pen_records",
   "production_batches",

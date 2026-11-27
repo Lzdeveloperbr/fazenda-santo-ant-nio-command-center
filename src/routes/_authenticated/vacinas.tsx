@@ -43,6 +43,9 @@ import {
 import { downloadCsv } from "@/lib/export";
 import { usePermissions } from "@/lib/access";
 import { isActiveSowStatus } from "@/lib/farm/reproduction";
+import { missingFields } from "@/lib/farm/sow-care";
+import { BatchWeighing, CompleteRecords } from "@/components/farm/SowCare";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/_authenticated/vacinas")({
   head: () => ({
@@ -87,6 +90,12 @@ function MapaVacinas() {
   const [q, setQ] = useState("");
   const [only, setOnly] = useState<"todas" | "pendentes" | "sem_peso">("todas");
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [tab, setTab] = useState("vacinas");
+  const activeSows = useMemo(
+    () => (sows.data ?? []).filter((x) => isActiveSowStatus(x.status)),
+    [sows.data],
+  );
+  const incomplete = activeSows.filter((x) => missingFields(x).length > 0).length;
 
   const cols = useMemo(
     () => vaccineColumns(protos.data ?? [], recs.data ?? []),
@@ -172,7 +181,7 @@ function MapaVacinas() {
       <div className="no-print">
         <SectionTitle
           kicker="Saúde do rebanho"
-          title="Mapa de vacinação das matrizes"
+          title="Mapa das matrizes: vacinas, peso e idade"
           action={
             <>
               <Button variant="outline" size="sm" onClick={exportCsv} disabled={!visible.length}>
@@ -188,290 +197,317 @@ function MapaVacinas() {
         />
       </div>
 
-      {loading ? (
-        <p className="text-sm text-muted-foreground">Carregando…</p>
-      ) : !rows.length ? (
-        <Empty>
-          Nenhuma matriz ativa cadastrada.{" "}
-          <Link to="/importar-matrizes" className="font-semibold text-primary underline">
-            Importe ou cadastre as matrizes
-          </Link>{" "}
-          para montar o mapa.
-        </Empty>
-      ) : (
-        <>
-          <div className="no-print grid grid-cols-2 gap-2 sm:grid-cols-4">
-            <Summary
-              tone="atrasada"
-              label="Com vacina atrasada"
-              value={count("atrasada")}
-              onClick={() => setOnly("pendentes")}
-            />
-            <Summary
-              tone="nunca"
-              label="Sem registro de alguma vacina"
-              value={count("nunca")}
-              onClick={() => setOnly("pendentes")}
-            />
-            <Summary
-              tone="vence"
-              label="Vencem em 15 dias"
-              value={count("vence")}
-              onClick={() => setOnly("pendentes")}
-            />
-            <Summary
-              tone="aplicada"
-              icon={Scale}
-              label="Peso ausente ou com +90 dias"
-              value={noWeight}
-              onClick={() => setOnly("sem_peso")}
-            />
-          </div>
-
-          {cols.length === 0 && (
-            <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm">
-              <p className="font-semibold">Nenhuma vacina de matriz cadastrada ainda.</p>
-              <p className="mt-1 text-muted-foreground">
-                Peça ao veterinário para cadastrar os protocolos em{" "}
-                <Link to="/agenda" className="font-semibold underline">
-                  Agenda › Protocolos sanitários
-                </Link>{" "}
-                (tipo vacina, para matriz), ou registre a primeira vacinação abaixo: ela vira uma
-                coluna do mapa.
-              </p>
-            </div>
+      <Tabs value={tab} onValueChange={setTab}>
+        <TabsList className="no-print max-w-full justify-start overflow-x-auto">
+          <TabsTrigger value="vacinas">Vacinas</TabsTrigger>
+          {perms?.canWrite && <TabsTrigger value="pesagem">Pesagem em lote</TabsTrigger>}
+          {perms?.canWrite && (
+            <TabsTrigger value="cadastro">
+              Completar cadastro{incomplete ? ` (${incomplete})` : ""}
+            </TabsTrigger>
           )}
-          {noBirth > 0 && (
-            <p className="text-xs text-muted-foreground">
-              {noBirth} matriz(es) sem data de nascimento: a idade aparece como "—". Preencha na
-              ficha da matriz.
-            </p>
-          )}
-
-          <div className="no-print flex flex-wrap items-center gap-2">
-            <div className="relative min-w-48 flex-1">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="Brinco ou nome"
-                className="h-11 pl-9"
-              />
-            </div>
-            <select
-              className={`${selectCls} w-auto`}
-              value={only}
-              onChange={(e) => setOnly(e.target.value as typeof only)}
-              aria-label="Mostrar"
-            >
-              <option value="todas">Todas as matrizes</option>
-              <option value="pendentes">Só com vacina pendente</option>
-              <option value="sem_peso">Só peso desatualizado</option>
-            </select>
-            {perms?.canWrite && (
-              <>
-                <Button
-                  variant="outline"
-                  className="h-11"
-                  onClick={() =>
-                    setSelected(
-                      selected.size === visible.length
-                        ? new Set()
-                        : new Set(visible.map((r) => r.sow.id)),
-                    )
-                  }
-                >
-                  {selected.size === visible.length && visible.length
-                    ? "Desmarcar todas"
-                    : `Marcar ${visible.length}`}
-                </Button>
-                <BatchVaccination
-                  sows={visible.filter((r) => selected.has(r.sow.id)).map((r) => r.sow)}
-                  cols={cols}
-                  onDone={() => setSelected(new Set())}
-                />
-              </>
-            )}
-          </div>
-
-          <div className="no-print flex flex-wrap gap-3 text-xs text-muted-foreground">
-            {order.map((s) => {
-              const I = ICON[s];
-              return (
-                <span key={s} className="inline-flex items-center gap-1">
-                  <span
-                    className={`inline-flex h-5 w-5 items-center justify-center rounded border ${TONE[s]}`}
-                  >
-                    <I className="h-3 w-3" />
-                  </span>
-                  {CELL_LABEL[s]}
-                </span>
-              );
-            })}
-          </div>
-
-          {!visible.length ? (
-            <Empty>Nenhuma matriz com esse filtro.</Empty>
+        </TabsList>
+        {perms?.canWrite && (
+          <TabsContent value="pesagem" className="mt-4">
+            <BatchWeighing sows={activeSows} />
+          </TabsContent>
+        )}
+        {perms?.canWrite && (
+          <TabsContent value="cadastro" className="mt-4">
+            <CompleteRecords sows={activeSows} />
+          </TabsContent>
+        )}
+        <TabsContent value="vacinas" className="mt-4 space-y-5">
+          {loading ? (
+            <p className="text-sm text-muted-foreground">Carregando…</p>
+          ) : !rows.length ? (
+            <Empty>
+              Nenhuma matriz ativa cadastrada.{" "}
+              <Link to="/importar-matrizes" className="font-semibold text-primary underline">
+                Importe ou cadastre as matrizes
+              </Link>{" "}
+              para montar o mapa.
+            </Empty>
           ) : (
             <>
-              <ul className="space-y-3 md:hidden">
-                {visible.map((r) => (
-                  <li
-                    key={r.sow.id}
-                    className={`panel p-4 ${selected.has(r.sow.id) ? "ring-2 ring-primary" : ""}`}
-                  >
-                    <div className="flex items-start gap-3">
-                      {perms?.canWrite && (
-                        <input
-                          type="checkbox"
-                          className="mt-1 h-5 w-5 accent-[hsl(var(--primary))]"
-                          checked={selected.has(r.sow.id)}
-                          onChange={() => toggle(r.sow.id)}
-                          aria-label={`Selecionar ${r.sow.ear_tag}`}
-                        />
-                      )}
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between gap-2">
-                          <Link
-                            to="/matrizes/$sowId"
-                            params={{ sowId: r.sow.id }}
-                            className="font-mono text-lg font-bold"
-                          >
-                            {r.sow.ear_tag}
-                          </Link>
-                          <span className="text-xs text-muted-foreground">
-                            {SOW_STATUS[r.sow.status]?.label ?? r.sow.status}
-                          </span>
-                        </div>
-                        {r.sow.name && (
-                          <p className="text-sm text-muted-foreground">{r.sow.name}</p>
-                        )}
-                        <dl className="mt-2 grid grid-cols-2 gap-2 text-sm">
-                          <div className="rounded-lg bg-muted/60 p-2">
-                            <dt className="text-[.65rem] uppercase text-muted-foreground">Idade</dt>
-                            <dd className="font-semibold">{r.age ?? "—"}</dd>
-                          </div>
-                          <div
-                            className={`rounded-lg p-2 ${weightStale(r.sow.weight_date, today) ? "bg-amber-500/10" : "bg-muted/60"}`}
-                          >
-                            <dt className="text-[.65rem] uppercase text-muted-foreground">Peso</dt>
-                            <dd className="font-semibold">
-                              {r.sow.weight_kg
-                                ? `${String(r.sow.weight_kg).replace(".", ",")} kg`
-                                : "—"}
-                              {r.sow.weight_date && (
-                                <span className="block text-[.65rem] font-normal text-muted-foreground">
-                                  em {fmtDate(r.sow.weight_date)}
-                                </span>
-                              )}
-                            </dd>
-                          </div>
-                        </dl>
-                        {cols.length > 0 && (
-                          <ul className="mt-2 space-y-1.5">
-                            {cols.map((c, i) => (
-                              <CellChip key={c.key} col={c} cell={r.cells[i]!} />
-                            ))}
-                          </ul>
-                        )}
-                        {perms?.canWrite && (
-                          <div className="mt-3">
-                            <WeighSow sow={r.sow} />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+              <div className="no-print grid grid-cols-2 gap-2 sm:grid-cols-4">
+                <Summary
+                  tone="atrasada"
+                  label="Com vacina atrasada"
+                  value={count("atrasada")}
+                  onClick={() => setOnly("pendentes")}
+                />
+                <Summary
+                  tone="nunca"
+                  label="Sem registro de alguma vacina"
+                  value={count("nunca")}
+                  onClick={() => setOnly("pendentes")}
+                />
+                <Summary
+                  tone="vence"
+                  label="Vencem em 15 dias"
+                  value={count("vence")}
+                  onClick={() => setOnly("pendentes")}
+                />
+                <Summary
+                  tone="aplicada"
+                  icon={Scale}
+                  label="Peso ausente ou com +90 dias"
+                  value={noWeight}
+                  onClick={() => setOnly("sem_peso")}
+                />
+              </div>
 
-              <div className="print-area panel hidden overflow-x-auto md:block">
-                <table className="w-full text-sm">
-                  <thead className="border-b text-left text-xs text-muted-foreground">
-                    <tr>
-                      {perms?.canWrite && <th className="no-print p-2" />}
-                      <th className="p-2">Matriz</th>
-                      <th className="p-2">Idade</th>
-                      <th className="p-2">Peso</th>
-                      {cols.map((c) => (
-                        <th key={c.key} className="min-w-32 p-2">
-                          {c.name}
-                          {c.repeatEvery ? (
-                            <span className="block font-normal">reforço {c.repeatEvery} d</span>
-                          ) : null}
-                        </th>
-                      ))}
-                      {perms?.canWrite && <th className="no-print p-2" />}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {visible.map((r) => (
-                      <tr
-                        key={r.sow.id}
-                        className={`border-t align-top ${selected.has(r.sow.id) ? "bg-primary/5" : ""}`}
+              {cols.length === 0 && (
+                <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm">
+                  <p className="font-semibold">Nenhuma vacina de matriz cadastrada ainda.</p>
+                  <p className="mt-1 text-muted-foreground">
+                    Peça ao veterinário para cadastrar os protocolos em{" "}
+                    <Link to="/agenda" className="font-semibold underline">
+                      Agenda › Protocolos sanitários
+                    </Link>{" "}
+                    (tipo vacina, para matriz), ou registre a primeira vacinação abaixo: ela vira
+                    uma coluna do mapa.
+                  </p>
+                </div>
+              )}
+              {noBirth > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  {noBirth} matriz(es) sem data de nascimento: a idade aparece como "—". Preencha na
+                  ficha da matriz.
+                </p>
+              )}
+
+              <div className="no-print flex flex-wrap items-center gap-2">
+                <div className="relative min-w-48 flex-1">
+                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    value={q}
+                    onChange={(e) => setQ(e.target.value)}
+                    placeholder="Brinco ou nome"
+                    className="h-11 pl-9"
+                  />
+                </div>
+                <select
+                  className={`${selectCls} w-auto`}
+                  value={only}
+                  onChange={(e) => setOnly(e.target.value as typeof only)}
+                  aria-label="Mostrar"
+                >
+                  <option value="todas">Todas as matrizes</option>
+                  <option value="pendentes">Só com vacina pendente</option>
+                  <option value="sem_peso">Só peso desatualizado</option>
+                </select>
+                {perms?.canWrite && (
+                  <>
+                    <Button
+                      variant="outline"
+                      className="h-11"
+                      onClick={() =>
+                        setSelected(
+                          selected.size === visible.length
+                            ? new Set()
+                            : new Set(visible.map((r) => r.sow.id)),
+                        )
+                      }
+                    >
+                      {selected.size === visible.length && visible.length
+                        ? "Desmarcar todas"
+                        : `Marcar ${visible.length}`}
+                    </Button>
+                    <BatchVaccination
+                      sows={visible.filter((r) => selected.has(r.sow.id)).map((r) => r.sow)}
+                      cols={cols}
+                      onDone={() => setSelected(new Set())}
+                    />
+                  </>
+                )}
+              </div>
+
+              <div className="no-print flex flex-wrap gap-3 text-xs text-muted-foreground">
+                {order.map((s) => {
+                  const I = ICON[s];
+                  return (
+                    <span key={s} className="inline-flex items-center gap-1">
+                      <span
+                        className={`inline-flex h-5 w-5 items-center justify-center rounded border ${TONE[s]}`}
                       >
-                        {perms?.canWrite && (
-                          <td className="no-print p-2">
+                        <I className="h-3 w-3" />
+                      </span>
+                      {CELL_LABEL[s]}
+                    </span>
+                  );
+                })}
+              </div>
+
+              {!visible.length ? (
+                <Empty>Nenhuma matriz com esse filtro.</Empty>
+              ) : (
+                <>
+                  <ul className="space-y-3 md:hidden">
+                    {visible.map((r) => (
+                      <li
+                        key={r.sow.id}
+                        className={`panel p-4 ${selected.has(r.sow.id) ? "ring-2 ring-primary" : ""}`}
+                      >
+                        <div className="flex items-start gap-3">
+                          {perms?.canWrite && (
                             <input
                               type="checkbox"
-                              className="h-4 w-4"
+                              className="mt-1 h-5 w-5 accent-[var(--primary)]"
                               checked={selected.has(r.sow.id)}
                               onChange={() => toggle(r.sow.id)}
                               aria-label={`Selecionar ${r.sow.ear_tag}`}
                             />
-                          </td>
-                        )}
-                        <td className="p-2">
-                          <Link
-                            to="/matrizes/$sowId"
-                            params={{ sowId: r.sow.id }}
-                            className="font-mono font-bold"
-                          >
-                            {r.sow.ear_tag}
-                          </Link>
-                          <span className="block text-xs text-muted-foreground">
-                            {SOW_STATUS[r.sow.status]?.label ?? r.sow.status}
-                          </span>
-                        </td>
-                        <td className="p-2">{r.age ?? "—"}</td>
-                        <td
-                          className={`p-2 ${weightStale(r.sow.weight_date, today) ? "text-amber-700 dark:text-amber-300" : ""}`}
-                        >
-                          {r.sow.weight_kg
-                            ? `${String(r.sow.weight_kg).replace(".", ",")} kg`
-                            : "—"}
-                          {r.sow.weight_date && (
-                            <span className="block text-xs text-muted-foreground">
-                              {fmtDate(r.sow.weight_date)}
-                            </span>
                           )}
-                        </td>
-                        {r.cells.map((cell, i) => (
-                          <td key={cols[i]!.key} className="p-2">
-                            <CellBox cell={cell} />
-                          </td>
-                        ))}
-                        {perms?.canWrite && (
-                          <td className="no-print p-2">
-                            <WeighSow sow={r.sow} compact />
-                          </td>
-                        )}
-                      </tr>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center justify-between gap-2">
+                              <Link
+                                to="/matrizes/$sowId"
+                                params={{ sowId: r.sow.id }}
+                                className="font-mono text-lg font-bold"
+                              >
+                                {r.sow.ear_tag}
+                              </Link>
+                              <span className="text-xs text-muted-foreground">
+                                {SOW_STATUS[r.sow.status]?.label ?? r.sow.status}
+                              </span>
+                            </div>
+                            {r.sow.name && (
+                              <p className="text-sm text-muted-foreground">{r.sow.name}</p>
+                            )}
+                            <dl className="mt-2 grid grid-cols-2 gap-2 text-sm">
+                              <div className="rounded-lg bg-muted/60 p-2">
+                                <dt className="text-[.65rem] uppercase text-muted-foreground">
+                                  Idade
+                                </dt>
+                                <dd className="font-semibold">{r.age ?? "—"}</dd>
+                              </div>
+                              <div
+                                className={`rounded-lg p-2 ${weightStale(r.sow.weight_date, today) ? "bg-amber-500/10" : "bg-muted/60"}`}
+                              >
+                                <dt className="text-[.65rem] uppercase text-muted-foreground">
+                                  Peso
+                                </dt>
+                                <dd className="font-semibold">
+                                  {r.sow.weight_kg
+                                    ? `${String(r.sow.weight_kg).replace(".", ",")} kg`
+                                    : "—"}
+                                  {r.sow.weight_date && (
+                                    <span className="block text-[.65rem] font-normal text-muted-foreground">
+                                      em {fmtDate(r.sow.weight_date)}
+                                    </span>
+                                  )}
+                                </dd>
+                              </div>
+                            </dl>
+                            {cols.length > 0 && (
+                              <ul className="mt-2 space-y-1.5">
+                                {cols.map((c, i) => (
+                                  <CellChip key={c.key} col={c} cell={r.cells[i]!} />
+                                ))}
+                              </ul>
+                            )}
+                            {perms?.canWrite && (
+                              <div className="mt-3">
+                                <WeighSow sow={r.sow} />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </li>
                     ))}
-                  </tbody>
-                </table>
-              </div>
+                  </ul>
+
+                  <div className="print-area panel hidden overflow-x-auto md:block">
+                    <table className="w-full text-sm">
+                      <thead className="border-b text-left text-xs text-muted-foreground">
+                        <tr>
+                          {perms?.canWrite && <th className="no-print p-2" />}
+                          <th className="p-2">Matriz</th>
+                          <th className="p-2">Idade</th>
+                          <th className="p-2">Peso</th>
+                          {cols.map((c) => (
+                            <th key={c.key} className="min-w-32 p-2">
+                              {c.name}
+                              {c.repeatEvery ? (
+                                <span className="block font-normal">reforço {c.repeatEvery} d</span>
+                              ) : null}
+                            </th>
+                          ))}
+                          {perms?.canWrite && <th className="no-print p-2" />}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {visible.map((r) => (
+                          <tr
+                            key={r.sow.id}
+                            className={`border-t align-top ${selected.has(r.sow.id) ? "bg-primary/5" : ""}`}
+                          >
+                            {perms?.canWrite && (
+                              <td className="no-print p-2">
+                                <input
+                                  type="checkbox"
+                                  className="h-4 w-4"
+                                  checked={selected.has(r.sow.id)}
+                                  onChange={() => toggle(r.sow.id)}
+                                  aria-label={`Selecionar ${r.sow.ear_tag}`}
+                                />
+                              </td>
+                            )}
+                            <td className="p-2">
+                              <Link
+                                to="/matrizes/$sowId"
+                                params={{ sowId: r.sow.id }}
+                                className="font-mono font-bold"
+                              >
+                                {r.sow.ear_tag}
+                              </Link>
+                              <span className="block text-xs text-muted-foreground">
+                                {SOW_STATUS[r.sow.status]?.label ?? r.sow.status}
+                              </span>
+                            </td>
+                            <td className="p-2">{r.age ?? "—"}</td>
+                            <td
+                              className={`p-2 ${weightStale(r.sow.weight_date, today) ? "text-amber-700 dark:text-amber-300" : ""}`}
+                            >
+                              {r.sow.weight_kg
+                                ? `${String(r.sow.weight_kg).replace(".", ",")} kg`
+                                : "—"}
+                              {r.sow.weight_date && (
+                                <span className="block text-xs text-muted-foreground">
+                                  {fmtDate(r.sow.weight_date)}
+                                </span>
+                              )}
+                            </td>
+                            {r.cells.map((cell, i) => (
+                              <td key={cols[i]!.key} className="p-2">
+                                <CellBox cell={cell} />
+                              </td>
+                            ))}
+                            {perms?.canWrite && (
+                              <td className="no-print p-2">
+                                <WeighSow sow={r.sow} compact />
+                              </td>
+                            )}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              )}
+              <p className="text-xs leading-5 text-muted-foreground">
+                A situação vem da última aplicação registrada para cada matriz. O prazo do reforço é
+                a "próxima dose" anotada na aplicação ou, se não houver, o intervalo do protocolo
+                cadastrado pelo veterinário. Vacinas ligadas ao ciclo (ex.: dias antes do parto)
+                também aparecem na Agenda. O sistema não indica vacina nem dose: siga o protocolo do
+                médico-veterinário.
+              </p>
             </>
           )}
-          <p className="text-xs leading-5 text-muted-foreground">
-            A situação vem da última aplicação registrada para cada matriz. O prazo do reforço é a
-            "próxima dose" anotada na aplicação ou, se não houver, o intervalo do protocolo
-            cadastrado pelo veterinário. Vacinas ligadas ao ciclo (ex.: dias antes do parto) também
-            aparecem na Agenda. O sistema não indica vacina nem dose: siga o protocolo do
-            médico-veterinário.
-          </p>
-        </>
-      )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
@@ -557,9 +593,11 @@ function WeighSow({ sow, compact }: { sow: Sow; compact?: boolean }) {
     }
     setBusy(true);
     const { error } = await supabase
-      .from("sows")
-      .update({ weight_kg: kg, weight_date: date })
-      .eq("id", sow.id);
+      .from("sow_weighings")
+      .upsert(
+        { sow_id: sow.id, weighed_on: date, weight_kg: kg },
+        { onConflict: "sow_id,weighed_on" },
+      );
     setBusy(false);
     if (error) {
       toast.error(errMsg(error));
@@ -568,6 +606,7 @@ function WeighSow({ sow, compact }: { sow: Sow; compact?: boolean }) {
     toast.success(`Peso da ${sow.ear_tag} atualizado.`);
     close();
     void qc.invalidateQueries({ queryKey: ["sows"] });
+    void qc.invalidateQueries({ queryKey: ["sow_weighings"] });
   }
   return (
     <FormDialog

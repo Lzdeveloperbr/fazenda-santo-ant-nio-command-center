@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      sow_weighings: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          farm_id: string
+          id: string
+          notes: string | null
+          sow_id: string
+          weighed_on: string
+          weight_kg: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          farm_id?: string
+          id?: string
+          notes?: string | null
+          sow_id: string
+          weighed_on?: string
+          weight_kg: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          farm_id?: string
+          id?: string
+          notes?: string | null
+          sow_id?: string
+          weighed_on?: string
+          weight_kg?: number
+        }
+        Relationships: []
+      }
       user_favorites: {
         Row: {
           created_at: string

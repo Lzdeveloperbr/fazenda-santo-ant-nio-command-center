@@ -179,6 +179,12 @@ Legenda: ✅ funciona · 🟡 parcial · ❌ não existe
 - Colunas = protocolos ativos de vacina para matriz + vacinas registradas fora de protocolo. Reforço = próxima dose anotada ou intervalo do protocolo; sem isso, só "aplicada".
 - **Vacinação em lote** (um registro por matriz, gravados de uma vez) e **pesagem rápida**. Exporta planilha e imprime.
 
+## 4.9.4 Peso e cadastro das matrizes
+
+- Migration `0025_historico_peso_matrizes.sql`: tabela `sow_weighings` (uma pesagem por matriz por dia, 20–500 kg, sem data futura). O último peso da matriz (`sows.weight_kg/weight_date`) é atualizado por gatilho; editar o peso na ficha também entra no histórico. O peso atual de cada matriz vira a primeira pesagem. Isolada por granja, com perfis e auditoria; Consulta não grava, só Administrador/Gerente apaga.
+- Mapa das matrizes com abas **Pesagem em lote** e **Completar cadastro** (nascimento, raça, entrada).
+- Ficha da matriz: vacinas (mesma regra do mapa) e gráfico do peso.
+
 ## 4.10 Restauração de uma cópia de segurança
 
 A cópia nunca é aplicada sozinha pelo app, para não sobrescrever dados atuais. Procedimento para o responsável técnico:
@@ -192,7 +198,7 @@ A cópia nunca é aplicada sozinha pelo app, para não sobrescrever dados atuais
 ## 5. Limitações conhecidas (honestas)
 
 - **Abrir o app do zero sem internet** mostra o aviso de sem conexão: o aparelho não guarda cópia do banco (decisão de privacidade). A fila offline serve para quedas de conexão com o app já aberto.
-- **Telas autenticadas não foram testadas contra o banco real**: foram conferidas no navegador com dados simulados, e as regras do banco foram testadas num PostgreSQL local com as mesmas migrations. É preciso aplicar as migrations 0015–0024 em homologação e seguir a seção 7.
+- **Telas autenticadas não foram testadas contra o banco real**: foram conferidas no navegador com dados simulados, e as regras do banco foram testadas num PostgreSQL local com as mesmas migrations. É preciso aplicar as migrations 0015–0025 em homologação e seguir a seção 7.
 - **Lint completo** ainda acusa os avisos de formatação/`any` que já existiam; os arquivos novos passam no lint, salvo divergências de formatação entre o prettier e o plugin do eslint.
 - **Taxa anual de mortalidade/descarte de matrizes** depende do plantel médio histórico, que o sistema ainda não guarda; aparecem as contagens.
 - **Filtros salvos** ficam no aparelho (não acompanham o usuário em outro celular).
@@ -207,7 +213,7 @@ A cópia nunca é aplicada sozinha pelo app, para não sobrescrever dados atuais
 ## 7. Como validar a Fase 1 em homologação
 
 1. Backup do banco.
-2. Aplicar, em ordem, `0015` a `0024` pelo fluxo oficial (Lovable/Supabase). Antes, rodar `tests/db/run.sh` num PostgreSQL local descartável.
+2. Aplicar, em ordem, `0015` a `0025` pelo fluxo oficial (Lovable/Supabase). Antes, rodar `tests/db/run.sh` num PostgreSQL local descartável.
 3. Entrar como um dos fundadores: menu Gestão deve mostrar **Equipe e permissões** e **Histórico de alterações**.
 4. Mudar um funcionário de teste para **Consulta** e confirmar que ele vê os dados, vê o aviso e não consegue salvar.
 5. Desativar o usuário de teste e confirmar que ele não vê dados.

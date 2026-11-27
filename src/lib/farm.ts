@@ -383,3 +383,11 @@ export const sowVaccinationsQuery = queryOptions({
       supabase.from("vaccination_records").select("*").eq("animal_scope", "matriz").order("vaccination_date", { ascending: false }).limit(5000),
     ),
 });
+
+export type SowWeighing = Database["public"]["Tables"]["sow_weighings"]["Row"];
+/** Histórico de pesagens das matrizes (mais recente primeiro). */
+export const sowWeighingsQuery = queryOptions({
+  queryKey: ["sow_weighings"],
+  queryFn: () =>
+    unwrap<SowWeighing[]>(supabase.from("sow_weighings").select("*").order("weighed_on", { ascending: false }).limit(10000)),
+});
