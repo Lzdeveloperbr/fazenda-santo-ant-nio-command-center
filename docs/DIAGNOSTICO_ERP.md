@@ -190,6 +190,11 @@ Legenda: ✅ funciona · 🟡 parcial · ❌ não existe
 - Protocolos de matriz ancorados na cobertura ou no parto (sem reforço fixo) contam no ciclo atual: prazo = data-base + dias do protocolo (parto previsto quando gestante); feito se aplicado desde a cobertura do ciclo. Porca sem ciclo: "Fora do ciclo".
 - Aba **Leitegadas**: leitegadas em maternidade × protocolos de leitegada (dias desde o parto). Feito = vacina/tratamento registrado para a leitegada ou, no ferro, data de ferro em todos os leitões identificados vivos (parcial quando só alguns). Registro rápido (vacina → vacinação; ferro/manejo → tratamento sem antimicrobiano; medicação fica em Saúde, com receita).
 
+## 4.9.6 Erros claros e verificação do banco
+
+- `src/lib/errors.ts`: erros técnicos viram frases em português (tabela ausente, permissão, duplicado, valor fora do permitido, sem internet, login). Mensagens das regras do banco passam como estão. Aplicado em todas as telas que mostravam o erro cru.
+- Configurações › **Sistema** e aviso no topo (administrador/gerente): confere pela API se cada migration (0015–0025, exceto 0024, que só muda permissões) foi aplicada e diz quais faltam.
+
 ## 4.10 Restauração de uma cópia de segurança
 
 A cópia nunca é aplicada sozinha pelo app, para não sobrescrever dados atuais. Procedimento para o responsável técnico:

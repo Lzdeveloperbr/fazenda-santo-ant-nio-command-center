@@ -14,6 +14,7 @@ import { FormDialog, Field, SubmitRow, selectCls } from "@/components/farm/FormD
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { friendlyError } from "@/lib/errors";
 
 export const Route = createFileRoute("/_authenticated/financeiro")({
   head: () => ({ meta: [
@@ -95,7 +96,7 @@ function EntryDialog({ source }: { source?: FinanceEntry } = {}) {
       if (same.length && !window.confirm(`Já existe ${same.length} lançamento igual (mesma data, categoria, valor e contraparte). Gravar mesmo assim?`)) return;
       setBusy(true);
       const { error } = await supabase.from("finance_entries").insert(row);
-      setBusy(false); if (error) return void toast.error(error.message); toast.success(source ? "Cópia salva como novo lançamento." : "Lançamento salvo."); qc.invalidateQueries({ queryKey: ["finance_entries"] }); close(); }}>
+      setBusy(false); if (error) return void toast.error(friendlyError(error)); toast.success(source ? "Cópia salva como novo lançamento." : "Lançamento salvo."); qc.invalidateQueries({ queryKey: ["finance_entries"] }); close(); }}>
       {source && <p className="rounded-lg bg-muted/60 p-3 text-sm text-muted-foreground">Cópia de {fmtDate(source.entry_date)}. Confira a data, o valor e a situação; documento e vencimento não são copiados. O original não muda.</p>}
       <div className="grid grid-cols-2 gap-2">{(["despesa", "receita"] as const).map((t) => <Button key={t} type="button" variant={type === t ? "default" : "outline"} onClick={() => setType(t)}>{t === "despesa" ? "Despesa" : "Receita"}</Button>)}</div>
       <div className="grid grid-cols-2 gap-3"><Field label="Categoria"><select name="cat" className={selectCls} defaultValue={draft?.category}>{[...new Set([...(draft && draft.entry_type === type ? [draft.category] : []), ...FINANCE_CATEGORIES[type]])].map((c) => <option key={c}>{c}</option>)}</select></Field><Field label="Centro de custo"><select name="center" className={selectCls} defaultValue={draft?.cost_center ?? ""}><option value="">Não classificado</option>{Object.entries(COST_CENTERS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></Field></div>
@@ -128,7 +129,7 @@ function ReverseEntry({ entry }: { entry: FinanceEntry }) {
           event.preventDefault();
           setBusy(true);
           const { data: existing, error: lookupError } = await supabase.from("finance_entries").select("id").eq("description", marker).maybeSingle();
-          if (lookupError) { setBusy(false); toast.error(lookupError.message); return; }
+          if (lookupError) { setBusy(false); toast.error(friendlyError(lookupError)); return; }
           if (existing) { setBusy(false); setOpen(false); toast.error("Este lançamento já possui um estorno registrado."); return; }
           const { error } = await supabase.from("finance_entries").insert({
             entry_type: entry.entry_type === "receita" ? "despesa" : "receita",
@@ -142,7 +143,7 @@ function ReverseEntry({ entry }: { entry: FinanceEntry }) {
             batch_id: entry.batch_id,
           });
           setBusy(false);
-          if (error) { toast.error(error.message); return; }
+          if (error) { toast.error(friendlyError(error)); return; }
           toast.success("Estorno registrado. O lançamento original foi preservado.");
           setOpen(false);
           qc.invalidateQueries({ queryKey: ["finance_entries"] });

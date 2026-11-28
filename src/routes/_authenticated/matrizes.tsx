@@ -15,6 +15,7 @@ import { FormDialog, SubmitRow, Field, selectCls } from "@/components/farm/FormD
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { friendlyError } from "@/lib/errors";
 
 export const Route = createFileRoute("/_authenticated/matrizes")({
   head: () => ({
@@ -257,7 +258,7 @@ function SowEventDialog({ sow, onDone }: { sow: Sow; onDone: () => void }) {
           financeError = r.error?.message ?? null;
         }
         setBusy(false);
-        if (error) { toast.error(error.message); return; }
+        if (error) { toast.error(friendlyError(error)); return; }
         if (financeError) toast.error(`Descarte registrado, mas a receita não foi lançada: ${financeError}`);
         else toast.success("Evento registrado no histórico");
         onDone(); close();
@@ -287,7 +288,7 @@ function ReactivateSow({ sow, onDone }: { sow: Sow; onDone: () => void }) {
     setBusy(true);
     const { error } = await supabase.from("sow_events").insert({ sow_id: sow.id, event_type: "reativacao", event_date: todayISO(), notes: "Retorno ao plantel registrado na ficha da matriz." });
     setBusy(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("Matriz reintegrada ao plantel"); onDone();
   }
   return <Button size="sm" variant="outline" disabled={busy} onClick={reactivate}><RotateCcw className="mr-1 h-3.5 w-3.5" />{sow.status === "transferida" ? "Registrar retorno" : "Reativar"}</Button>;
@@ -313,7 +314,7 @@ function NewBreeding({ sow, onDone }: { sow: Sow; onDone: () => void }) {
         const { error } = await supabase.from("breedings").insert({ sow_id: sow.id, breeding_date: String(f.get("date")), boar: String(f.get("boar") || "") || null });
         if (!error) await supabase.from("sows").update({ status: "coberta" }).eq("id", sow.id);
         setBusy(false);
-        if (error) { toast.error(error.message); return; }
+        if (error) { toast.error(friendlyError(error)); return; }
         toast.success("Cobertura registrada · parto estimado em 114 dias"); onDone(); close();
       }}>
         <Field label="Data da cobertura"><Input name="date" type="date" required defaultValue={todayISO()} className="h-11" /></Field>
@@ -331,7 +332,7 @@ function PregCheck({ sow, breedingId, onDone }: { sow: Sow; breedingId: string; 
     const { error } = await supabase.from("breedings").update({ pregnancy_check: result }).eq("id", breedingId);
     if (!error) await supabase.from("sows").update({ status: result === "positivo" ? "gestante" : "vazia" }).eq("id", sow.id);
     setBusy(false);
-    if (error) { toast.error(error.message); return false; }
+    if (error) { toast.error(friendlyError(error)); return false; }
     toast.success(`Diagnóstico ${result}`); onDone(); return true;
   }
   return (
@@ -358,7 +359,7 @@ function NewLitter({ sow, onDone }: { sow: Sow; onDone: () => void }) {
         const { error } = await supabase.from("litters").insert({ sow_id: sow.id, farrowing_date: String(f.get("date")), born_alive: alive, stillborn: still, born_total: alive + still });
         if (!error) await supabase.from("sows").update({ status: "lactante" }).eq("id", sow.id);
         setBusy(false);
-        if (error) { toast.error(error.message); return; }
+        if (error) { toast.error(friendlyError(error)); return; }
         toast.success("Parto registrado"); onDone(); close();
       }}>
         <Field label="Data do parto"><Input name="date" type="date" required defaultValue={todayISO()} className="h-11" /></Field>

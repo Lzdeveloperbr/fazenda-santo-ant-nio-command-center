@@ -53,6 +53,7 @@ import { missingFields } from "@/lib/farm/sow-care";
 import { BatchWeighing, CompleteRecords } from "@/components/farm/SowCare";
 import { LitterCareMap } from "@/components/farm/LitterCare";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { friendlyError } from "@/lib/errors";
 
 export const Route = createFileRoute("/_authenticated/vacinas")({
   head: () => ({
@@ -78,10 +79,7 @@ const ICON: Record<CellState, typeof Clock> = {
   programada: CalendarClock,
   fora_ciclo: MinusCircle,
 };
-const errMsg = (e: unknown) =>
-  e && typeof e === "object" && "message" in e
-    ? String((e as { message: string }).message)
-    : "Não foi possível salvar.";
+const errMsg = (e: unknown) => friendlyError(e);
 type Row = { sow: Sow; cells: Cell[]; worst: CellState; age: string | null };
 
 function MapaVacinas() {

@@ -37,11 +37,9 @@ import {
   sowCycle,
   vaccineColumns,
 } from "@/lib/farm/vaccine-map";
+import { friendlyError } from "@/lib/errors";
 
-const errMsg = (e: unknown) =>
-  e && typeof e === "object" && "message" in e
-    ? String((e as { message: string }).message)
-    : "Não foi possível salvar.";
+const errMsg = (e: unknown) => friendlyError(e);
 const kg = (v: number | null) => (v == null ? "—" : `${String(v).replace(".", ",")} kg`);
 
 /** Pesar várias matrizes seguidas: digita o peso de cada uma e grava tudo de uma vez. */

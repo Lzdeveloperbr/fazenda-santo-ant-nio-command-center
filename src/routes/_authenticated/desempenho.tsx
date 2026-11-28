@@ -10,6 +10,7 @@ import { FormDialog, SubmitRow, Field } from "@/components/farm/FormDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { todayISO, fmtDate } from "@/lib/farm";
+import { friendlyError } from "@/lib/errors";
 
 const db = supabase as any;
 const batchesQuery = { queryKey: ["production_batches"], queryFn: async () => { const {data,error}=await db.from("production_batches").select("*").order("entry_date",{ascending:false}); if(error)throw error; return data??[]; } };
@@ -66,7 +67,7 @@ function WeighForm({batch,onDone}:{batch:any;onDone:()=>void}){
   e.preventDefault();setBusy(true);const f=new FormData(e.currentTarget);const weight=Number(f.get("weight"));const sample=Number(f.get("sample"));
   if(!Number.isFinite(weight)||weight<=0||!Number.isInteger(sample)||sample<1||sample>Number(batch.current_headcount)){setBusy(false);return toast.error("Confira o peso e o tamanho da amostra.");}
   const {error}=await db.from("batch_weights").insert({batch_id:batch.id,weigh_date:String(f.get("date")),average_weight_kg:weight,sample_size:sample,notes:String(f.get("notes")||"")||null});
-  setBusy(false);if(error)return toast.error(error.message);toast.success("Pesagem registrada");onDone();close();
+  setBusy(false);if(error)return toast.error(friendlyError(error));toast.success("Pesagem registrada");onDone();close();
  }}>
   <p className="text-sm text-muted-foreground">Lote com {batch.current_headcount} animais. Informe o peso médio da amostra, não o peso total.</p>
   <Field label="Data"><Input name="date" type="date" defaultValue={todayISO()} required className="h-11"/></Field>

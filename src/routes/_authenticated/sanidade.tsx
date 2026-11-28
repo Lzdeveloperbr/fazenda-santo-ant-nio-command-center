@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { todayISO, fmtDate, addDaysISO } from "@/lib/farm";
 import { BOOK_SOURCE, DISEASE_DOMAINS, MONITORING_TYPES, CLINICAL_INDICATORS, HERD_VISIT_AREAS, SAMPLE_WORKFLOW, BOOK_REFERENCES } from "@/lib/farm/manual-sanitario";
+import { friendlyError } from "@/lib/errors";
 
 const db = supabase as any;
 const inputCls = "h-10 w-full rounded-md border border-input bg-background px-3 text-sm";
@@ -43,7 +44,7 @@ async function insertRow(table: string, payload: Record<string, unknown>, close:
   setBusy(true);
   const {error}=await db.from(table).insert(payload);
   setBusy(false);
-  if(error){toast.error(error.message);return;}
+  if(error){toast.error(friendlyError(error));return;}
   toast.success("Registro salvo no histórico da granja.");
   close();
   onDone();

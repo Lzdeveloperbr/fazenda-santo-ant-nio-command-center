@@ -29,6 +29,7 @@ import {
 } from "@/lib/farm/litter-care";
 import { norm } from "@/lib/farm/vaccine-map";
 import { usePermissions } from "@/lib/access";
+import { friendlyError } from "@/lib/errors";
 
 const TONE: Record<LitterState, string> = {
   atrasada: "border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-300",
@@ -44,10 +45,7 @@ const ICON: Record<LitterState, typeof Clock> = {
   programada: CalendarClock,
   feito: CheckCircle2,
 };
-const errMsg = (e: unknown) =>
-  e && typeof e === "object" && "message" in e
-    ? String((e as { message: string }).message)
-    : "Não foi possível salvar.";
+const errMsg = (e: unknown) => friendlyError(e);
 const daysSince = (from: string, to: string) =>
   Math.round((Date.parse(to) - Date.parse(from)) / 86_400_000);
 

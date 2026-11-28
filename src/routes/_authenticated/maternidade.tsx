@@ -15,6 +15,7 @@ import { OUTCOME_MESSAGE, useOfflineSave } from "@/components/farm/OfflineSync";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { friendlyError } from "@/lib/errors";
 
 export const Route = createFileRoute("/_authenticated/maternidade")({
   head: () => ({
@@ -133,7 +134,7 @@ function ArchiveLitter({ l, tag, onDone }: { l: Litter; tag: string; onDone: () 
           farrowing_notes: farrowingNotes,
         }).eq("id", l.id).eq("status", "maternidade").select("id").single();
         setBusy(false);
-        if (error) { toast.error(error.message); return; }
+        if (error) { toast.error(friendlyError(error)); return; }
         toast.success("Cadastro arquivado. Dados e histórico preservados.");
         onDone();
         close();
@@ -176,12 +177,12 @@ function EventAction({ a, l, tag, live, onDone }: { a: (typeof ACTIONS)[number];
           const { error } = await supabase.from("litter_events").insert(row as never);
           if (!error) await supabase.from("sows").update({ status: "vazia" }).eq("id", l.sow_id);
           setBusy(false);
-          if (error) { toast.error(error.message); return; }
+          if (error) { toast.error(friendlyError(error)); return; }
           toast.success("Desmame salvo no servidor."); onDone(); close(); return;
         }
         const outcome = await saveOffline("litter_events", row, `${a.label} · ${tag} · ${String(f.get("date")).split("-").reverse().join("/")}`);
         setBusy(false);
-        if (outcome.state === "erro") { toast.error(outcome.message); return; }
+        if (outcome.state === "erro") { toast.error(friendlyError(outcome)); return; }
         if (outcome.state === "na_fila") toast.warning(OUTCOME_MESSAGE.na_fila); else toast.success(OUTCOME_MESSAGE.salvo);
         onDone(); close();
       }}>
@@ -246,7 +247,7 @@ function AdoptionAction({ l, tag, live, others, onDone }: { l: Litter; tag: stri
         setBusy(true);
         const { error } = await supabase.rpc("transfer_piglets", { p_from: l.id, p_to: String(f.get("to")), p_quantity: qty, p_date: String(f.get("date")), p_reason: String(f.get("reason") || ""), p_responsible: String(f.get("responsible") || "") });
         setBusy(false);
-        if (error) { toast.error(error.message); return; }
+        if (error) { toast.error(friendlyError(error)); return; }
         toast.success("Adoção registrada nas duas leitegadas."); onDone(); close();
       }}>
         <p className="rounded-lg bg-muted p-3 text-xs leading-5 text-muted-foreground">Registra a saída desta leitegada e a entrada na receptora numa única operação: se uma falhar, nenhuma é gravada.</p>

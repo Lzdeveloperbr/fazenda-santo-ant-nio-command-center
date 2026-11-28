@@ -29,6 +29,7 @@ import {
   validateCondition,
 } from "@/lib/farm/repro-extras";
 import { usePermissions } from "@/lib/access";
+import { friendlyError } from "@/lib/errors";
 
 const txt = (f: FormData, k: string) => {
   const v = String(f.get(k) ?? "").trim();
@@ -380,7 +381,7 @@ function NewHeat({ sows }: { sows: Sow[] }) {
               });
             setBusy(false);
             if (error) {
-              toast.error(error.message);
+              toast.error(friendlyError(error));
               return;
             }
             toast.success("Cio registrado.");
@@ -478,7 +479,7 @@ function EndHeat({ id, startedAt }: { id: string; startedAt: string }) {
               .eq("id", id);
             setBusy(false);
             if (error) {
-              toast.error(error.message);
+              toast.error(friendlyError(error));
               return;
             }
             toast.success("Término registrado.");
@@ -610,7 +611,7 @@ function NewCondition({ sow }: { sow: Sow }) {
               });
             setBusy(false);
             if (error) {
-              toast.error(error.message);
+              toast.error(friendlyError(error));
               return;
             }
             toast.success("Registro salvo.");
@@ -804,7 +805,7 @@ function FeedPlanDialog({ plan }: { plan?: FeedPlan }) {
               : await supabase.from("feed_plans").insert(payload);
             setBusy(false);
             if (error) {
-              toast.error(error.message);
+              toast.error(friendlyError(error));
               return;
             }
             toast.success(

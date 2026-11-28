@@ -9,6 +9,7 @@ import { SectionTitle, Empty } from "@/components/farm/Kpi";
 import { FormDialog, SubmitRow, Field, selectCls } from "@/components/farm/FormDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { friendlyError } from "@/lib/errors";
 
 export const Route = createFileRoute("/_authenticated/tarefas")({
   head: () => ({ meta: [
@@ -50,13 +51,13 @@ function Tarefas() {
 
   async function complete(t: Task) {
     const { error } = await supabase.from("tasks").update({ status: "concluida", completed_at: new Date().toISOString() }).eq("id", t.id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("Tarefa concluída"); refresh();
   }
   async function cancel(t: Task) {
     if (!confirm(`Cancelar a tarefa “${t.title}”? Ela continuará disponível no histórico.`)) return;
     const { error } = await supabase.from("tasks").update({ status: "cancelada", completed_at: null }).eq("id", t.id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(friendlyError(error)); return; }
     toast.success("Tarefa cancelada e preservada no histórico.");
     refresh();
   }
@@ -147,11 +148,11 @@ function QuickRoutine({onDone}:{onDone:()=>void}) {
     setBusy(true);
     const date=todayISO();
     const {data:existing,error:lookupError}=await supabase.from("tasks").select("id").eq("title",title).eq("sector",sector).eq("due_date",date).neq("status","concluida").limit(1);
-    if(lookupError){setBusy(false);toast.error(lookupError.message);return;}
+    if(lookupError){setBusy(false);toast.error(friendlyError(lookupError));return;}
     if(existing?.length){setBusy(false);toast.info("Essa rotina já está aberta para hoje.");setOpen(false);return;}
     const{error}=await supabase.from("tasks").insert({title,priority:"media",sector,due_date:date});
     setBusy(false);
-    if(error){toast.error(error.message);return;}
+    if(error){toast.error(friendlyError(error));return;}
     toast.success("Rotina adicionada às tarefas de hoje");
     setOpen(false);onDone();
   }
@@ -178,7 +179,7 @@ function NewTask({ profiles, onDone }: { profiles: { id: string; display_name: s
             due_date: String(f.get("due") || "") || null, assignee_id: String(f.get("who") || "") || null, sow_id: String(f.get("sow") || "") || null,
           });
           setBusy(false);
-          if (error) { toast.error(error.message); return; }
+          if (error) { toast.error(friendlyError(error)); return; }
           toast.success("Tarefa criada"); onDone(); close();
         }}>
           <Field label="Tarefa *"><Input name="title" required className="h-11" /></Field>
