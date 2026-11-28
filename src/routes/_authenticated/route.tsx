@@ -7,6 +7,7 @@ import { InstallAppButton } from "@/components/farm/InstallAppButton";
 import { GlobalSearchResults } from "@/components/farm/GlobalSearchResults";
 import { RemindersBell } from "@/components/farm/RemindersBell";
 import { FavoriteButton } from "@/components/farm/Favorites";
+import { SchemaBanner } from "@/components/farm/SystemStatus";
 import { SyncStatus, useOnline } from "@/components/farm/OfflineSync";
 import { supabase } from "@/integrations/supabase/client";
 import { Wordmark, LogoMark } from "@/components/farm/Logo";
@@ -164,6 +165,7 @@ function Shell(){
   </header>
 
   <main key={active?.to} className="animate-rise mx-auto min-h-[calc(100vh-64px)] max-w-[1600px] px-4 py-6 pb-28 md:px-8 md:py-8 md:pb-10">
+   <SchemaBanner/>
    {access.isLoading?(online?<div className="panel p-8 text-center text-sm text-muted-foreground">Preparando o ambiente da fazenda…</div>:<div className="panel mx-auto mt-10 max-w-md p-6 text-center"><p className="label-tech">Sem conexão</p><p className="mt-3 text-sm text-muted-foreground">O aplicativo abriu, mas os dados da granja só são carregados com internet: este aparelho não guarda uma cópia do banco. Assim que a conexão voltar, tudo aparece. Registros feitos durante uma queda de conexão, com o app já aberto, ficam guardados e são enviados depois.</p></div>):access.isError?<div className="panel mx-auto mt-10 max-w-md p-6 text-center"><p className="label-tech">Sem conexão com os dados</p><p className="mt-3 text-sm text-muted-foreground">Não foi possível verificar seu acesso. Confira a internet e tente de novo.</p><button onClick={()=>access.refetch()} className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Tentar de novo</button></div>:access.data&&!access.data.member?<div className="panel mx-auto mt-10 max-w-md p-6 text-center"><p className="label-tech">Acesso restrito</p><p className="mt-3 text-sm text-muted-foreground">Sua conta existe, mas está sem acesso aos dados da fazenda: ainda não foi autorizada ou foi desativada. Fale com o administrador da granja.</p></div>:<>{role==="consulta"&&<div role="status" className="mb-5 flex items-center gap-2 rounded-xl border border-border bg-muted/60 px-4 py-3 text-sm text-muted-foreground"><Eye className="h-4 w-4 shrink-0"/>Perfil Consulta: você pode ver tudo, mas o banco recusa inclusões, alterações e exclusões.</div>}<Outlet/></>}
   </main>
 

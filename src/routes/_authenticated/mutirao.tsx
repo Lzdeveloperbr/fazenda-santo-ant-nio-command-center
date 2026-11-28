@@ -10,6 +10,7 @@ import { Empty, SectionTitle } from "@/components/farm/Kpi";
 import { FormDialog, Field, SubmitRow, selectCls } from "@/components/farm/FormDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { friendlyError } from "@/lib/errors";
 
 export const Route = createFileRoute("/_authenticated/mutirao")({
   head: () => ({ meta: [
@@ -73,7 +74,7 @@ function CheckDialog({ sow }: { sow: Sow }) {
   return <FormDialog title={`Conferir ${sow.ear_tag}`} trigger={<Button size="sm" variant="outline" className="w-full"><ClipboardCheck className="mr-2 h-4 w-4" />Registrar conferência</Button>}>{(close) =>
     <form className="space-y-4" onSubmit={async (e) => { e.preventDefault(); setBusy(true); const f = new FormData(e.currentTarget); const pig = String(f.get("piglets") ?? "");
       const { error } = await supabase.from("inventory_checks").insert({ sow_id: sow.id, pen_code: String(f.get("pen") || "") || null, observed_status: String(f.get("obs")), confidence: String(f.get("conf")), piglets_counted: pig === "" ? null : Number(pig), check_date: String(f.get("date")), notes: String(f.get("notes") || "") || null });
-      setBusy(false); if (error) return void toast.error(error.message); toast.success("Conferência salva."); qc.invalidateQueries({ queryKey: ["inventory_checks"] }); close(); }}>
+      setBusy(false); if (error) return void toast.error(friendlyError(error)); toast.success("Conferência salva."); qc.invalidateQueries({ queryKey: ["inventory_checks"] }); close(); }}>
       <div className="grid grid-cols-2 gap-3"><Field label="Data"><Input name="date" type="date" defaultValue={todayISO()} className="h-11" required /></Field><Field label="Baia onde está"><Input name="pen" className="h-11" placeholder="Ex.: M-03" /></Field></div>
       <Field label="O que você viu"><select name="obs" className={selectCls} defaultValue="desconhecida">{Object.entries(OBS).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></Field>
       <Field label="Essa informação é"><select name="conf" className={selectCls} defaultValue="nao_confirmada"><option value="comprovada">Comprovada (vi, tem registro ou exame)</option><option value="nao_confirmada">Não confirmada (achismo, alguém falou)</option></select></Field>

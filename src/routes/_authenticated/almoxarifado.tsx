@@ -24,6 +24,7 @@ import {
 import { MOVEMENT_LABEL, STOCK_CATEGORIES, stockAlerts } from "@/lib/farm/stock";
 import { usePermissions } from "@/lib/access";
 import { downloadCsv } from "@/lib/export";
+import { friendlyError } from "@/lib/errors";
 
 export const Route = createFileRoute("/_authenticated/almoxarifado")({
   head: () => ({
@@ -548,7 +549,7 @@ function MovementDialog({ item }: { item: StockItem }) {
               });
             setBusy(false);
             if (error) {
-              toast.error(error.message);
+              toast.error(friendlyError(error));
               return;
             }
             toast.success("Movimentação registrada no servidor.");

@@ -13,6 +13,7 @@ import {
 } from "@/lib/farm/gestation";
 import { farmSettingsQuery, settingsToRow, validateExtraDays } from "@/lib/farm/farm-settings";
 import { usePermissions } from "@/lib/access";
+import { friendlyError } from "@/lib/errors";
 
 const GESTATION_FIELDS = [
   ["heatPrep", "Preparar observação de cio (dia)"],
@@ -69,7 +70,7 @@ export function FarmSettingsForm() {
       .eq("id", true);
     setBusy(false);
     if (error) {
-      toast.error(error.message);
+      toast.error(friendlyError(error));
       return;
     }
     toast.success("Parâmetros salvos para toda a granja.");

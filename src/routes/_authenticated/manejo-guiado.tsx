@@ -34,6 +34,7 @@ import {
 } from "@/lib/farm/flows";
 import { semenState } from "@/lib/farm/repro-extras";
 import { usePermissions } from "@/lib/access";
+import { friendlyError } from "@/lib/errors";
 
 export const Route = createFileRoute("/_authenticated/manejo-guiado")({
   head: () => ({
@@ -70,10 +71,7 @@ const FLOWS: { id: Flow; title: string; text: string; icon: typeof Baby }[] = [
   },
 ];
 const num = (v: string) => (v.trim() === "" ? null : Number(v.replace(",", ".")));
-const errMsg = (e: unknown) =>
-  e && typeof e === "object" && "message" in e
-    ? String((e as { message: string }).message)
-    : "Não foi possível gravar.";
+const errMsg = (e: unknown) => friendlyError(e);
 
 function ManejoGuiado() {
   const perms = usePermissions();

@@ -30,6 +30,7 @@ import {
 import { addDays } from "@/lib/farm/gestation";
 import { AGENDA_KIND_LABEL, type AgendaItem, type AgendaKind } from "@/lib/farm/agenda";
 import { usePermissions } from "@/lib/access";
+import { friendlyError } from "@/lib/errors";
 
 export const Route = createFileRoute("/_authenticated/agenda")({
   head: () => ({
@@ -312,7 +313,7 @@ function AgendaRow({ item, today }: { item: AgendaItem; today: string }) {
       .update({ status: item.done ? "pendente" : "concluida" })
       .eq("id", item.taskId);
     if (error) {
-      toast.error(error.message);
+      toast.error(friendlyError(error));
       return;
     }
     toast.success(
@@ -534,7 +535,7 @@ function ProtocolDialog({ protocol }: { protocol?: HealthProtocol }) {
               : await supabase.from("health_protocols").insert(payload);
             setBusy(false);
             if (error) {
-              toast.error(error.message);
+              toast.error(friendlyError(error));
               return;
             }
             toast.success(

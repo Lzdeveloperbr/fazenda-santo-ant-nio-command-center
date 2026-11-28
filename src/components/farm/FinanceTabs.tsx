@@ -30,6 +30,7 @@ import {
 } from "@/lib/farm/finance";
 import { usePermissions } from "@/lib/access";
 import { downloadCsv } from "@/lib/export";
+import { friendlyError } from "@/lib/errors";
 
 const brl = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 const batchesQuery = {
@@ -114,7 +115,7 @@ function PayDialog({ item }: { item: OpenItem }) {
               .eq("status", "pendente");
             setBusy(false);
             if (error) {
-              toast.error(error.message);
+              toast.error(friendlyError(error));
               return;
             }
             toast.success(`${verb[0]!.toUpperCase()}${verb.slice(1)} registrado.`);

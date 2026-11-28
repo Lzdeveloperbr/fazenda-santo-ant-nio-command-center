@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BrandLockup, LogoMark } from "@/components/farm/Logo";
+import { friendlyError } from "@/lib/errors";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -69,7 +70,7 @@ function AuthPage() {
     try {
       if (mode === "in") {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) toast.error("E-mail ou senha incorretos");
+        if (error) toast.error(friendlyError(error));
       } else if (mode === "up") {
         const { data, error } = await supabase.auth.signUp({
           email,
@@ -79,7 +80,7 @@ function AuthPage() {
             data: { display_name: name, farm_code: farmCode.trim().toUpperCase() },
           },
         });
-        if (error) toast.error(error.message);
+        if (error) toast.error(friendlyError(error));
         else if (!data.session)
           toast.success("Conta criada. Confirme pelo link enviado ao seu e-mail.");
       } else if (mode === "forgot") {
@@ -108,7 +109,7 @@ function AuthPage() {
           toast.error(
             error.message.includes("session")
               ? "O link expirou. Peça um novo em “Esqueci minha senha”."
-              : error.message,
+              : friendlyError(error),
           );
         else {
           toast.success("Senha alterada.");

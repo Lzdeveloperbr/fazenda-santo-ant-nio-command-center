@@ -24,6 +24,7 @@ import {
 } from "@/lib/farm";
 import { buildSowTimeline, TIMELINE_KIND_LABEL, type TimelineKind } from "@/lib/farm/sow-profile";
 import { usePermissions } from "@/lib/access";
+import { friendlyError } from "@/lib/errors";
 
 const MAX_PHOTO = 5 * 1024 * 1024;
 
@@ -97,7 +98,7 @@ export function SowPhoto({ sow }: { sow: Sow }) {
     const { error } = await supabase.from("sows").update({ photo_path: path }).eq("id", sow.id);
     setBusy(false);
     if (error) {
-      toast.error(error.message);
+      toast.error(friendlyError(error));
       return;
     }
     toast.success("Foto salva no servidor.");
@@ -109,7 +110,7 @@ export function SowPhoto({ sow }: { sow: Sow }) {
     const { error } = await supabase.from("sows").update({ photo_path: null }).eq("id", sow.id);
     setBusy(false);
     if (error) {
-      toast.error(error.message);
+      toast.error(friendlyError(error));
       return;
     }
     toast.success("Foto desvinculada da ficha (o arquivo anterior fica guardado).");
@@ -191,7 +192,7 @@ export function ArchiveSowButton({ sow }: { sow: Sow }) {
             .eq("id", sow.id);
           setBusy(false);
           if (error) {
-            toast.error(error.message);
+            toast.error(friendlyError(error));
             return;
           }
           toast.success("Cadastro reativado.");
@@ -229,7 +230,7 @@ export function ArchiveSowButton({ sow }: { sow: Sow }) {
               .eq("id", sow.id);
             setBusy(false);
             if (error) {
-              toast.error(error.message);
+              toast.error(friendlyError(error));
               return;
             }
             toast.success(

@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Empty, SectionTitle } from "@/components/farm/Kpi";
 import { Field } from "@/components/farm/FormDialog";
 import { FarmSettingsForm } from "@/components/farm/FarmSettingsForm";
+import { SystemStatus } from "@/components/farm/SystemStatus";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,6 +16,7 @@ import { farmQuery, type Farm } from "@/lib/farm";
 import { usePermissions } from "@/lib/access";
 import { download } from "@/lib/export";
 import { BACKUP_TABLES, buildBackup, verifyBackup } from "@/lib/backup";
+import { friendlyError } from "@/lib/errors";
 
 export const Route = createFileRoute("/_authenticated/configuracoes")({
   head: () => ({
@@ -34,11 +36,12 @@ function Configuracoes() {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <SectionTitle kicker="Gestão" title="Configurações da granja" />
-      <Tabs defaultValue="granja">
+      <Tabs defaultValue={(typeof window !== "undefined" && new URLSearchParams(window.location.search).get("aba")) || "granja"}>
         <TabsList className="max-w-full justify-start overflow-x-auto">
           <TabsTrigger value="granja">Dados da granja</TabsTrigger>
           <TabsTrigger value="parametros">Parâmetros de manejo</TabsTrigger>
           {perms?.canViewAudit && <TabsTrigger value="backup">Cópia de segurança</TabsTrigger>}
+          {perms?.canViewAudit && <TabsTrigger value="sistema">Sistema</TabsTrigger>}
         </TabsList>
         <TabsContent value="granja" className="mt-4">
           <FarmData canEdit={!!perms?.canManageUsers} />
@@ -49,6 +52,11 @@ function Configuracoes() {
         {perms?.canViewAudit && (
           <TabsContent value="backup" className="mt-4">
             <Backup />
+          </TabsContent>
+        )}
+        {perms?.canViewAudit && (
+          <TabsContent value="sistema" className="mt-4">
+            <SystemStatus />
           </TabsContent>
         )}
       </Tabs>
@@ -87,7 +95,7 @@ function FarmData({ canEdit }: { canEdit: boolean }) {
       .eq("id", f.id);
     setBusy(false);
     if (error) {
-      toast.error(error.message);
+      toast.error(friendlyError(error));
       return;
     }
     toast.success("Dados da granja salvos.");

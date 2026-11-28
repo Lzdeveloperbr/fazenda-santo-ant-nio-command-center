@@ -8,6 +8,7 @@ import { Empty, SectionTitle } from "@/components/farm/Kpi";
 import { Button } from "@/components/ui/button";
 import { selectCls } from "@/components/farm/FormDialog";
 import { accessQuery, isRole, ROLE_INFO, ROLES, type Role } from "@/lib/access";
+import { friendlyError } from "@/lib/errors";
 
 export const Route = createFileRoute("/_authenticated/usuarios")({
   head: () => ({
@@ -57,7 +58,7 @@ function Usuarios() {
     });
     setBusy(null);
     if (error) {
-      toast.error(error.message);
+      toast.error(friendlyError(error));
       return;
     }
     toast.success("Perfil atualizado no servidor.");

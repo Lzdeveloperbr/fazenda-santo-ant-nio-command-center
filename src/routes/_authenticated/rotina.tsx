@@ -27,6 +27,7 @@ import {
   SHIFT_LABEL,
   summarizeActivity,
 } from "@/lib/farm/team";
+import { friendlyError } from "@/lib/errors";
 
 export const Route = createFileRoute("/_authenticated/rotina")({
   head: () => ({
@@ -41,10 +42,7 @@ export const Route = createFileRoute("/_authenticated/rotina")({
   component: Rotina,
 });
 
-const errMsg = (e: unknown) =>
-  e && typeof e === "object" && "message" in e
-    ? String((e as { message: string }).message)
-    : "Não foi possível salvar.";
+const errMsg = (e: unknown) => friendlyError(e);
 const time = (iso: string) =>
   new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 
